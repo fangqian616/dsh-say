@@ -182,5 +182,25 @@ const small = summarizeLocally(longSentences, 100)
 const large = summarizeLocally(longSentences, 200)
 check('a larger budget yields more text', large.text.length > small.text.length, `${small.text.length} vs ${large.text.length}`)
 
+console.log('\n11. a hash is never spoken, and pronounceable numbers survive')
+// A synthesizer reading a digest aloud yields letter names ("四 f 七九 ae 三")
+// that a listener cannot hold or use, and it crowds out the sentence that
+// carried the outcome. The filter has to be narrow, though: a version tag and
+// a count are pronounceable and are often the only thing that matters.
+const hashed = [
+  '构建产物 app.a3f9c21b7e4d.js 已上传，commit 4d998ffb3c2a 推到了 main。',
+  '4d998ffb3c2aa16b 校验通过，文件大小 305865390 字节。',
+  '全部测试通过，版本升级到 3.18.2，耗时 3.5 秒，重试 2 次。',
+].join('')
+const spoken = stripForSpeech(hashed)
+console.log(`     spoken: ${spoken}`)
+check('a filename hash is removed, leaving the extension', spoken.includes('app.js'))
+check('no stray double dot is left behind', !/\.\./.test(spoken))
+check('a bare commit hash is removed', !/4d998ffb3c2a/.test(spoken))
+check('a line-leading hash is removed', !/4d998ffb3c2aa16b/.test(spoken))
+check('a version tag is pronounceable and kept', spoken.includes('3.18.2'))
+check('a large count is kept', spoken.includes('305865390'))
+check('a decimal duration is kept', spoken.includes('3.5'))
+
 console.log(`\n${failures === 0 ? 'ALL CHECKS PASSED' : `${failures} CHECK(S) FAILED`}`)
 process.exit(failures === 0 ? 0 : 1)

@@ -8,6 +8,11 @@
     ".": "./lib/index.js",
     "./package.json": "./package.json"
   },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
   "files": [
     "lib",
     "skills",
@@ -15,6 +20,7 @@
     "docs",
     "voice",
     "scripts",
+    "cordis.patch.yml",
     "README.md",
     "CONTRIBUTING.md",
     "LICENSE"
@@ -35,12 +41,13 @@
     "node": ">=20"
   },
   "scripts": {
-    "test": "node test/smoke.mjs && node test/gptsovits.mjs && node test/summarize.mjs && node test/onboarding.mjs && node test/auto-report.mjs && node test/settings.mjs",
+    "test": "node test/smoke.mjs && node test/gptsovits.mjs && node test/summarize.mjs && node test/onboarding.mjs && node test/auto-report.mjs && node test/settings.mjs && node test/bundle.mjs",
     "test:audible": "node test/play.mjs",
     "test:smoke": "node test/smoke.mjs",
     "test:summarize": "node test/summarize.mjs",
     "test:onboarding": "node test/onboarding.mjs",
-    "test:settings": "node test/settings.mjs"
+    "test:settings": "node test/settings.mjs",
+    "test:bundle": "node test/bundle.mjs"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "*",

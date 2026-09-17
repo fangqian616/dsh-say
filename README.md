@@ -23,36 +23,55 @@
 
 ## ⚡ 三分钟上手
 
-> **第 1、2 步不需要下载任何东西。** 默认走你操作系统自带的语音 —— 不用 Python、不用显卡、不用账号。
+> **不需要下载任何东西。** 默认走你操作系统自带的语音 —— 不用 Python、不用显卡、不用账号。
 
 ### 1 · 装插件
 
-**你不用手改配置文件。** 启用脚本会代劳 —— 追加配置行、备份原文件、并在写入前用 YAML 解析器校验结果：
-
 ```sh
-node scripts/install-profile.mjs --profile web --print   # 先看会改什么，不写文件
-node scripts/install-profile.mjs --profile web           # 再执行
-dsh plugin --profile web install                         # 解析新增的依赖
+dsh plugin --profile web add dsh-voice
 ```
 
-**然后重启 profile** —— 这一步必须由你做，脚本没法替你重启你正开着的会话。
+**然后重启 profile** —— 这一步必须由你做，命令行没法替你重启你正开着的会话。
 
-> 如果智能体已经能读到仓库，直接说一句 **"装上这个语音插件"** 就行。它会用 `voice-setup` skill 走完上面三步，并且在没重启之前不会谎称装好了。
+装完就结束。这条命令会把包装好、登记进 profile、并自动应用本包自带的组合层，`tts_*` 工具在重启后出现。
 
 <details>
-<summary><b>那两行配置到底写在哪</b></summary>
+<summary><b>还没发布到 npm？用 git 地址装（首次需要放行构建）</b></summary>
 
 <br>
 
-profile 根目录的 `cordis.yml` 是空的，它自己写着不要改它。真正的用户层是 `cordis.patch.yml` —— 一个 YAML 数组，脚本会往里面追加：
-
-```yaml
-{ id: tool-voice, name: dsh-voice, disabled: false }
+```sh
+dsh plugin --profile web add github:fangqian616/dsh-voice
 ```
 
-这是机器可读的结构化数据，所以交给脚本，而不是让你手打。
+git 来源的插件靠 `prepare` 脚本构建，pnpm 默认拦着。`dsh plugin` 会直接打印出要放行的那个键 —— 把它加到 profile 目录的 `pnpm-workspace.yaml` 的 `allowBuilds` 下，再重跑一次即可。发布到 npm 之后就不需要这一步。
 
 </details>
+
+<details>
+<summary><b>它在 profile 里动什么</b></summary>
+
+<br>
+
+profile 根目录的 `cordis.yml` 是空的，它自己写着不要改它。真正的用户层是 `cordis.patch.yml`，**但这里也不用你手写** —— 本包声明了：
+
+```json
+"dsh": { "bundle": { "patch": "./cordis.patch.yml" } }
+```
+
+`dsh plugin add` 识别到这个声明后，会把它列进 profile 的 `dsh.profile.bundles` 层栈，并在启动时套用包内那一行：
+
+```yaml
+- insert:
+    - id: tool-voice
+      name: dsh-voice
+```
+
+这是 dsh 插件的标准打包方式，所以升级、卸载、`dsh plugin list` 都能正常跟踪。
+
+</details>
+
+> 如果智能体已经能读到仓库，直接说一句 **"装上这个语音插件"** 就行。它会用 `voice-setup` skill 走完这一步，并且在没重启之前不会谎称装好了。
 
 ### 2 · 让它说话
 
@@ -229,7 +248,7 @@ The default backend is whatever speech voices your operating system already has,
 dsh plugin --profile web add dsh-voice
 ```
 
-Add the row to your profile composition, restart, then ask the agent to *"say hello out loud"*.
+Restart the profile, then ask the agent to *"say hello out loud"*. The command installs the package, registers it in the profile, and applies the bundle layer this package ships; the `tts_*` tools appear after the restart.
 
 | Tool | Purpose |
 |:--|:--|
