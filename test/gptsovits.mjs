@@ -39,11 +39,12 @@ if (status.available && status.mode === 'local') {
   console.log('     (no local checkout on this machine — skipping weight scan)')
 }
 
-console.log('\n3. helper script compiles')
-// Trigger the engine far enough to write its helper, without running inference.
-const workDir = join(tmpdir(), 'dsh-voice')
-const helper = join(workDir, 'gptsovits_helper.py')
-const emptyPack = {
+console.log('\n3. the engine refuses cleanly when it cannot run')
+// This must hold on a machine with no GPT-SoVITS at all — which is every CI
+// runner. An earlier version of this check asserted that the helper script had
+// been written, which only happened because the maintainer's machine had an
+// engine installed; on a clean checkout the engine declines before writing it.
+const probePack = {
   name: 'compile-probe',
   dir: join(tmpdir(), 'dsh-voice-compile-probe'),
   version: 'v2ProPlus',
@@ -53,28 +54,52 @@ const emptyPack = {
   promptText: '',
   problem: '',
 }
-const compiled = await gptsovits.synthesize({
-  text: 'compile probe',
-  pack: emptyPack,
-  config: {
-    speed: 1,
-    textLang: 'zh',
-    promptLang: 'zh',
-    sampleSteps: 32,
-    timeoutSeconds: 60,
-    engines: { gptSovits: { serverUrl: '', engineRoot: '', python: '', version: 'v2ProPlus', device: 'cpu', isHalf: false } },
-  },
-})
-check('a missing reference is refused before any model work', compiled.ok === false, compiled.reason)
-check('the helper script was written', existsSync(helper))
-if (existsSync(helper)) {
-  try {
-    execFileSync('python', ['-m', 'py_compile', helper], { stdio: 'pipe' })
-    check('the helper script compiles', true)
-  } catch (error) {
-    // A machine without python on PATH cannot compile it; report rather than fail.
-    check('the helper script compiles', false, String(error?.message || error).slice(0, 120))
+const probeConfig = {
+  speed: 1,
+  textLang: 'zh',
+  promptLang: 'zh',
+  sampleSteps: 32,
+  timeoutSeconds: 60,
+  engines: { gptSovits: { serverUrl: '', engineRoot: '', python: '', version: 'v2ProPlus', device: 'cpu', isHalf: false } },
+}
+const compiled = await gptsovits.synthesize({ text: 'compile probe', pack: probePack, config: probeConfig })
+check('an unrunnable engine is refused, not attempted', compiled.ok === false)
+check('the refusal explains itself', typeof compiled.reason === 'string' && compiled.reason.length > 0, compiled.reason)
+if (!status.available) {
+  check('the reason names the missing engine', /no GPT-SoVITS checkout|serverUrl/i.test(compiled.reason || ''), compiled.reason)
+}
+
+// The helper only exists once a real engine is present. When one is, its script
+// must still be valid Python — checked only if this machine has an interpreter,
+// so the check reports rather than fails on a runner without one.
+const workDir = join(tmpdir(), 'dsh-voice')
+const helper = join(workDir, 'gptsovits_helper.py')
+if (status.available && status.mode === 'local') {
+  check('the helper script was written', existsSync(helper))
+  if (existsSync(helper)) {
+    let interpreter = null
+    for (const candidate of ['python', 'python3']) {
+      try {
+        execFileSync(candidate, ['--version'], { stdio: 'pipe' })
+        interpreter = candidate
+        break
+      } catch {
+        /* try the next name */
+      }
+    }
+    if (interpreter) {
+      try {
+        execFileSync(interpreter, ['-m', 'py_compile', helper], { stdio: 'pipe' })
+        check('the helper script compiles', true)
+      } catch (error) {
+        check('the helper script compiles', false, String(error?.message || error).slice(0, 120))
+      }
+    } else {
+      console.log('     (no python on PATH — script compilation not checked)')
+    }
   }
+} else {
+  console.log('     (no local engine — helper script compilation not applicable)')
 }
 
 console.log('\n4. voice pack registration')
