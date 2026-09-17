@@ -31,12 +31,6 @@ jobs:
         # step and no bundler.
         run: npm install --no-audit --no-fund
 
-      - name: Environment report
-        # Printed first so a failure below is readable against the runner's
-        # actual voices and PowerShell availability.
-        run: node -e "console.log(JSON.stringify({platform:process.platform,node:process.version,powershell:require('child_process').execSync('powershell -NoProfile -Command \"$PSVersionTable.PSVersion.ToString()\"').toString().trim()},null,2))"
-        shell: pwsh
-
       - name: Repository hygiene
         # Fails if model weights or audio appear outside voice/, or if published
         # weights are missing their license notice.
