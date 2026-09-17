@@ -4,6 +4,10 @@ node_modules/
 # Generated audio and helper scripts
 *.wav
 !docs/**/*.wav
+# The shipped voice pack's reference clip is committed on purpose: it is small,
+# it is covered by voice/LICENSE.txt, and without it a user cannot verify the
+# setup without fetching the weights first.
+!voice/voice-packs/**/*.wav
 
 # Editor and OS noise
 .DS_Store
@@ -18,9 +22,14 @@ Thumbs.db
 *.ckpt
 *.pth
 *.safetensors
-voice-packs/
+# Root-anchored: an unanchored `voice-packs/` also matches voice/voice-packs/,
+# which is exactly the directory this repository means to ship.
+/voice-packs/
 !voice/GPT_weights_*/*.ckpt
 !voice/SoVITS_weights_*/*.pth
+# The shipped pack is small, licensed by voice/LICENSE.txt, and without it a
+# user cannot verify the setup before fetching hundreds of megabytes.
+!voice/voice-packs/**
 
 # A fetched weight archive stays local; users run the fetch script themselves.
 voice/*.zip

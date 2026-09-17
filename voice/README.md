@@ -1,56 +1,72 @@
 # Voice (optional)
 
-A voice pack for the GPT-SoVITS engine. Everything here is optional: dsh-voice
-works without it, using the speech voices your operating system already has.
+A voice pack for the GPT-SoVITS engine, with its reference clip included so the
+setup can be verified the moment it finishes. Everything here is optional:
+dsh-voice works without it, using the speech voices your operating system
+already has.
+
+**Read [LICENSE.txt](LICENSE.txt) first.** 学习与研究用途，禁止商用。最终版权归米哈游所有。
 
 ## Contents
 
 ```
 voice/
-├─ LICENSE.txt            non-commercial notice — read this first
-├─ GPT_weights_v2ProPlus/ the GPT checkpoint
-├─ SoVITS_weights_v2ProPlus/ the SoVITS weights
-└─ reference_audios/      reference clips, one per emotion
+├─ LICENSE.txt              non-commercial notice — read this first
+├─ SOURCE.json              where to fetch the model weights
+└─ voice-packs/
+   └─ silver-wolf/
+      ├─ pack.json          version and expected weight paths
+      ├─ ref.wav            参考音（3-10 秒干净人声）
+      └─ ref.txt            参考音的逐字文本
 ```
 
-## Installing it
+The model weights are **not** here. They are hundreds of megabytes and
+non-commercial, so they live outside the repository and are fetched on demand.
 
-Point the engine at these weights, then register the pack. With a GPT-SoVITS
-checkout at `$ENGINE`:
+## Install
+
+Two steps, and the second is the one people get wrong: GPT-SoVITS loads weights
+only from its own directories, so they must be copied into the checkout before
+dsh-voice can point at them. The installer does both.
 
 ```sh
-cp voice/GPT_weights_v2ProPlus/*      "$ENGINE/GPT_weights_v2ProPlus/"
-cp voice/SoVITS_weights_v2ProPlus/*   "$ENGINE/SoVITS_weights_v2ProPlus/"
+# 1. get the weights (or copy them into voice/ yourself)
+node scripts/fetch-voice.mjs --from "D:/downloads/voice.zip"
+
+# 2. copy them into the engine and register the pack
+node scripts/install-voice.mjs
 ```
 
-Then tell your agent, naming the reference clip you want as the voice's tone:
+If the weights already sit somewhere else, say so instead of moving them:
 
-> register a voice pack named "silver" using
-> voice/reference_audios/【中立】…wav as the reference,
-> gpt=GPT_weights_v2ProPlus/<file>.ckpt,
-> sovits=SoVITS_weights_v2ProPlus/<file>.pth
+```sh
+node scripts/install-voice.mjs --weights "D:/GPT-SoVITS" --engine "D:/GPT-SoVITS"
+```
 
-The reference filenames carry their own transcripts, so the pack publisher's
-naming is the transcript. See [../docs/VOICES.md](../docs/VOICES.md) for why the
-reference clip matters more than any parameter.
+The installer prints the registered pack name when it finishes. Then ask your
+agent to speak, or run:
+
+```sh
+node local/verify-pack.mjs silver-wolf "测试一句"
+```
+
+## What you get
+
+One voice, `silver-wolf`, using the 【开心】 reference clip. The pack publisher
+names each clip after its own transcript, so `ref.txt` needed no transcription.
+
+The three emotion clips that ship with the archive sound nearly identical in
+this model — the training set appears to carry too little emotional range for
+the reference to move the output. One reference is enough; registering several
+is cheap if you want to compare.
 
 ## Before you use it
 
-Read [LICENSE.txt](LICENSE.txt). **学习与研究用途，禁止商用。最终版权归米哈游所有。**
+Read [LICENSE.txt](LICENSE.txt). The weights reproduce a character voice, and
+rights to the character and the voice belong to their owner — which is why the
+notice says so explicitly. Keep it non-commercial, and think twice before
+publishing anything you make with it.
 
-The weights live outside this repository — the project stays small, and a large
-binary in Git helps nobody. Fetch them, then install:
-
-```sh
-node scripts/fetch-voice.mjs                 # downloads into voice/ from the URL in voice/SOURCE.json
-```
-
-If you already have the archive locally, pass it instead of downloading:
-
-```sh
-node scripts/fetch-voice.mjs --from "D:/downloads/voice.zip"
-```
-
-The weights reproduce a character voice. Rights to the character and the voice
-belong to their owner, which is why the notice above says so explicitly — keep
-this non-commercial, and think twice before publishing anything you make with it.
+If you want a voice you can redistribute freely, use a permissively licensed
+dataset instead; [../docs/VOICE-LICENSING.md](../docs/VOICE-LICENSING.md) lists
+several with their terms.

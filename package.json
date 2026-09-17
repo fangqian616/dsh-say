@@ -13,8 +13,12 @@
     "skills",
     "soul",
     "docs",
+    "voice",
+    "scripts",
     "README.md",
     "README.zh.md",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
     "LICENSE"
   ],
   "keywords": [

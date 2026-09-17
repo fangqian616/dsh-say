@@ -53,9 +53,41 @@ voice packs: 0 in ~/.dsh/voice-packs
 
 Read this first whenever nothing is audible — it names the exact reason.
 
-## 4. Optional: a better voice (the rest of the time)
+## 4. A test voice that ships with the project (5 minutes)
 
-Only if you want character voices instead of system ones. You need a GPT-SoVITS checkout and a **voice you are allowed to use** — see [VOICES.md](VOICES.md) for what that means.
+Want to hear a character voice rather than the system one? This repository
+carries one ready to install: **`silver-wolf`**, with its reference clip
+included. Only the model weights are missing, because they are hundreds of
+megabytes and must be fetched separately.
+
+```sh
+# 1. get the weights (or copy them into voice/ yourself)
+node scripts/fetch-voice.mjs --from "D:/path/to/weights.zip"
+
+# 2. copy them into GPT-SoVITS and register the pack
+node scripts/install-voice.mjs
+```
+
+If GPT-SoVITS is not where the installer looks, name it:
+
+```sh
+node scripts/install-voice.mjs --engine "D:/GPT-SoVITS" --weights "D:/GPT-SoVITS"
+```
+
+Then ask your agent:
+
+> say "设置完成，这条声线可以用" using the silver-wolf voice
+
+**Read [../voice/LICENSE.txt](../voice/LICENSE.txt) before using it:**
+学习与研究用途，禁止商用，最终版权归米哈游所有. If you need a voice you may
+redistribute freely, use a permissively licensed dataset —
+[VOICE-LICENSING.md](VOICE-LICENSING.md) lists several.
+
+## 5. Optional: your own voice (the rest of the time)
+
+If you want a voice that is not in this repository, bring your own. You need a
+GPT-SoVITS checkout and material **you are allowed to use** — see
+[VOICES.md](VOICES.md) for what that means.
 
 ```sh
 git clone https://github.com/RVC-Boss/GPT-SoVITS
@@ -66,7 +98,8 @@ Drop the model's weights in place, then register the pack:
 
 > register a voice pack named "narrator" using C:\voices\narrator.wav (transcript: "这是一段参考音频。"), gpt=GPT_weights_v4/narrator-e10.ckpt, sovits=SoVITS_weights_v4/narrator_e10_s220.pth
 
-From then on, `tts_speak` uses it automatically — `engine: auto` prefers GPT-SoVITS as soon as a healthy pack exists, so nothing else changes.
+From then on, `tts_speak` uses it automatically — `engine: auto` prefers
+GPT-SoVITS as soon as a healthy pack exists, so nothing else changes.
 
 ## Common first-run surprises
 

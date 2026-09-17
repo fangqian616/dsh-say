@@ -53,9 +53,33 @@ voice packs: 0 in ~/.dsh/voice-packs
 
 **没声音时先跑这个**，它会指出确切原因。
 
-## 4. 可选：更好的嗓子（后续）
+## 4. 项目自带的测试声线（5 分钟）
 
-只有想要角色声线、不满足于系统语音时才做。你需要一个 GPT-SoVITS 检出，以及**你有权使用的声音** —— 说明见 [VOICES.md](VOICES.md)。
+想听角色声线而不是系统语音？**本仓库自带一条可以直接装的**：`silver-wolf`，参考音也一并附带。只缺模型权重 —— 它有几百 MB，必须单独取。
+
+```sh
+# 1. 取权重（或者你自己把权重拷进 voice/）
+node scripts/fetch-voice.mjs --from "D:/下载/权重.zip"
+
+# 2. 拷进 GPT-SoVITS 并登记声线
+node scripts/install-voice.mjs
+```
+
+如果 GPT-SoVITS 不在脚本默认找的位置，指定一下：
+
+```sh
+node scripts/install-voice.mjs --engine "D:/GPT-SoVITS" --weights "D:/GPT-SoVITS"
+```
+
+然后对智能体说：
+
+> 用 silver-wolf 这条声线念一句"设置完成，这条声线可以用"
+
+**用之前请先读 [../voice/LICENSE.txt](../voice/LICENSE.txt)**：学习与研究用途，禁止商用，最终版权归米哈游所有。如果你需要一条能自由分发的声线，请改用许可宽松的数据集 —— 见 [VOICE-LICENSING.zh.md](VOICE-LICENSING.zh.md)。
+
+## 5. 可选：你自己的声线（后续）
+
+想要一条不在本仓库里的声线，就自己带。你需要一个 GPT-SoVITS 检出，以及**你有权使用的声音** —— 说明见 [VOICES.md](VOICES.md)。
 
 ```sh
 git clone https://github.com/RVC-Boss/GPT-SoVITS

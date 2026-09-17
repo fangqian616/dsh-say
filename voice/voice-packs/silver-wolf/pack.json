@@ -1,0 +1,8 @@
+{
+    "version":  "v2ProPlus",
+    "name":  "silver-wolf",
+    "emotion":  "开心",
+    "sovits":  "SoVITS_weights_v2ProPlus/silver-wolf_e10_s120.pth",
+    "gpt":  "GPT_weights_v2ProPlus/silver-wolf-e10.ckpt",
+    "license":  "Learning and research use only. Non-commercial. Rights to the character and voice belong to miHoYo."
+}
