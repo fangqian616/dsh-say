@@ -47,6 +47,31 @@ tts_engines
 
 prints which mode is active, which checkout was found, and which weight files exist inside it.
 
+## Language
+
+The two engines differ here, and the difference is worth knowing before you pick
+one for a non-Chinese session.
+
+**builtin** ships whatever voices the OS has, and those voices are native per
+language: an en-US voice reading English sounds like English. On a machine with
+several installed voices, name the one you want:
+
+> say "deployment finished" using Microsoft Zira Desktop
+
+Mixed text works: a Chinese voice reads the Chinese and stumbles through the
+English word, which is usually the right trade for a report that is mostly one
+language.
+
+**gpt-sovits** is cross-lingual, not multilingual. A pack trained on Chinese
+audio reading English keeps that accent — the model was never taught English
+phonemes. The plugin sends the language with every request (`textLang`), so
+English text at least reaches the English path instead of being read as pinyin,
+but it will still sound like a Chinese speaker reading English.
+
+Practical rule: **use `builtin` for English, `gpt-sovits` for the character
+voice in its own language.** Both tools accept `engine` and `textLang` per call,
+so one session can do both without reconfiguring anything.
+
 ## Why no weights are bundled
 
 Three reasons, and the first alone decides it:
