@@ -1,12 +1,6 @@
 # dsh-voice
 
-**中文** ｜ 给你的 DSH 智能体一副嗓子：把文字从你的音响念出来，汇报也能听着走。装完就能用 —— 默认走系统语音，零下载。
-**English** | Give your DSH agent a voice: speak text aloud through your speakers, reports included. It works the moment you install it — the default backend is your operating system's own voices, with nothing to download.
-
-```
-你 / you：    把早安念出来 / say good morning out loud
-智能体 / agent： [tts_speak] → 从音响念出来 / speaks it through your speakers
-```
+**Give your DSH, speak and report in a voice you like！让你的 DSH 用你喜欢的声音开口说话、汇报内容！**
 
 ## 三分钟上手 / Quick start
 
@@ -96,8 +90,8 @@ From then on `tts_speak` uses it automatically — `engine: auto` prefers GPT-So
 | `tts_engines` | 诊断后端 + 返回当前人设 / Diagnose backends, return the active persona |
 | `tts_voices` | 列出或登记声线 / List or register voice packs |
 
-汇报一律用 `tts_report`。中文语音约 14 字/秒，一份 500 字的汇报整篇念完要 35 秒以上 —— 比读它还慢。
-Always use `tts_report` for a report. Chinese speech runs about 14 characters per second, so a 500-character report read in full takes over 35 seconds — slower than reading it.
+汇报一律用 `tts_report`。中文语音实测约 5 字/秒，一份 500 字的汇报整篇念完要 100 秒 —— 比读它还慢得多。
+Always use `tts_report` for a report. Chinese speech measures about 5 characters per second, so a 500-character report read in full takes around 100 seconds — far slower than reading it.
 
 合成的音频**播放后即删**，除非你传 `saveTo`。 / Audio is **deleted after playback** unless you pass `saveTo`.
 
