@@ -48,6 +48,9 @@ jobs:
       - name: Auto-report wiring
         run: node test/auto-report.mjs
 
+      - name: Settings
+        run: node test/settings.mjs
+
       - name: Audible playback
         # Proves audio actually reaches the output device. On a headless runner
         # this may fail for lack of an audio endpoint, so it is reported but not

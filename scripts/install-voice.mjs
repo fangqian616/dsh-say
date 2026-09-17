@@ -17,6 +17,7 @@
  */
 
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
 import { homedir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -79,13 +80,37 @@ const packConfig = existsSync(join(packDir, 'pack.json'))
   : {}
 const version = packConfig.version || 'v2ProPlus'
 
-// Step 1: the weights, which the archive may have placed anywhere.
+// Step 1: the weights. If they are not here yet, fetch them — the two scripts
+// are one operation from the user's point of view, and asking someone to run
+// `fetch` and then `install` and then work out where the file went is exactly
+// the friction that makes a voice pack feel hard.
+function weightsPresent(dir) {
+  const files = walk(dir)
+  return files.some((file) => file.endsWith('.ckpt')) && files.some((file) => file.endsWith('.pth'))
+}
+
+if (!weightsPresent(weightsDir)) {
+  if (weightsDir !== voiceDir) {
+    console.error(`\nmodel weights are not present in ${weightsDir}.`)
+    console.error('  expected a .ckpt and a .pth somewhere under it')
+    process.exit(1)
+  }
+  console.log('\nweights are not downloaded yet — fetching them now')
+  try {
+    execFileSync(process.execPath, [join(root, 'scripts', 'fetch-voice.mjs')], { stdio: 'inherit' })
+  } catch {
+    console.error('\ncould not fetch the weights automatically.')
+    console.error('  download the archive from the project\'s Releases page and pass it:')
+    console.error('    node scripts/install-voice.mjs --from "<archive.zip>"')
+    process.exit(1)
+  }
+}
+
 const gptFile = walk(weightsDir).find((file) => file.endsWith('.ckpt'))
 const sovitsFile = walk(weightsDir).find((file) => file.endsWith('.pth'))
 if (!gptFile || !sovitsFile) {
-  console.error(`\nmodel weights are not present in ${weightsDir}.`)
+  console.error(`\nmodel weights are still not present in ${weightsDir} after fetching.`)
   console.error('  expected a .ckpt and a .pth somewhere under it')
-  console.error('  fetch them with:  node scripts/fetch-voice.mjs')
   console.error('  or point at where they already are:  --weights "<dir>"')
   process.exit(1)
 }

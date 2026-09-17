@@ -52,16 +52,20 @@ voice packs: 0 in ~/.dsh/voice-packs
 想要角色声线？**本仓库自带一条可以直接装的**：`silver-wolf`，参考音也一并附带，只缺模型权重（几百 MB，必须单独取）。
 Want a character voice? This repository carries one ready to install — **`silver-wolf`** — with its reference clip included. Only the weights are missing, because they are hundreds of megabytes.
 
-```sh
-node scripts/fetch-voice.mjs                     # 取权重 / fetch the weights
-node scripts/install-voice.mjs                   # 装进引擎并登记 / install and register
-```
-
-如果 GPT-SoVITS 不在默认位置 / If GPT-SoVITS is not where the installer looks:
+**一条命令，不用手动下载，也不用自己找文件夹** —— 脚本会自动取权重、自动找你的 GPT-SoVITS、自动放到位并登记。
+**One command. No manual download, and nothing to place by hand** — the script fetches the weights, finds your GPT-SoVITS, installs them and registers the pack.
 
 ```sh
-node scripts/install-voice.mjs --engine "D:/GPT-SoVITS" --weights "D:/GPT-SoVITS"
+node scripts/install-voice.mjs
 ```
+
+找不到 GPT-SoVITS 时才需要告诉它 / Only if it cannot find GPT-SoVITS:
+
+```sh
+node scripts/install-voice.mjs --engine "D:/GPT-SoVITS"
+```
+
+权重已经下好了、在别处？用 `--weights` 指过去，不用搬文件。/ Already downloaded them somewhere else? Point at that directory with `--weights`.
 
 ⚠️ **用之前读一下声明 / read the notice before using it**: 学习与研究用途，禁止商用，最终版权归米哈游所有。详见 [voice/LICENSE.txt](voice/LICENSE.txt) / Learning and research use only, non-commercial; rights to the character and voice belong to miHoYo.
 
@@ -99,24 +103,44 @@ Always use `tts_report` for a report. Chinese speech runs about 14 characters pe
 
 ## 配置 / Configuration
 
-全部可选，默认值即可用 / All optional; the defaults are usable.
+**你不用手改配置文件。** 插件自带一套设置，存在你自己家目录里：
+
+**You do not edit a configuration file.** The plugin keeps its own settings in your home directory:
+
+```
+~/.dsh/voice/config.json
+```
+
+首次加载插件时，它会问你三个问题（声线、人设、要不要自动播报），答案直接写进这个文件。之后想改，**跟智能体说就行**：
+On first load the plugin asks three questions — voice, persona, automatic reporting — and writes the answers there. To change anything later, **just tell the agent**:
+
+> 把语速调到 1.2 / set the speaking rate to 1.2
+> 默认声线换成 silver-wolf / use silver-wolf by default
+> 看看现在的配置 / show me the current settings
+
+它调用 `tts_config` 读写。可用键：
+It uses `tts_config`. Available keys:
+
+| 键 / Key | 作用 / Meaning |
+|---|---|
+| `engine` | `auto` \| `builtin` \| `gpt-sovits` |
+| `defaultVoice` / `defaultVoiceBuiltin` | 默认声线 / default voice pack or OS voice |
+| `speed` | 语速 0.5-2.0 / speaking rate |
+| `textLang` | 朗读文本的语言 / language of the text |
+| `reportBudget` | 汇报保留字数 / characters kept when reporting |
+| `keepAudio` | 是否保留 wav / keep generated wav files |
+| `engines.gptSovits.engineRoot` | GPT-SoVITS 目录 / path to a GPT-SoVITS checkout |
+| `engines.gptSovits.serverUrl` | 或指向已运行的 API / or a running API instead |
+
+**优先级 / Precedence**：用户文件 > 组合里的 `config` > 内置默认。组合配置仍然可用，供部署方固定某个值；但**用户自己设的赢**。
+User file > the composition's `config` > built-in default. A deployment can still pin a value in the composition, but **what the user set wins**.
 
 ```yaml
+# 只有部署方需要固定默认值时才写这段 / only if a deployment must pin a default
 - id: tool-voice
   name: dsh-voice
   config:
-    engine: auto              # auto | builtin | gpt-sovits
-    voicesDir: ~/.dsh/voice-packs
-    defaultVoice: ''          # 首选声线包 / preferred voice pack
-    defaultVoiceBuiltin: ''   # 首选系统语音 / preferred OS voice
-    speed: 1                  # 0.5 - 2.0
-    textLang: zh              # 朗读文本的语言 / language of the text
-    reportBudget: 120         # 汇报保留字数 / characters kept when reporting
-    keepAudio: false          # 是否保留 wav / keep generated wav files
-    engines:
-      gptSovits:
-        engineRoot: ''        # GPT-SoVITS 目录，留空自动探测 / auto-detected when empty
-        serverUrl: ''         # 或指向已运行的 API / or point at a running API
+    engine: builtin
 ```
 
 ## 环境要求 / Requirements
