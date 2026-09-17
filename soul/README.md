@@ -23,4 +23,4 @@ soul/
 
 - 人设**只影响措辞**，不影响事实、判断和结论的准确性。
 - 失败与风险优先用平实语气说清，人设让位于清晰。
-- 写法细则与反例见 [../skills/voice-report/references/persona-guide.md](../skills/voice-report/references/persona-guide.md)。
+- 写法细则与反例见 [../skills/voice-report/docs/persona-guide.md](../skills/voice-report/docs/persona-guide.md)。

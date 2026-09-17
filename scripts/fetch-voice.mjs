@@ -1,7 +1,7 @@
 /**
  * Fetch and install the optional voice weights.
  *
- *   node scripts/fetch-voice.mjs                       # download using voice/SOURCE.json
+ *   node scripts/fetch-voice.mjs                       # download using scripts/SOURCE.json
  *   node scripts/fetch-voice.mjs --from <archive.zip>   # use a local archive
  *   node scripts/fetch-voice.mjs --print-commands       # just show the install steps
  *
@@ -19,7 +19,9 @@ import { fileURLToPath } from 'node:url'
 const here = dirname(fileURLToPath(import.meta.url))
 const repoRoot = resolve(here, '..')
 const voiceDir = join(repoRoot, 'voice')
-const sourcePath = join(voiceDir, 'SOURCE.json')
+// The fetch configuration lives beside this script, not with the voice data: it
+// describes where to get weights from, which is a scripting concern.
+const sourcePath = join(repoRoot, 'scripts', 'SOURCE.json')
 
 const args = process.argv.slice(2)
 const fromIndex = args.indexOf('--from')
@@ -95,7 +97,7 @@ if (fromPath) {
 
 const url = source.url
 if (!url) {
-  console.error('voice/SOURCE.json has no "url" set.')
+  console.error('scripts/SOURCE.json has no "url" set.')
   console.error('Either fill it in, or pass a local archive:')
   console.error('  node scripts/fetch-voice.mjs --from <archive.zip>')
   process.exit(1)

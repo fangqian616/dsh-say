@@ -104,7 +104,7 @@ tts_report({ text: "<完整汇报原文，Markdown 也行>", voice: "<声线包�
 2. 换声线改 `soul/voice-pack.json` 的 `pack` 字段
 3. **改完立刻用新的人设念一句**验证，不要只改不试
 
-细节与写法示例见 [references/persona-guide.md](references/persona-guide.md)。
+细节与写法示例见 [docs/persona-guide.md](docs/persona-guide.md)。
 
 ## 边界
 

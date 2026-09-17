@@ -27,7 +27,10 @@ import { voices } from '../lib/tools.js'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const voiceDir = join(root, 'voice')
-const packSourceDir = join(voiceDir, 'voice-packs')
+// The repository ships exactly one voice pack, so its files sit directly in
+// voice/ rather than under voice/voice-packs/<name>/. Four levels of nesting to
+// hold three files was the structure implying a capability nobody had.
+const packDir = voiceDir
 
 const engineFlag = process.argv.indexOf('--engine')
 const engineOverride = engineFlag >= 0 ? process.argv[engineFlag + 1] : ''
@@ -51,26 +54,15 @@ function walk(dir, out = []) {
 
 // Which pack are we installing? The repository ships one; a user may have added
 // more, so ask rather than assume when it is ambiguous.
-const packDirs = existsSync(packSourceDir)
-  ? readdirSync(packSourceDir).filter((entry) => statSync(join(packSourceDir, entry)).isDirectory())
-  : []
-if (packDirs.length === 0) {
-  console.error('no voice pack found in voice/voice-packs/.')
-  console.error('Fetch the weights first:  node scripts/fetch-voice.mjs')
-  process.exit(1)
-}
-const chosen = packName || packDirs[0]
-if (!packDirs.includes(chosen)) {
-  console.error(`no such pack "${chosen}". Available: ${packDirs.join(', ')}`)
-  process.exit(1)
-}
-const packDir = join(packSourceDir, chosen)
+const chosen = packName || 'silver-wolf'
 console.log(`pack      : ${chosen}`)
 
 // Locate the reference clip and the weights this pack expects.
 const reference = join(packDir, 'ref.wav')
 if (!existsSync(reference)) {
-  console.error(`pack is missing ref.wav: ${reference}`)
+  console.error(`no voice pack found: ${reference} is missing.`)
+  console.error('  run this from the repository root, or fetch the weights first:')
+  console.error('    node scripts/fetch-voice.mjs')
   process.exit(1)
 }
 const promptPath = join(packDir, 'ref.txt')

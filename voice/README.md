@@ -12,12 +12,10 @@ already has.
 ```
 voice/
 ├─ LICENSE.txt              non-commercial notice — read this first
-├─ SOURCE.json              where to fetch the model weights
-└─ voice-packs/
-   └─ silver-wolf/
-      ├─ pack.json          version and expected weight paths
-      ├─ ref.wav            参考音（3-10 秒干净人声）
-      └─ ref.txt            参考音的逐字文本
+├─ README.md                this file
+├─ pack.json                version and expected weight paths
+├─ ref.wav                  参考音（3-10 秒干净人声）
+└─ ref.txt                  参考音的逐字文本
 ```
 
 The model weights are **not** here. Three hundred megabytes of non-commercial
@@ -28,7 +26,8 @@ and the weights are fetched when a user actually wants the voice.
 
 The published archive uses neutral filenames (`silver-wolf-e10.ckpt`,
 `reference-中立.wav`) and its checksum is recorded in
-[SOURCE.json](SOURCE.json), which the fetch script verifies before extracting.
+[../scripts/SOURCE.json](../scripts/SOURCE.json), which the fetch script verifies
+before extracting.
 
 ## Install
 

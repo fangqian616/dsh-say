@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="dsh-voice">
+  <rect width="64" height="64" rx="14" fill="#0b1f3a"/>
+  <!-- a whale reduced to what survives at 32px: body arc, tail, one eye -->
+  <path d="M12 38c0-9 7.6-16 17-16s17 7 17 16c0 2.6-2 4.6-4.6 4.6H23c-6.1 0-11-2.1-11-4.6z"
+        fill="#2563eb" opacity="0.92"/>
+  <path d="M46 38c3.6-1.4 5.4-4 6-7.6.5 3.6 2.2 6 5 7.4-2.8 1.6-4.5 4.2-5 7.8-.6-3.6-2.4-6.2-6-7.6z"
+        fill="#4d8bff"/>
+  <circle cx="22" cy="33" r="2.1" fill="#0b1f3a"/>
+  <path d="M20 44c3.6 2.6 8 3.9 13.2 3.9" stroke="#8fb8ff" stroke-width="2.4"
+        stroke-linecap="round" fill="none" opacity="0.75"/>
+</svg>

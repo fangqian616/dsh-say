@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>dsh-voice — 让你的 DSH 用你喜欢的声音开口说话</title>
+<meta name="description" content="给你的 DSH 智能体一副嗓子。零下载即可用系统语音，接入 GPT-SoVITS 后可用角色声线；长报告先压缩再朗读。">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<a class="skip" href="#main">跳到主要内容 / Skip to content</a>
+
+<header class="site-head">
+  <a class="brand" href="#top">
+    <img src="assets/favicon.svg" alt="" width="28" height="28">
+    <span>dsh-voice</span>
+  </a>
+  <nav class="site-nav">
+    <a href="#how"><span class="zh">怎么用</span><span class="en">How</span></a>
+    <a href="#engines"><span class="zh">引擎</span><span class="en">Engines</span></a>
+    <a href="#report"><span class="zh">汇报压缩</span><span class="en">Report</span></a>
+    <a href="#voices"><span class="zh">声线</span><span class="en">Voices</span></a>
+    <a class="ghost" href="https://github.com/fangqian616/dsh-voice">GitHub</a>
+  </nav>
+</header>
+
+<main id="main">
+
+  <!-- ── HERO ─────────────────────────────────────────────────────── -->
+  <section class="hero" id="top">
+    <div class="hero-art" aria-hidden="true">
+      <!-- 图 1：首屏横幅。出图比例 3:2 或 4:3，人物偏左，右侧留白。
+           放好文件后把下面的占位替换成 <img src="assets/hero.png" alt=""> -->
+      <div class="art-placeholder" data-art="hero">
+        <span class="ph-label">assets/hero.png</span>
+        <span class="ph-hint">3:2 或 4:3 · 人物偏左 · 右侧留白</span>
+      </div>
+    </div>
+
+    <div class="hero-copy">
+      <p class="eyebrow">
+        <span class="zh">给 DSH 的语音插件</span>
+        <span class="en">A voice plugin for DSH</span>
+      </p>
+      <h1>
+        <span class="zh">用你喜欢的<br>声音说话</span>
+        <span class="en">Speak in a voice<br>you like</span>
+      </h1>
+      <p class="lede">
+        <span class="zh">装完就能用 —— 默认走系统语音，零下载、零 Python、零显卡。想要角色声线，再接入 GPT-SoVITS。</span>
+        <span class="en">It works the moment you install it — the default backend is your operating system&rsquo;s own voices. No download, no Python, no GPU. Install GPT-SoVITS later for character voices.</span>
+      </p>
+
+      <div class="cmd" data-copy="dsh plugin --profile web add dsh-voice">
+        <code><span class="prompt">$</span> dsh plugin --profile web add dsh-voice</code>
+        <button type="button" class="copy" aria-label="复制安装命令">
+          <span class="zh">复制</span><span class="en">Copy</span>
+        </button>
+      </div>
+
+      <p class="hero-note">
+        <span class="zh">报告会先压缩再朗读。一份 500 字的汇报整篇念完要 100 秒 —— 比读它还慢。</span>
+        <span class="en">Reports are compressed before being spoken. A 500-character report read in full takes about 100 seconds — slower than reading it.</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- ── WAVE ─────────────────────────────────────────────────────── -->
+  <section class="wave-band" aria-hidden="true">
+    <canvas id="wave" height="120"></canvas>
+  </section>
+
+  <!-- ── HOW ──────────────────────────────────────────────────────── -->
+  <section class="section" id="how">
+    <header class="section-head">
+      <p class="kicker"><span class="zh">三步</span><span class="en">Three steps</span></p>
+      <h2><span class="zh">从零到听见它说话</span><span class="en">From nothing to hearing it speak</span></h2>
+    </header>
+
+    <ol class="steps">
+      <li>
+        <span class="step-num">01</span>
+        <h3><span class="zh">装插件</span><span class="en">Install</span></h3>
+        <p><span class="zh">在 profile 的组合文件里加一行，重启。工具立刻出现在智能体手上。</span><span class="en">Add one row to your profile composition and restart. The tools appear to the agent immediately.</span></p>
+      </li>
+      <li>
+        <span class="step-num">02</span>
+        <h3><span class="zh">让它说话</span><span class="en">Hear it</span></h3>
+        <p><span class="zh">说一句"把早安念出来"。默认用系统语音，不需要任何下载。</span><span class="en">Say &ldquo;speak good morning out loud&rdquo;. The system voice answers — no download involved.</span></p>
+      </li>
+      <li>
+        <span class="step-num">03</span>
+        <h3><span class="zh">想要别的嗓子再说</span><span class="en">Change the voice later</span></h3>
+        <p><span class="zh">一条命令装上随仓库附带的声线，或者带上你自己的。首次加载会问你三个问题，答案自己落盘。</span><span class="en">One command installs the voice shipped with the repository, or bring your own. First load asks three questions and writes the answers down.</span></p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ── ENGINES ──────────────────────────────────────────────────── -->
+  <section class="section alt" id="engines">
+    <header class="section-head">
+      <p class="kicker"><span class="zh">两种后端</span><span class="en">Two backends</span></p>
+      <h2><span class="zh">默认那条路不需要任何下载</span><span class="en">The default path downloads nothing</span></h2>
+      <p class="section-lede">
+        <span class="zh"><code>engine: auto</code> 会在你登记声线包之后自动切到 GPT-SoVITS，不用改配置。</span>
+        <span class="en"><code>engine: auto</code> switches to GPT-SoVITS as soon as a healthy voice pack exists — no configuration change.</span>
+      </p>
+    </header>
+
+    <div class="cards">
+      <article class="card">
+        <p class="card-tag"><span class="zh">默认</span><span class="en">Default</span></p>
+        <h3><span class="zh">系统语音</span><span class="en">Built-in OS voices</span></h3>
+        <dl class="spec">
+          <div><dt><span class="zh">安装成本</span><span class="en">Install cost</span></dt><dd><span class="zh">零</span><span class="en">Zero</span></dd></div>
+          <div><dt><span class="zh">音质</span><span class="en">Quality</span></dt><dd><span class="zh">清晰但机械</span><span class="en">Clear, robotic</span></dd></div>
+          <div><dt><span class="zh">英文</span><span class="en">English</span></dt><dd><span class="zh">原生分语言</span><span class="en">Native per language</span></dd></div>
+        </dl>
+        <p class="card-note"><span class="zh">Windows 走 SAPI，播放用系统接口，连 ffmpeg 都不需要。</span><span class="en">Drives SAPI on Windows and plays through the OS, so it needs no external media program at all.</span></p>
+      </article>
+
+      <article class="card feature">
+        <p class="card-tag"><span class="zh">可选</span><span class="en">Optional</span></p>
+        <h3><span class="zh">GPT-SoVITS</span><span class="en">GPT-SoVITS</span></h3>
+        <dl class="spec">
+          <div><dt><span class="zh">安装成本</span><span class="en">Install cost</span></dt><dd><span class="zh">约 2 GB 起</span><span class="en">~2 GB and up</span></dd></div>
+          <div><dt><span class="zh">音质</span><span class="en">Quality</span></dt><dd><span class="zh">角色声线、零样本克隆</span><span class="en">Character voices, zero-shot cloning</span></dd></div>
+          <div><dt><span class="zh">英文</span><span class="en">English</span></dt><dd><span class="zh">声明语言即可</span><span class="en">Declare the language</span></dd></div>
+        </dl>
+        <p class="card-note"><span class="zh">本地检出或远端 API 两种模式，薄客户端不装任何东西。</span><span class="en">Local checkout or a remote API — the thin-client mode installs nothing locally.</span></p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ── REPORT ───────────────────────────────────────────────────── -->
+  <section class="section" id="report">
+    <div class="split">
+      <div class="split-art" aria-hidden="true">
+        <!-- 图 2：极扁分隔带（约 8:1）。主题是手与话筒特写。 -->
+        <div class="art-placeholder tall" data-art="strip">
+          <span class="ph-label">assets/strip.png</span>
+          <span class="ph-hint">约 8:1 · 手与话筒特写</span>
+        </div>
+      </div>
+      <div class="split-copy">
+        <p class="kicker"><span class="zh">汇报模式</span><span class="en">Report mode</span></p>
+        <h2><span class="zh">念给耳朵听的，不是写给眼睛看的</span><span class="en">Written for the eye, spoken for the ear</span></h2>
+        <p>
+          <span class="zh"><code>tts_report</code> 先把长报告压成短稿再朗读。中文语音实测约 5 字/秒 —— 500 字整篇念完要 100 秒，用户会直接关掉声音。</span>
+          <span class="en"><code>tts_report</code> compresses a long report before speaking it. Chinese speech measures about 5 characters per second, so 500 characters read in full takes 100 seconds — long enough that people mute it.</span>
+        </p>
+
+        <div class="compare">
+          <div class="compare-row">
+            <span class="compare-label"><span class="zh">原文</span><span class="en">Source</span></span>
+            <span class="bar bar-source" style="--w:100%"></span>
+            <span class="compare-value">500 <span class="zh">字</span><span class="en">chars</span></span>
+          </div>
+          <div class="compare-row">
+            <span class="compare-label"><span class="zh">朗读</span><span class="en">Spoken</span></span>
+            <span class="bar bar-spoken" style="--w:24%"></span>
+            <span class="compare-value">120 <span class="zh">字</span><span class="en">chars</span></span>
+          </div>
+        </div>
+
+        <p class="fine">
+          <span class="zh">压缩是本地句序排序，零额外模型调用。完整度可以通过 <code>budget</code> 调整。</span>
+          <span class="en">Compression is local sentence ranking with no extra model call. Adjust how much survives with <code>budget</code>.</span>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── VOICES ───────────────────────────────────────────────────── -->
+  <section class="section alt" id="voices">
+    <header class="section-head">
+      <p class="kicker"><span class="zh">声线</span><span class="en">Voices</span></p>
+      <h2><span class="zh">仓库不带声线，但带你验证的那一条</span><span class="en">No voice is bundled, but one is shipped to verify with</span></h2>
+    </header>
+
+    <div class="two-col">
+      <div>
+        <h3><span class="zh">随仓库附带</span><span class="en">Shipped with the repository</span></h3>
+        <p><span class="zh">参考音和声线定义在仓库里，权重单独取 —— 因为单个文件 148 MB，超过 GitHub 的 100 MB 上限。</span><span class="en">The reference clip and pack definition live in the repository; the weights are fetched separately, because the checkpoint alone is 148 MB and GitHub rejects files over 100 MB.</span></p>
+        <div class="cmd small" data-copy="node scripts/install-voice.mjs">
+          <code><span class="prompt">$</span> node scripts/install-voice.mjs</code>
+          <button type="button" class="copy" aria-label="复制安装命令"><span class="zh">复制</span><span class="en">Copy</span></button>
+        </div>
+        <p class="fine"><span class="zh">一条命令：取权重、找引擎、放到位、登记。不用手动下载，也不用自己找文件夹。</span><span class="en">One command: fetch, locate the engine, install, register. Nothing to download by hand and no folder to find.</span></p>
+      </div>
+
+      <div>
+        <h3><span class="zh">用你自己的</span><span class="en">Bring your own</span></h3>
+        <p><span class="zh">给一段 3-10 秒干净人声和它的逐字文本，登记成声线包即可。人设与声线是分开的 —— 同一个人设可以换声线，同一个声线也能换人设。</span><span class="en">Give a 3&ndash;10 second clean clip and its exact transcript, and register it as a pack. Persona and voice are separate: one persona can wear several voices.</span></p>
+
+        <div class="notice">
+          <p class="notice-title"><span class="zh">用之前先读声明</span><span class="en">Read the notice first</span></p>
+          <p><span class="zh">本声线仅用于学习和研究讨论，禁止商用，最终版权归米哈游所有。</span><span class="en">Learning and research use only. Non-commercial. Rights to the character and voice belong to miHoYo.</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ───────────────────────────────────────────────────── -->
+  <footer class="site-foot">
+    <div class="foot-main">
+      <p class="foot-line">
+        <span class="zh">MIT 许可。不附带任何模型权重、声音数据或音频。</span>
+        <span class="en">MIT licensed. Ships no model weights, voice data, or audio.</span>
+      </p>
+      <nav class="foot-links">
+        <a href="https://github.com/fangqian616/dsh-voice">GitHub</a>
+        <a href="https://github.com/fangqian616/dsh-voice/blob/main/README.md">README</a>
+        <a href="https://github.com/fangqian616/dsh-voice/blob/main/CONTRIBUTING.md">Contributing</a>
+        <a href="https://github.com/fangqian616/dsh-voice/issues">Issues</a>
+      </nav>
+    </div>
+    <p class="foot-art"><span class="zh">插画与角色形象版权归其所有者</span><span class="en">Illustration and character rights belong to their owners</span></p>
+  </footer>
+
+</main>
+
+<script src="assets/app.js"></script>
+</body>
+</html>
