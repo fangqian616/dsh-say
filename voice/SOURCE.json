@@ -1,0 +1,7 @@
+{
+  "note": "Where to fetch the optional voice weights from. Fill in a URL, or leave it empty and point users at --from with a local archive.",
+  "url": "",
+  "sha256": "",
+  "archive": "voice-weights.zip",
+  "license": "Learning and research use only. Non-commercial. Rights to the character and voice belong to miHoYo."
+}

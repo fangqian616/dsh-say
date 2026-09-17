@@ -1,0 +1,6 @@
+{
+  "note": "voice-report skill 使用的默认声线包。留空则用插件配置的默认值，插件也没有就用系统语音。装上 voice/ 里的声线后，把 pack 改成你登记时用的名字。",
+  "pack": "",
+  "engine": "auto",
+  "speed": 1.0
+}

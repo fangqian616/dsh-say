@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Generated audio and helper scripts
+*.wav
+!docs/**/*.wav
+
+# Editor and OS noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
+
+# Never commit a voice pack or model weights anywhere EXCEPT the optional
+# voice/ directory, which is the one place the maintainer chose to publish a
+# non-commercial voice from. Everything else stays out.
+*.ckpt
+*.pth
+*.safetensors
+voice-packs/
+!voice/GPT_weights_*/*.ckpt
+!voice/SoVITS_weights_*/*.pth
+
+# A fetched weight archive stays local; users run the fetch script themselves.
+voice/*.zip
+
+# Repository-local, never published: drives a private voice pack on the
+# maintainer's own machine for pre-release testing. Ships no data itself.
+/local/

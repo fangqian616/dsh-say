@@ -1,0 +1,24 @@
+# Model weights are binary: never diff them, never let Git rewrite line endings.
+*.ckpt binary
+*.pth binary
+*.safetensors binary
+
+# Audio
+*.wav binary
+*.mp3 binary
+*.flac binary
+*.zip binary
+
+# Every tracked text file is LF in the repository, on every platform. Without
+# this, a Windows checkout with core.autocrlf=true rewrites line endings on the
+# next touch and every commit turns into a whole-file diff.
+* text=auto eol=lf
+
+# Explicit, so the intent survives a future edit to the rule above.
+*.md text eol=lf
+*.mjs text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.txt text eol=lf

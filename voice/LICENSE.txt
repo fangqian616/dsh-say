@@ -1,0 +1,27 @@
+# Voice notice
+
+**本声线仅用于学习和研究讨论，不能用于任何商用用途。最终版权归米哈游所有。**
+
+This voice is provided for learning and research discussion only. It must not be
+used for any commercial purpose. All rights to the underlying character and
+voice belong to miHoYo (米哈游).
+
+---
+
+## 中文
+
+本声线模型由本项目维护者自行训练，仅用于学习和研究讨论，不得用于任何商用用途，
+不得出售、不得打包进付费产品或服务。
+
+本声线所涉及的角色形象与语音，其**最终版权归米哈游所有**。本声明仅覆盖模型权重
+本身的授权范围，不主张、也不转让任何属于米哈游的权利。
+
+## English
+
+These model weights were trained by this project's maintainer for learning and
+research discussion. They must not be used commercially, sold, or bundled into a
+paid product or service.
+
+All rights to the character and voice this model reproduces belong to miHoYo.
+This notice covers the model weights only; it neither claims nor transfers any
+right belonging to miHoYo.

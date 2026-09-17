@@ -1,0 +1,41 @@
+MIT License
+
+Copyright (c) 2026 dsh-voice contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+## Third-party notices
+
+dsh-voice ships no model weights, no voice data, and no third-party code. It
+calls software the user installs separately. When you use those optional
+backends, their own licenses apply:
+
+- **GPT-SoVITS** — https://github.com/RVC-Boss/GPT-SoVITS — MIT License.
+  If you publish a video or audio made with it, credit its authors.
+- **Windows SAPI voices** — the built-in backend uses the speech voices already
+  installed in your operating system. Those voices remain the property of their
+  publishers; dsh-voice only asks the OS to speak.
+- **FFmpeg / ffplay** — https://ffmpeg.org — LGPL/GPL, used only as an external
+  program for audio playback, never linked or bundled.
+
+Voice models and reference audio you add are your responsibility: only use
+material you have the right to use, and check the terms of whoever published a
+model before redistributing anything produced with it.

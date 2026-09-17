@@ -1,0 +1,62 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    # Windows, because the built-in engine drives SAPI through System.Speech and
+    # the suite synthesizes real audio to prove it works. A Linux runner would
+    # only exercise the parts that do not need a platform voice.
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [20, 22]
+    name: node ${{ matrix.node }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Install dependencies
+        # The plugin's only runtime dependency is the harness's own schema
+        # library, which is a peer in the host deployment. There is no build
+        # step and no bundler.
+        run: npm install --no-audit --no-fund
+
+      - name: Environment report
+        # Printed first so a failure below is readable against the runner's
+        # actual voices and PowerShell availability.
+        run: node -e "console.log(JSON.stringify({platform:process.platform,node:process.version,powershell:require('child_process').execSync('powershell -NoProfile -Command \"$PSVersionTable.PSVersion.ToString()\"').toString().trim()},null,2))"
+        shell: pwsh
+
+      - name: Repository hygiene
+        # Fails if model weights or audio appear outside voice/, or if published
+        # weights are missing their license notice.
+        run: node test/smoke.mjs
+
+      - name: GPT-SoVITS wiring
+        run: node test/gptsovits.mjs
+
+      - name: Report compression
+        run: node test/summarize.mjs
+
+      - name: Onboarding
+        run: node test/onboarding.mjs
+
+      - name: Auto-report wiring
+        run: node test/auto-report.mjs
+
+      - name: Audible playback
+        # Proves audio actually reaches the output device. On a headless runner
+        # this may fail for lack of an audio endpoint, so it is reported but not
+        # gating: a silent CI box is not a code defect.
+        continue-on-error: true
+        run: node test/play.mjs
