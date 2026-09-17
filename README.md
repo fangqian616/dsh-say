@@ -38,6 +38,15 @@ dsh plugin --profile web add dsh-voice
   name: dsh-voice
 ```
 
+**不想手打 YAML？** 仓库里有脚本代劳 —— 它会追加配置行、备份原文件、并在写入前校验结果：
+
+```sh
+node scripts/install-profile.mjs --profile web --print   # 先看会改什么
+node scripts/install-profile.mjs --profile web           # 再执行
+```
+
+改完仍需**重启 profile** 才生效。如果智能体已经能读到仓库，也可以直接说"装上这个语音插件"，它会用 `voice-setup` skill 走完这套流程。
+
 ### 2 · 让它说话
 
 对智能体说：
