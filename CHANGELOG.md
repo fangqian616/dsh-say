@@ -82,6 +82,9 @@ These are recorded because each one would have shipped as a silent failure.
 - The built-in engine supports Windows only. A macOS or Linux backend is a
   welcome contribution; `docs/ENGINES.md` describes the four functions to
   implement.
+- `textLang` was initially hardcoded to `zh` on the GPT-SoVITS path, which sent
+  English text through the Chinese tokenizer and read it as pinyin. It is now a
+  per-call parameter with the pack's own language as the default.
 - No model weights, voice data, or audio are committed. `voice/` carries a
   license notice and a fetch script; the weights arrive only if a user asks for
   them.

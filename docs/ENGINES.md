@@ -62,15 +62,22 @@ Mixed text works: a Chinese voice reads the Chinese and stumbles through the
 English word, which is usually the right trade for a report that is mostly one
 language.
 
-**gpt-sovits** is cross-lingual, not multilingual. A pack trained on Chinese
-audio reading English keeps that accent — the model was never taught English
-phonemes. The plugin sends the language with every request (`textLang`), so
-English text at least reaches the English path instead of being read as pinyin,
-but it will still sound like a Chinese speaker reading English.
+**gpt-sovits** handles other languages too, as long as the text's language is
+declared. The plugin sends `textLang` with every request, so English text
+reaches the English path instead of being tokenized as Chinese — which is what
+it did before `textLang` was made configurable, and that genuinely did read
+English as pinyin.
 
-Practical rule: **use `builtin` for English, `gpt-sovits` for the character
-voice in its own language.** Both tools accept `engine` and `textLang` per call,
-so one session can do both without reconfiguring anything.
+With the language declared correctly, an English line through a v2ProPlus voice
+pack comes out clean. Quality beyond that depends on the pack: how much of the
+target language its training data contained, and how the base model version
+handles it.
+
+Practical rule: **declare the language, and pick the engine by the voice you
+want.** `builtin` gives you a native voice for the language; `gpt-sovits` gives
+you the character voice, and handles a foreign line well when `textLang` is
+right. Both tools accept `engine` and `textLang` per call, so one session can do
+both without reconfiguring anything.
 
 ## Why no weights are bundled
 
