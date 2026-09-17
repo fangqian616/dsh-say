@@ -27,25 +27,32 @@
 
 ### 1 · 装插件
 
+**你不用手改配置文件。** 启用脚本会代劳 —— 追加配置行、备份原文件、并在写入前用 YAML 解析器校验结果：
+
 ```sh
-dsh plugin --profile web add dsh-voice
+node scripts/install-profile.mjs --profile web --print   # 先看会改什么，不写文件
+node scripts/install-profile.mjs --profile web           # 再执行
+dsh plugin --profile web install                         # 解析新增的依赖
 ```
 
-在 profile 的组合文件里加一行，然后重启：
+**然后重启 profile** —— 这一步必须由你做，脚本没法替你重启你正开着的会话。
+
+> 如果智能体已经能读到仓库，直接说一句 **"装上这个语音插件"** 就行。它会用 `voice-setup` skill 走完上面三步，并且在没重启之前不会谎称装好了。
+
+<details>
+<summary><b>那两行配置到底写在哪</b></summary>
+
+<br>
+
+profile 根目录的 `cordis.yml` 是空的，它自己写着不要改它。真正的用户层是 `cordis.patch.yml` —— 一个 YAML 数组，脚本会往里面追加：
 
 ```yaml
-- id: tool-voice
-  name: dsh-voice
+{ id: tool-voice, name: dsh-voice, disabled: false }
 ```
 
-**不想手打 YAML？** 仓库里有脚本代劳 —— 它会追加配置行、备份原文件、并在写入前校验结果：
+这是机器可读的结构化数据，所以交给脚本，而不是让你手打。
 
-```sh
-node scripts/install-profile.mjs --profile web --print   # 先看会改什么
-node scripts/install-profile.mjs --profile web           # 再执行
-```
-
-改完仍需**重启 profile** 才生效。如果智能体已经能读到仓库，也可以直接说"装上这个语音插件"，它会用 `voice-setup` skill 走完这套流程。
+</details>
 
 ### 2 · 让它说话
 
