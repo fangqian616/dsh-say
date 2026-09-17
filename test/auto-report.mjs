@@ -67,7 +67,12 @@ const skill = readFileSync(join(root, 'skills', 'voice-report', 'SKILL.md'), 'ut
 check('the skill exists', skill.length > 500)
 check('it names tts_report', skill.includes('tts_report'))
 check('it forbids reading a report in full', /整篇朗读是禁止的|不要用\s*`?tts_speak`?/.test(skill))
-check('it explains the time cost', /14 字\/秒|14 字一秒/.test(skill))
+// Why a report must be compressed, not the exact figure: the skill has to give a
+// reason and a length limit, but pinning the words of a measurement made this
+// check fire when the measurement was corrected. Assert the commitment, not the
+// prose.
+check('it explains why length is a hard limit', /字\/秒|字一秒/.test(skill))
+check('it gives a concrete length ceiling', /150\s*字|100 字|超过\s*\d+\s*字/.test(skill))
 check('it tells the agent not to switch strategies on its own', /不要.*擅自改走\s*subagent/.test(skill))
 
 console.log('\n3. the report tool returns what an agent must check')
