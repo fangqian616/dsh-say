@@ -63,7 +63,8 @@ node scripts/install-voice.mjs --engine "D:/GPT-SoVITS"
 
 ⚠️ **用之前读一下声明 / read the notice before using it**: 学习与研究用途，禁止商用，最终版权归米哈游所有。详见 [voice/LICENSE.txt](voice/LICENSE.txt) / Learning and research use only, non-commercial; rights to the character and voice belong to miHoYo.
 
-想要一条能自由分发的声线，请用许可宽松的数据集 / For a voice you may redistribute freely, use a permissively licensed dataset: [docs/VOICE-LICENSING.md](docs/VOICE-LICENSING.md).
+想要一条能自由分发的声线，请用许可宽松的数据集（**学习与研究用途，禁止商用** —— 完整声明见 [voice/LICENSE.txt](voice/LICENSE.txt)）。
+For a voice you may redistribute freely, use a permissively licensed dataset. **Learning and research use only, non-commercial** — the full notice is in [voice/LICENSE.txt](voice/LICENSE.txt).
 
 ### 5. 用你自己的声线（可选）/ Bring your own voice (optional)
 
@@ -167,10 +168,8 @@ npm run test:audible  # 真实播放检查 / proves playback works
 
 ## 更多文档 / More
 
-- [引擎说明与「为何不打包模型」/ Engines, and why no weights are bundled](docs/ENGINES.md)
 - [声线包格式与参考音要点 / Voice pack format and a good reference clip](docs/VOICES.md)
-- [哪些声音可以用 / Which voices you may use](docs/VOICE-LICENSING.md)
-- [变更日志 / Changelog](CHANGELOG.md)
+- [贡献指南 / Contributing](CONTRIBUTING.md)
 
 ## 许可 / License
 

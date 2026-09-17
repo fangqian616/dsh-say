@@ -79,5 +79,5 @@ notice says so explicitly. Keep it non-commercial, and think twice before
 publishing anything you make with it.
 
 If you want a voice you can redistribute freely, use a permissively licensed
-dataset instead; [../docs/VOICE-LICENSING.md](../docs/VOICE-LICENSING.md) lists
-several with their terms.
+dataset instead of a character voice — the terms are the ones that let you
+publish what you make with it.
