@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="site/assets/readme-banner.png" alt="dsh-voice" width="100%">
+<img src="site/assets/readme-banner.svg" alt="dsh-voice" width="100%">
 
 # dsh-voice
 
