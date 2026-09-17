@@ -20,8 +20,15 @@ voice/
       └─ ref.txt            参考音的逐字文本
 ```
 
-The model weights are **not** here. They are hundreds of megabytes and
-non-commercial, so they live outside the repository and are fetched on demand.
+The model weights are **not** here. Three hundred megabytes of non-commercial
+weights would make every clone of this repository three hundred megabytes
+larger, and GitHub rejects any file over 100 MB anyway — the checkpoint alone is
+148 MB. So the repository carries the pack definition and the reference clip,
+and the weights are fetched when a user actually wants the voice.
+
+The published archive uses neutral filenames (`silver-wolf-e10.ckpt`,
+`reference-中立.wav`) and its checksum is recorded in
+[SOURCE.json](SOURCE.json), which the fetch script verifies before extracting.
 
 ## Install
 
@@ -31,7 +38,8 @@ dsh-voice can point at them. The installer does both.
 
 ```sh
 # 1. get the weights (or copy them into voice/ yourself)
-node scripts/fetch-voice.mjs --from "D:/downloads/voice.zip"
+node scripts/fetch-voice.mjs                     # uses the url in SOURCE.json
+node scripts/fetch-voice.mjs --from "D:/downloads/silver-wolf-weights.zip"
 
 # 2. copy them into the engine and register the pack
 node scripts/install-voice.mjs
@@ -49,6 +57,9 @@ agent to speak, or run:
 ```sh
 node local/verify-pack.mjs silver-wolf "测试一句"
 ```
+
+If `fetch-voice.mjs` reports no url, the maintainer has not published an archive
+yet — use `--from` with a copy you obtained yourself.
 
 ## What you get
 

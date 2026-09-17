@@ -1,7 +1,18 @@
 {
-  "note": "Where to fetch the optional voice weights from. Fill in a URL, or leave it empty and point users at --from with a local archive.",
+  "note": "权重归档的取用地址。填上 url 后 `node scripts/fetch-voice.mjs` 就能一键下载；留空则用户自带归档，用 --from 指向本地文件。",
   "url": "",
-  "sha256": "",
-  "archive": "voice-weights.zip",
+  "sha256": "4d998ffb23aa3752e3e722ef72641f53538e1a7b41f166cfe36d6a18a0faa16b",
+  "archive": "silver-wolf-weights-v2ProPlus.zip",
+  "bytes": 305865390,
+  "contents": [
+    "silver-wolf-e10.ckpt",
+    "silver-wolf_e10_s120.pth",
+    "reference-中立.wav",
+    "reference-开心.wav",
+    "reference-吃惊.wav",
+    "reference-生气.wav",
+    "reference-难过.wav",
+    "reference-恐惧.wav"
+  ],
   "license": "Learning and research use only. Non-commercial. Rights to the character and voice belong to miHoYo."
 }
