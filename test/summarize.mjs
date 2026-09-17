@@ -159,5 +159,28 @@ for (const size of [70, 95, 130]) {
 const inlineCut = summarizeLocally(inline, 95)
 console.log(`     budget 95 spoken: ${inlineCut.text}`)
 
+console.log('\n10. the budget is a promise, not a target')
+// Real reports are written in long sentences. Sentence-level selection alone
+// overshoots badly on them: with a 150-character budget this shape produced 320
+// characters, more than double, and 150 and 200 produced identical output. The
+// earlier checks used short sentences, so none of them could catch it.
+const longSentences = [
+  '你提的三条都是对的，都是不该存在的摩擦，我一条一条改掉了，下面说的是改完之后的实际状态。',
+  '第一件事是不再需要手动下载和手动放文件，现在一条命令，安装脚本发现权重不在就自己下载。',
+  '第二件事是配置不再放在组合文件里，插件自己维护一份设置，存在你家目录下面，首次加载问你的答案直接写进去。',
+  '第三件事是读取配置的工具之前有个真实缺陷，它报的是组合文件里的配置，不是合并后的实际生效值。',
+  '现在六个测试全绿，持续集成也绿了，接下来还要等你上传权重归档。',
+].join('')
+
+for (const budget of [60, 100, 150, 200]) {
+  const out = summarizeLocally(longSentences, budget)
+  check(`budget ${budget}: never exceeds the budget`, out.text.length <= budget, `${out.text.length} chars`)
+  check(`budget ${budget}: still says something`, out.text.length > 10)
+}
+
+const small = summarizeLocally(longSentences, 100)
+const large = summarizeLocally(longSentences, 200)
+check('a larger budget yields more text', large.text.length > small.text.length, `${small.text.length} vs ${large.text.length}`)
+
 console.log(`\n${failures === 0 ? 'ALL CHECKS PASSED' : `${failures} CHECK(S) FAILED`}`)
 process.exit(failures === 0 ? 0 : 1)
