@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="site/assets/readme-banner.svg" alt="dsh-say" width="100%">
+<img src="site/assets/readme-banner.png" alt="dsh-say" width="100%">
 
 # dsh-say
 
