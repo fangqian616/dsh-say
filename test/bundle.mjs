@@ -102,6 +102,13 @@ check('repository points at the source, so npm can resolve README assets',
   typeof manifest.repository?.url === 'string' && manifest.repository.url.includes('github.com'), String(manifest.repository?.url))
 check('public access is explicit, not left to a default', manifest.publishConfig?.access === 'public', String(manifest.publishConfig?.access))
 check('the tarball ships a README and a license', manifest.files?.includes('README.md') && manifest.files?.includes('LICENSE'))
+// A release helper added for the maintainer's own publish flow shipped to users
+// the first time it existed, because `files` lists whole directories. The
+// exclusion is easy to drop in a later reshuffle, and nothing else would notice.
+check('the maintainer-only publish helper is excluded from the tarball',
+  manifest.files?.includes('!scripts/publish.mjs'), 'a later files[] edit could silently republish it')
+check('the scripts users run are still shipped',
+  manifest.files?.includes('scripts') && !manifest.files?.includes('!scripts'))
 
 // The npm package is `dsh-say` while the repository is `dsh-voice`, so the two
 // names deliberately differ. Pinning it here stops a well-meaning rename back to
