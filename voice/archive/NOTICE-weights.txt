@@ -4,9 +4,16 @@ Voice material notice / 素材说明
 silver-wolf — GPT-SoVITS v2ProPlus
 
 Contents / 内容
-  silver-wolf-e10.ckpt          GPT checkpoint
-  silver-wolf_e10_s120.pth      SoVITS weights
-  reference-*.wav               参考音（多情绪片段）
+  silver-wolf-e10.ckpt            GPT checkpoint
+  silver-wolf_e10_s120.pth        SoVITS weights
+  reference/*.wav                 参考音（六条，按情绪命名，供你试听挑选）
+  reference/reference-中立.txt    中立那条的逐字文本
+
+可以自己拿去训练 / Trainable
+  `reference-中立.wav` 加 `reference-中立.txt` 是一对可用的微调素材 ——
+  可以直接导入 GPT-SoVITS 训练，文本与音频是对应的。
+  其余五条**没有文本**：文件名里的情绪只用来帮你挑音色，别当成它的文本。
+  缺文本比配错文本好 —— 微调会照着错的学。
 
 The weights were trained by this project's maintainer.
 权重由本项目维护者训练。

@@ -1,9 +1,9 @@
 {
   "note": "权重归档的取用地址。填上 url 后 `node scripts/fetch-voice.mjs` 就能一键下载；留空则用户自带归档，用 --from 指向本地文件。",
   "url": "https://github.com/fangqian616/dsh-say/releases/latest/download/silver-wolf-full-v2ProPlus.zip",
-  "sha256": "50b4e98183b634565e1095307c56729b10d81a2203de88818670ad5f63faa07f",
+  "sha256": "da43ff830d21c3ecd4c0c99cbff6202ed129fb39d657c016f10f340b7e7c36a0",
   "archive": "silver-wolf-full-v2ProPlus.zip",
-  "bytes": 1409073439,
+  "bytes": 1409073951,
   "contents": [
     "NOTICE-weights.txt",
     "bert/config.json",
@@ -17,11 +17,12 @@
     "silver-wolf-e10.ckpt",
     "silver-wolf_e10_s120.pth",
     "reference/reference-中立.wav",
+    "reference/reference-中立.txt",
     "reference/reference-开心.wav",
     "reference/reference-吃惊.wav",
     "reference/reference-生气.wav",
     "reference/reference-难过.wav",
     "reference/reference-恐惧.wav"
   ],
-  "notice": "A voice and the models needed to run it. The voice's weights were trained by this project's maintainer; the character, the voice, and the reference clips belong to miHoYo. The four base models are redistributed unchanged under Apache-2.0 (chinese-roberta, hubert) and MIT (GPT-SoVITS). Learning and research use; not for commercial use. The full notice travels inside the archive as NOTICE-weights.txt."
+  "notice": "A voice and the models needed to run it. The voice's weights were trained by this project's maintainer; the character, the voice, and the reference clips belong to miHoYo. The neutral clip ships with its transcript, so it can also be used for fine-tuning; the other five clips are named by emotion and carry no transcript. The four base models are redistributed unchanged under Apache-2.0 (chinese-roberta, hubert) and MIT (GPT-SoVITS). Learning and research use; not for commercial use. The full notice travels inside the archive as NOTICE-weights.txt."
 }
