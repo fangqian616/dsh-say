@@ -39,7 +39,35 @@ const packName = nameFlag >= 0 ? process.argv[nameFlag + 1] : ''
 // Weights often live outside the checkout the archive was unpacked to, so the
 // location is a parameter rather than an assumption.
 const weightsFlag = process.argv.indexOf('--weights')
-const weightsDir = weightsFlag >= 0 ? resolve(process.argv[weightsFlag + 1]) : voiceDir
+let weightsDir = weightsFlag >= 0 ? resolve(process.argv[weightsFlag + 1]) : voiceDir
+
+// `--from <archive.zip>` installs straight from the download, which is the path
+// most people take: they have a zip from the Releases page and nothing else. The
+// error message further down already told them to use this flag, so it has to
+// exist — it did not, and anyone following that advice hit "no such archive".
+const fromFlag = process.argv.indexOf('--from')
+const fromArchive = fromFlag >= 0 ? process.argv[fromFlag + 1] : ''
+if (fromFlag >= 0 && !fromArchive) {
+  console.error('--from needs a path:  --from "<archive.zip>"')
+  process.exit(1)
+}
+if (fromArchive) {
+  const absolute = resolve(fromArchive)
+  if (!existsSync(absolute)) {
+    console.error(`no such archive: ${absolute}`)
+    process.exit(1)
+  }
+  // fetch-voice owns extraction and the checksum, so delegate rather than
+  // unpacking here and risk the two paths drifting apart.
+  console.log(`installing from ${absolute}`)
+  try {
+    execFileSync(process.execPath, [join(root, 'scripts', 'fetch-voice.mjs'), '--from', absolute], { stdio: 'inherit' })
+  } catch {
+    console.error('\ncould not unpack that archive.')
+    process.exit(1)
+  }
+  weightsDir = voiceDir
+}
 
 /** Every file under a directory, recursively. */
 function walk(dir, out = []) {

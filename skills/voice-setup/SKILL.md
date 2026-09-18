@@ -1,6 +1,6 @@
 ---
 name: voice-setup
-description: '当需要安装、启用或排查语音插件时使用 —— 插件与仓库都叫 dsh-say。触发场景：装上这个语音插件 / 为什么没声音 / 启用语音插件 / 配置语音，或者察觉到这个会话里没有 tts_speak 工具。Install, enable, or troubleshoot the dsh-say plugin.'
+description: '当需要安装、启用或排查语音插件与声线时使用 —— 插件与仓库都叫 dsh-say。触发场景：装上这个语音插件 / 为什么没声音 / 启用语音插件 / 配置语音；以及装声线：把 silver-wolf 装上 / 用这个包装声线 / 加载这个声线 / 从 zip 装声线。也用于察觉到这个会话里没有 tts_speak 工具时。Install, enable, or troubleshoot the dsh-say plugin; also install a voice pack from a downloaded archive.'
 ---
 
 # 安装与启用 dsh-say / Install and enable dsh-say
@@ -80,6 +80,32 @@ tts_speak 在列表里 → 跑 tts_engines 看后端状态
 ```
 
 `tts_engines` 会报每个后端是否可用、以及确切原因。
+
+## 5. 装声线本身（用户下载了那个 1.34 GB 的包）
+
+**这是另一件事，别和装插件混起来。**
+
+- **装插件** = 让会话里有 `tts_speak` 工具（上面 1-4 步）
+- **装声线** = 让工具能发出**某个角色**的声音，素材在 Releases 那个包里
+
+用户说"把 silver-wolf 装上""用这个包装声线""加载这个声线"时，就是这个。**用户不该自己敲命令** —— 他下载了 zip，剩下的你来做：
+
+```sh
+node scripts/install-voice.mjs --from "<用户那个 zip 的绝对路径>"
+```
+
+它会：解压 → 在包里找到 4 个 base 模型和声线权重 → 找用户的 GPT-SoVITS → base 模型铺进 `GPT_SoVITS/pretrained_models/`、声线权重铺进 `GPT_weights_v2ProPlus/` 和 `SoVITS_weights_v2ProPlus/` → 登记声线包。
+
+**已存在的文件会跳过**，不会覆盖用户调好的环境，所以重跑是安全的。
+
+找不到 GPT-SoVITS 时加 `--engine "<路径>"`。
+
+**两件必须说清的事：**
+
+1. **前置条件是要有一个能跑的 GPT-SoVITS 检出加 Python 环境。** 那个包给的是模型，不是运行时。用户没有的话，指他去官方 Windows 整合包（解压双击即可），并说明**两者不冲突**：整合包管运行时，这个包管声音。
+2. 装之前让用户读包里的 `NOTICE-weights.txt`。声明规则见下一节。
+
+**装完立刻验证**：跑 `tts_voices action=list`，确认登记的是**声线权重**而不是 base 模型（`gpt=` 应含声线名，不该是 `s1v3.ckpt`；`sovits=` 不该是 `s2Gv2ProPlus.pth`）。**这一步不能省** —— 名字选错时安装会报成功，只有听的时候才发现声音不对。
 
 ## 装角色声线时：素材声明（不要说错）
 
