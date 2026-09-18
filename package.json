@@ -37,6 +37,17 @@
     "ai-agent"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fangqian616/dsh-voice.git"
+  },
+  "homepage": "https://github.com/fangqian616/dsh-voice#readme",
+  "bugs": {
+    "url": "https://github.com/fangqian616/dsh-voice/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=20"
   },

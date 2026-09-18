@@ -41,15 +41,19 @@ dsh plugin --profile web add dsh-say
 > 请按上面的包名装。
 
 <details>
-<summary><b>还没发布到 npm？用 git 地址装（首次需要放行构建）</b></summary>
+<summary><b>从源码装 / 用 git 地址（git 来源首次需要放行构建）</b></summary>
 
 <br>
 
 ```sh
+git clone https://github.com/fangqian616/dsh-voice
+dsh plugin --profile web add "file:E:/path/to/dsh-voice"    # 或用 git 地址：
 dsh plugin --profile web add github:fangqian616/dsh-voice
 ```
 
-git 来源的插件靠 `prepare` 脚本构建，pnpm 默认拦着。`dsh plugin` 会直接打印出要放行的那个键 —— 把它加到 profile 目录的 `pnpm-workspace.yaml` 的 `allowBuilds` 下，再重跑一次即可。发布到 npm 之后就不需要这一步。
+git 来源的插件靠 `prepare` 脚本构建，pnpm 默认拦着。`dsh plugin` 会直接打印出要放行的那个键 —— 把它加到 profile 目录的 `pnpm-workspace.yaml` 的 `allowBuilds` 下，再重跑一次即可。
+
+本地 `file:` 路径要用**绝对路径**：pnpm 的工作目录是 profile 目录，相对路径 `.` 会指到 profile 自己。
 
 </details>
 

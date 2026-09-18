@@ -93,6 +93,16 @@ check('the row carries an id', typeof rows[0]?.id === 'string' && rows[0].id.len
 check('the row id is the package short name', rows[0]?.id === 'say', String(rows[0]?.id))
 check('the row is not disabled', rows[0]?.disabled !== true)
 
+// Publishing metadata, which only matters once the package is on npm and is
+// therefore easy to forget: without `repository` the registry cannot resolve the
+// README's relative image and link paths, so the npm page renders a broken
+// banner, and `access` left unset risks an unscoped package going up restricted,
+// invisible to everyone it was meant for.
+check('repository points at the source, so npm can resolve README assets',
+  typeof manifest.repository?.url === 'string' && manifest.repository.url.includes('github.com'), String(manifest.repository?.url))
+check('public access is explicit, not left to a default', manifest.publishConfig?.access === 'public', String(manifest.publishConfig?.access))
+check('the tarball ships a README and a license', manifest.files?.includes('README.md') && manifest.files?.includes('LICENSE'))
+
 // The npm package is `dsh-say` while the repository is `dsh-voice`, so the two
 // names deliberately differ. Pinning it here stops a well-meaning rename back to
 // the repository name — which is already taken on npm by an unrelated project
