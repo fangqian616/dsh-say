@@ -1,11 +1,11 @@
 ---
 name: voice-setup
-description: '当需要安装、启用或排查语音插件时使用 —— 仓库叫 dsh-voice，npm 包名是 dsh-say（装的时候用 dsh-say）。触发场景：装上这个语音插件 / 为什么没声音 / 启用语音插件 / 配置语音，或者察觉到这个会话里没有 tts_speak 工具。Install, enable, or troubleshoot the dsh-say plugin.'
+description: '当需要安装、启用或排查语音插件时使用 —— 插件与仓库都叫 dsh-say。触发场景：装上这个语音插件 / 为什么没声音 / 启用语音插件 / 配置语音，或者察觉到这个会话里没有 tts_speak 工具。Install, enable, or troubleshoot the dsh-say plugin.'
 ---
 
-# 安装与启用 dsh-voice / Install and enable dsh-voice
+# 安装与启用 dsh-say / Install and enable dsh-say
 
-> 仓库叫 **dsh-voice**，npm 包叫 **dsh-say**。**装的时候用包名 `dsh-say`。**
+> 注意：npm 上另有一个**别人的** `dsh-voice` 包（也是语音插件）。**本插件是 `dsh-say`，不要装错。**
 
 把插件从"仓库里的代码"变成"这个会话里能用的工具"。只有一条命令要跑，外加一个**无法在会话内完成的步骤** —— 先说清楚，免得你卡在那儿。
 Turn the plugin from code in a repository into tools in this session. There is exactly one command, plus one step that cannot be done from inside a session — say so up front instead of getting stuck on it.
@@ -48,20 +48,20 @@ dsh plugin --profile web add dsh-say
 - 启动时套用包内自带的 `cordis.patch.yml`，插入 `id: say` 那一行
 
 > [!IMPORTANT]
-> **仓库叫 `dsh-voice`，npm 包叫 `dsh-say`。** npm 上的 `dsh-voice` 是**另一个人的项目**（另一个语音插件，同样是 dsh bundle）—— 装它不会报错，但用户会得到完全不同的东西。**装的时候必须用 `dsh-say`**，不要因为仓库叫 dsh-voice 就把包名写成 dsh-voice。
+> **装的是 `dsh-say`。** npm 上另有一个**别人的** `dsh-voice`（也是语音插件，同样是 dsh bundle）—— 装它不会报错，但用户会得到完全不同的东西。包名不要写错。
 
 **不要手改 profile 里的任何文件。** 尤其是不要手工往 `cordis.patch.yml` 追加行 —— 那是旧办法，现在由包自己的组合层负责，手写反而会和 `dsh plugin list` / 升级路径不一致。
 
 如果从 git 装（还没发布到 npm 时）：
 
 ```sh
-dsh plugin --profile web add github:fangqian616/dsh-voice
+dsh plugin --profile web add github:fangqian616/dsh-say
 ```
 
 git 来源靠 `prepare` 脚本构建，pnpm 默认拦着 —— `dsh plugin` 会直接打印出要加的那个键，把它加到 profile 目录的 `pnpm-workspace.yaml` 里的 `allowBuilds` 下面，然后重跑。这是 pnpm 的安全默认值，不是插件的问题，讲清楚即可。
 
 **从本地 checkout 装**（用户在改这个仓库时）：用绝对路径，例如
-`dsh plugin --profile web add "file:E:\path\to\dsh-voice"`。不要用相对路径 `.` —— pnpm 的工作目录是 profile 目录，`.` 会指到 profile 自己。
+`dsh plugin --profile web add "file:E:\path\to\dsh-say"`。不要用相对路径 `.` —— pnpm 的工作目录是 profile 目录，`.` 会指到 profile 自己。
 
 ### 3. 让用户重启（这一步你要说清楚）
 

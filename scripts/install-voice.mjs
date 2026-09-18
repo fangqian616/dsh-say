@@ -8,7 +8,7 @@
  *
  *   1. copy the model weights from voice/ into the GPT-SoVITS checkout, because
  *      GPT-SoVITS only loads weights from its own directories;
- *   2. register a voice pack in dsh-voice, copying the reference clip into the
+ *   2. register a voice pack in dsh-say, copying the reference clip into the
  *      user's voices directory and recording the weight paths relative to the
  *      checkout.
  *

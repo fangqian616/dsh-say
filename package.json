@@ -40,11 +40,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fangqian616/dsh-voice.git"
+    "url": "git+https://github.com/fangqian616/dsh-say.git"
   },
-  "homepage": "https://github.com/fangqian616/dsh-voice#readme",
+  "homepage": "https://github.com/fangqian616/dsh-say#readme",
   "bugs": {
-    "url": "https://github.com/fangqian616/dsh-voice/issues"
+    "url": "https://github.com/fangqian616/dsh-say/issues"
   },
   "publishConfig": {
     "access": "public"

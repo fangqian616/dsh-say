@@ -16,7 +16,7 @@ const check = (label, condition, detail = '') => {
 const report = [
   '# 本轮进展',
   '',
-  '我把 `dsh-voice` 插件重新整理了一遍，新增了 **skill** 和 **soul** 两套机制。',
+  '我把 `dsh-say` 插件重新整理了一遍，新增了 **skill** 和 **soul** 两套机制。',
   '',
   '1. skill 管播报规矩，决定什么时候念、念多长。',
   '2. soul 管人设，改一个 Markdown 就能换说话方式。',
@@ -38,7 +38,7 @@ check('no code fence survives', !clean.includes('```'))
 check('no backticks survive', !clean.includes('`'))
 check('no heading markers survive', !clean.includes('#'))
 check('no list markers survive', !/^\s*\d\.\s/m.test(clean))
-check('an identifier keeps its underscore', clean.includes('tts_engines') || clean.includes('dsh-voice'))
+check('an identifier keeps its underscore', clean.includes('tts_engines') || clean.includes('dsh-say'))
 check('bold markers are gone but their text stays', clean.includes('skill') && !clean.includes('**'))
 console.log(`     cleaned: ${clean.length} chars`)
 

@@ -3,7 +3,7 @@
 A voice pack for the GPT-SoVITS engine, with its reference clip included so the
 setup can be verified the moment it finishes. The clip is an excerpt of the
 game's own audio, not something this project recorded — see
-[NOTICE.txt](NOTICE.txt). Everything here is optional: dsh-voice works without
+[NOTICE.txt](NOTICE.txt). Everything here is optional: dsh-say works without
 it, using the speech voices your operating system already has.
 
 **Read [NOTICE.txt](NOTICE.txt) first.** 先读 [NOTICE.txt](NOTICE.txt)。
@@ -39,7 +39,7 @@ before extracting.
 
 Two steps, and the second is the one people get wrong: GPT-SoVITS loads weights
 only from its own directories, so they must be copied into the checkout before
-dsh-voice can point at them. The installer does both.
+dsh-say can point at them. The installer does both.
 
 ```sh
 # 1. get the weights (or copy them into voice/ yourself)

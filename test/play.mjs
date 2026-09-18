@@ -32,7 +32,7 @@ const chinese = voices.voices.find((voice) => /zh|Chinese/i.test(voice.locale ||
 console.log(`voices: ${voices.voices.map((v) => v.label).join(' | ')}`)
 console.log(`using:  ${chinese?.id || '(system default)'}`)
 
-const text = '你好，这是 dsh-voice 的播放测试，音频正从默认输出设备播出来。'
+const text = '你好，这是 dsh-say 的播放测试，音频正从默认输出设备播出来。'
 console.log(`text:   ${text}`)
 
 const result = await speak({ text, voice: chinese?.id, engine: 'builtin' }, { config })

@@ -1,12 +1,12 @@
 <div align="center">
 
-<img src="site/assets/readme-banner.svg" alt="dsh-voice" width="100%">
+<img src="site/assets/readme-banner.svg" alt="dsh-say" width="100%">
 
-# dsh-voice
+# dsh-say
 
 **给你的 DSH 智能体一副嗓子 · 用它喜欢的声音开口说话、汇报内容**
 
-[![tests](https://github.com/fangqian616/dsh-voice/actions/workflows/tests.yml/badge.svg)](https://github.com/fangqian616/dsh-voice/actions/workflows/tests.yml)
+[![tests](https://github.com/fangqian616/dsh-say/actions/workflows/tests.yml/badge.svg)](https://github.com/fangqian616/dsh-say/actions/workflows/tests.yml)
 [![license](https://img.shields.io/badge/license-MIT-0b1f3a.svg)](LICENSE)
 ![node](https://img.shields.io/badge/node-%E2%89%A520-2563eb.svg)
 ![platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-46617f.svg)
@@ -35,20 +35,15 @@ dsh plugin --profile web add dsh-say
 
 装完就结束。这条命令会把包装好、登记进 profile、并自动应用本包自带的组合层，`tts_*` 工具在重启后出现。
 
-> [!IMPORTANT]
-> **仓库叫 `dsh-voice`，npm 包叫 `dsh-say`。** npm 上的 `dsh-voice` 是**另一个人的项目**
-> （另一个语音插件，同样是 dsh bundle）—— 装它不会报错，但你会得到一个完全不同的东西。
-> 请按上面的包名装。
-
 <details>
 <summary><b>从源码装 / 用 git 地址（git 来源首次需要放行构建）</b></summary>
 
 <br>
 
 ```sh
-git clone https://github.com/fangqian616/dsh-voice
-dsh plugin --profile web add "file:E:/path/to/dsh-voice"    # 或用 git 地址：
-dsh plugin --profile web add github:fangqian616/dsh-voice
+git clone https://github.com/fangqian616/dsh-say
+dsh plugin --profile web add "file:E:/path/to/dsh-say"    # 或用 git 地址：
+dsh plugin --profile web add github:fangqian616/dsh-say
 ```
 
 git 来源的插件靠 `prepare` 脚本构建，pnpm 默认拦着。`dsh plugin` 会直接打印出要放行的那个键 —— 把它加到 profile 目录的 `pnpm-workspace.yaml` 的 `allowBuilds` 下，再重跑一次即可。
@@ -232,7 +227,7 @@ node scripts/install-voice.mjs --engine "D:/GPT-SoVITS"
 ## 📦 开发
 
 ```sh
-git clone https://github.com/fangqian616/dsh-voice && cd dsh-voice
+git clone https://github.com/fangqian616/dsh-say && cd dsh-say
 npm test              # 7 个测试，不出声
 npm run test:audible  # 真实播放检查
 ```
@@ -256,9 +251,6 @@ dsh plugin --profile web add dsh-say
 ```
 
 Restart the profile, then ask the agent to *"say hello out loud"*. The command installs the package, registers it in the profile, and applies the bundle layer this package ships; the `tts_*` tools appear after the restart.
-
-> [!IMPORTANT]
-> **The repository is `dsh-voice`; the npm package is `dsh-say`.** The name `dsh-voice` on npm belongs to an unrelated project — another voice plugin, also a dsh bundle — so installing that one succeeds and gives you something else entirely. Use the package name above.
 
 | Tool | Purpose |
 |:--|:--|

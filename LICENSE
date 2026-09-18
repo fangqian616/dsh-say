@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2026 dsh-voice contributors
+Copyright (c) 2026 dsh-say contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@ SOFTWARE.
 
 ## Third-party notices
 
-dsh-voice ships no model weights, no voice data, and no third-party code. It
+dsh-say ships no model weights, no voice data, and no third-party code. It
 calls software the user installs separately. When you use those optional
 backends, their own licenses apply:
 
@@ -32,7 +32,7 @@ backends, their own licenses apply:
   If you publish a video or audio made with it, credit its authors.
 - **Windows SAPI voices** — the built-in backend uses the speech voices already
   installed in your operating system. Those voices remain the property of their
-  publishers; dsh-voice only asks the OS to speak.
+  publishers; dsh-say only asks the OS to speak.
 - **FFmpeg / ffplay** — https://ffmpeg.org — LGPL/GPL, used only as an external
   program for audio playback, never linked or bundled.
 

@@ -15,7 +15,7 @@ import { homedir, tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const stateDir = mkdtempSync(join(tmpdir(), 'dsh-voice-autoreport-'))
+const stateDir = mkdtempSync(join(tmpdir(), 'dsh-say-autoreport-'))
 process.env.DSH_VOICE_STATE_DIR = stateDir
 
 const { onboard, readState } = await import('../lib/onboarding.js')
@@ -97,11 +97,14 @@ for (const { name, file } of skillFiles) {
   check(`${name}: description needs no quoting tricks`, quoted || !/: /.test(value),
     quoted ? 'quoted, so a colon is safe' : '')
 }
-// The npm package is dsh-say while the repo is dsh-voice; the install skill is
-// what an agent follows, so it must name the package a user can actually install.
+// The install skill is what an agent follows, so it must name the package a user
+// can actually install. It no longer needs to explain a repository/package name
+// split, so the check is that it names the package and does not send anyone to the
+// name on npm that belongs to another project.
 const setupSkill = readFileSync(join(root, 'skills', 'voice-setup', 'SKILL.md'), 'utf8')
 check('the setup skill names the installable package', setupSkill.includes('dsh-say'))
-check('the setup skill warns that dsh-voice is someone else\'s package on npm', /另一个人的项目|unrelated project/.test(setupSkill))
+check('the setup skill never tells anyone to install dsh-voice',
+  !/add\s+dsh-voice/.test(setupSkill))
 
 console.log('\n3. the report tool returns what an agent must check')
 const longReport = [
@@ -139,7 +142,7 @@ check('the compression is a real reduction, not a trim', (spoken.report?.sourceC
 console.log('\n4. the persona is readable without knowing the filesystem layout')
 // A self-contained persona, so the check does not depend on whatever happens to
 // be installed on the machine running it.
-const personaDir = mkdtempSync(join(tmpdir(), 'dsh-voice-personas-'))
+const personaDir = mkdtempSync(join(tmpdir(), 'dsh-say-personas-'))
 writeFileSync(join(personaDir, 'README.md'), '# personas\n', 'utf8')
 writeFileSync(join(personaDir, '_template.md'), '# template\n', 'utf8')
 writeFileSync(join(personaDir, 'voice-pack.json'), JSON.stringify({ pack: 'my-voice', speed: 1 }), 'utf8')

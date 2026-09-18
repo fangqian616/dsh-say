@@ -1,5 +1,5 @@
 /**
- * Smoke test for dsh-voice, runnable with plain Node (no DSH runtime needed).
+ * Smoke test for dsh-say, runnable with plain Node (no DSH runtime needed).
  *
  *   node test/smoke.mjs
  *
@@ -20,7 +20,7 @@ import { listVoicePacks } from '../lib/voice-store.js'
 // Every check runs against an empty, throwaway voices directory. A repository
 // test must never depend on — or synthesize with — a voice pack that happens to
 // be installed on the machine running it.
-const isolatedVoicesDir = mkdtempSync(join(tmpdir(), 'dsh-voice-test-packs-'))
+const isolatedVoicesDir = mkdtempSync(join(tmpdir(), 'dsh-say-test-packs-'))
 
 let failures = 0
 const check = (label, condition, detail = '') => {
@@ -44,7 +44,7 @@ const baseConfig = (overrides = {}) => ({
   ...overrides,
 })
 
-console.log('dsh-voice smoke test')
+console.log('dsh-say smoke test')
 console.log(`platform: ${process.platform}  node: ${process.version}`)
 
 console.log('\n1. built-in engine probe')

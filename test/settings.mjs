@@ -11,7 +11,7 @@ import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-const dir = mkdtempSync(join(tmpdir(), 'dsh-voice-settings-'))
+const dir = mkdtempSync(join(tmpdir(), 'dsh-say-settings-'))
 process.env.DSH_VOICE_CONFIG = join(dir, 'config.json')
 process.env.DSH_VOICE_STATE_DIR = join(dir, 'state')
 

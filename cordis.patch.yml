@@ -5,9 +5,6 @@
 # tools. `name` is the npm package name (not a relative path) so Node resolves
 # the installed copy inside the profile's node_modules.
 #
-# The repo is called dsh-voice; the npm package is dsh-say, because `dsh-voice`
-# was already taken on npm by an unrelated project.
-#
 # You do not edit this by hand. `dsh plugin --profile <name> add dsh-say`
 # installs the package and adds it to `dsh.profile.bundles`; this file is then
 # applied automatically on the next start.

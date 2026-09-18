@@ -5,7 +5,7 @@ Thanks for considering it. This project is small and the rules are short.
 ## Before you start
 
 ```sh
-git clone <this repo> && cd dsh-voice
+git clone <this repo> && cd dsh-say
 npm install
 npm test              # five checks, no audio
 npm run test:audible  # speaks through your speakers, to prove playback works

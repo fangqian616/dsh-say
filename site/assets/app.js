@@ -1,4 +1,4 @@
-/* dsh-voice — site behaviour
+/* dsh-say — site behaviour
    Three small things, no dependencies: the waveform that carries the page's
    idea, copy-to-clipboard for the commands, and a one-shot reveal on scroll. */
 

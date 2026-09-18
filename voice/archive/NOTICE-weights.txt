@@ -27,5 +27,5 @@ Not affiliated with miHoYo: this is a third-party project, not sponsored or
 endorsed by them.
 
 ---
-Repository: https://github.com/fangqian616/dsh-voice
+Repository: https://github.com/fangqian616/dsh-say
 The repository's voice/NOTICE.txt points here for the full notice.

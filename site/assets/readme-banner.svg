@@ -1,5 +1,5 @@
-﻿<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="480" viewBox="0 0 1280 480" role="img" aria-label="dsh-voice 閳?give your DSH agent a voice">
-  <title>dsh-voice</title>
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="480" viewBox="0 0 1280 480" role="img" aria-label="dsh-say — give your DSH agent a voice">
+  <title>dsh-say</title>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#0b1f3a"/>
@@ -59,11 +59,11 @@
   </g>
 
   <g font-family="Segoe UI, Helvetica Neue, Arial, sans-serif">
-    <text x="470" y="188" fill="#ffffff" font-size="78" font-weight="700" letter-spacing="-1.5">dsh-voice</text>
+    <text x="470" y="188" fill="#ffffff" font-size="78" font-weight="700" letter-spacing="-1.5">dsh-say</text>
     <text x="472" y="240" fill="#7aa8f7" font-size="32" font-weight="600">Give your DSH agent a voice.</text>
     <text x="472" y="288" fill="#c9d8ee" font-size="24">Speak and report out loud, in a voice you pick.</text>
     <g font-family="Cascadia Code, Consolas, monospace" font-size="20" fill="#8aa0b8">
-      <text x="472" y="344">$ dsh plugin --profile web add dsh-voice</text>
+      <text x="472" y="344">$ dsh plugin --profile web add dsh-say</text>
     </g>
   </g>
 

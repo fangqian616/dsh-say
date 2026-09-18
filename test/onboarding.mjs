@@ -13,7 +13,7 @@ import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-const stateDir = mkdtempSync(join(tmpdir(), 'dsh-voice-onboarding-'))
+const stateDir = mkdtempSync(join(tmpdir(), 'dsh-say-onboarding-'))
 process.env.DSH_VOICE_STATE_DIR = stateDir
 
 const { isOnboarded, onboard, readState, resetOnboarding, statePath } = await import('../lib/onboarding.js')

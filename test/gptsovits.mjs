@@ -20,7 +20,7 @@ const check = (label, condition, detail = '') => {
   console.log(`  [${condition ? 'PASS' : 'FAIL'}] ${label}${detail ? ` — ${detail}` : ''}`)
 }
 
-console.log('dsh-voice GPT-SoVITS path check')
+console.log('dsh-say GPT-SoVITS path check')
 
 console.log('\n1. version inference from weight directory names')
 check('v4', versionFromDirName('GPT_weights_v4') === 'v4')
@@ -46,7 +46,7 @@ console.log('\n3. the engine refuses cleanly when it cannot run')
 // engine installed; on a clean checkout the engine declines before writing it.
 const probePack = {
   name: 'compile-probe',
-  dir: join(tmpdir(), 'dsh-voice-compile-probe'),
+  dir: join(tmpdir(), 'dsh-say-compile-probe'),
   version: 'v2ProPlus',
   gpt: 'GPT_weights_v2ProPlus/none.ckpt',
   sovits: 'SoVITS_weights_v2ProPlus/none.pth',
@@ -72,7 +72,7 @@ if (!status.available) {
 // The helper only exists once a real engine is present. When one is, its script
 // must still be valid Python — checked only if this machine has an interpreter,
 // so the check reports rather than fails on a runner without one.
-const workDir = join(tmpdir(), 'dsh-voice')
+const workDir = join(tmpdir(), 'dsh-say')
 const helper = join(workDir, 'gptsovits_helper.py')
 if (status.available && status.mode === 'local') {
   check('the helper script was written', existsSync(helper))
@@ -103,9 +103,9 @@ if (status.available && status.mode === 'local') {
 }
 
 console.log('\n4. voice pack registration')
-const voicesDir = join(tmpdir(), `dsh-voice-packs-${Date.now()}`)
+const voicesDir = join(tmpdir(), `dsh-say-packs-${Date.now()}`)
 mkdirSync(voicesDir, { recursive: true })
-const refAudio = join(tmpdir(), `dsh-voice-ref-${Date.now()}.wav`)
+const refAudio = join(tmpdir(), `dsh-say-ref-${Date.now()}.wav`)
 writeFileSync(refAudio, Buffer.from('RIFF....WAVEfmt ')) // contents are not validated at registration
 
 const ctx = { config: { voicesDir, engines: { gptSovits: { version: 'v2ProPlus' } } } }

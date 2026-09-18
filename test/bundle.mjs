@@ -110,11 +110,12 @@ check('the maintainer-only publish helper is excluded from the tarball',
 check('the scripts users run are still shipped',
   manifest.files?.includes('scripts') && !manifest.files?.includes('!scripts'))
 
-// The npm package is `dsh-say` while the repository is `dsh-voice`, so the two
-// names deliberately differ. Pinning it here stops a well-meaning rename back to
-// the repository name — which is already taken on npm by an unrelated project
-// that is also a dsh bundle, so installing it would silently mount the wrong one.
-check('the package name is the free npm name, not the repo name', packageName === 'dsh-say', String(packageName))
+// The repository and the npm package are both `dsh-say`. The name is pinned
+// because it is not free to choose: `dsh-voice` is taken on npm by an unrelated
+// voice plugin that is also a dsh bundle, so installing under that name would
+// silently mount someone else's project. A rename "back" to it must fail here.
+check('the package name is the free npm name', packageName === 'dsh-say', String(packageName))
+check('the npm name is not the one another project owns', packageName !== 'dsh-voice')
 
 // The entry point the row resolves must be the plugin this package actually
 // exports, or the layer mounts and contributes no tools.
