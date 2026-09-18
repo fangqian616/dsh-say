@@ -102,31 +102,52 @@ voice packs: 0 in ~/.dsh/voice-packs
 
 > **先说清楚 main 和 release 的分工 —— 这是本项目唯一需要你选的地方。**
 >
-> | | **main（本仓库）** | **Releases（那个 1.4 GB 的包）** |
+> | | **main（本仓库）** | **[Releases](../../releases/latest)（那个 1.34 GB 的包）** |
 > |:--|:--|:--|
 > | 是什么 | **插件本体**：调用 TTS、压缩汇报、人设、声线注册 | **SoVITS 推理素材**：4 个 base 模型 + 银狼声线 |
 > | 声音从哪来 | **你系统自带的语音**（SAPI） | 银狼（GPT-SoVITS 角色声线） |
-> | 下载量 | **0** | 约 1.4 GB |
+> | 下载量 | **0** | **1.34 GB** |
 > | 要 Python / 显卡 | **不要** | 要一个能跑的 GPT-SoVITS |
 >
 > **只要你不想装角色声线，就到此为止** —— main 已经能说话，一步都不用多。
-> 想听银狼，再取 release 那份。
+> 想听银狼，去 [Releases](../../releases/latest) 下那个包，继续往下看。
 
-装之前先读 [`voice/NOTICE.txt`](voice/NOTICE.txt)（素材来源说明，不是许可证）。
+#### 怎么装
 
-本仓库自带一条可以直接装的声线，参考音也一并附带：
+**不用敲任何命令。** 把上面那个 zip 下载好，对你的 AI 说一句：
+
+> 把 silver-wolf 声线装上
+
+它自己会去 Downloads 找到那个包、解压、把四个 base 模型铺进 `GPT_SoVITS/pretrained_models/`、把声线权重铺进 `GPT_weights_v2ProPlus/` 和 `SoVITS_weights_v2ProPlus/`，然后登记声线包。**已经存在的文件会跳过**，不会覆盖你调好的环境。
+
+装完直接说「用银狼念一下这段」就能听到。
+
+<details>
+<summary><b>想自己动手 / AI 没有自动做</b></summary>
+
+<br>
+
+一条命令，**不用传路径** —— 它会去 Downloads、当前目录找这个包：
 
 ```sh
 node scripts/install-voice.mjs
 ```
 
-**一条命令**：自动取素材、自动找你的 GPT-SoVITS、自动放到位并登记。不用手动下载，也不用自己找文件夹。
-
-如果 GPT-SoVITS 不在默认位置：
+要指定别的包或别的 GPT-SoVITS：
 
 ```sh
-node scripts/install-voice.mjs --engine "D:/GPT-SoVITS"
+node scripts/install-voice.mjs --from "D:/downloads/某个.zip" --engine "D:/GPT-SoVITS"
 ```
+
+</details>
+
+> [!IMPORTANT]
+> **前置条件：本机要有一个能跑的 GPT-SoVITS 检出加 Python 环境。**
+> [Releases](../../releases/latest) 那个包给的是**模型**，不是**运行时** —— Python 和 torch 那几 GB 装不进 Release，也不该装。
+> 还没有的话，官方 Windows 整合包解压双击即可（[下载](https://huggingface.co/lj1995/GPT-SoVITS-windows-package/resolve/main/GPT-SoVITS-v3lora-20250228.7z)，6.4 GB）。
+> **两者不冲突**：整合包负责运行时，Releases 那个包负责让它用银狼的声音，而且比整合包自带的那套小得多。
+
+装之前先读 [`voice/NOTICE.txt`](voice/NOTICE.txt)（素材来源说明，不是许可证）。
 
 ---
 
