@@ -42,13 +42,17 @@ only from its own directories, so they must be copied into the checkout before
 dsh-say can point at them. The installer does both.
 
 ```sh
-# 1. get the weights (or copy them into voice/ yourself)
+# 1. get the bundle (or copy its files into voice/ yourself)
 node scripts/fetch-voice.mjs                     # uses the url in SOURCE.json
-node scripts/fetch-voice.mjs --from "D:/downloads/silver-wolf-weights.zip"
+node scripts/fetch-voice.mjs --from "D:/downloads/silver-wolf-full-v2ProPlus.zip"
 
-# 2. copy them into the engine and register the pack
+# 2. place them into the engine and register the pack
 node scripts/install-voice.mjs
 ```
+
+`install-voice.mjs` needs no path: it looks for the bundle in Downloads and the
+current directory. The bundle carries the base models as well as the voice, and
+the installer puts each one where the engine expects it.
 
 If the weights already sit somewhere else, say so instead of moving them:
 

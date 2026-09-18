@@ -55,7 +55,11 @@ if (fromFlag >= 0 && !fromArchive) {
 
 /** The archive, if it is already sitting somewhere obvious. */
 function findArchive() {
-  const names = [/^silver-wolf-full.*\.zip$/i, /^silver-wolf-weights.*\.zip$/i, /^dsh-say.*\.zip$/i]
+  // Only the current bundle is matched. The older weights-only archive shipped
+  // under a `silver-wolf-weights-` name and is a strict subset of this one, so
+  // treating it as a candidate would install a voice with no base models and fail
+  // in a way that looks like a bad download.
+  const names = [/^silver-wolf-full.*\.zip$/i, /^dsh-say.*\.zip$/i]
   const places = [
     join(homedir(), 'Downloads'),
     process.cwd(),
