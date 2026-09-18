@@ -148,25 +148,27 @@ check('no model weights or audio outside voice/', offenders.length === 0, offend
 
 // Two notices, on purpose, because the material leaves the repository before it
 // reaches a user: `voice/NOTICE.txt` covers what is committed here, and the file
-// placed inside the weights archive is what someone actually downloads. The
-// second carries the facts, so it is the one checked for them.
+// placed inside the weights archive is what someone actually downloads.
 //
 // The archive's entry is NOT named `NOTICE.txt`: the archive extracts into
 // `voice/`, so that name would overwrite the repository's own notice on any run
 // of the fetch. The differing name is asserted below because it is load-bearing.
 //
-// They are fact sheets, matching how this material is published elsewhere (a
-// bundled model carries a one-screen notice, or none). So the checks are the
-// facts that must not go missing, not a shape to conform to.
+// One standard sentence states the terms, used everywhere the material is
+// published: the archive, the repository notice, the site, and the default a pack
+// gets when registered without one. The checks are that the sentence is present
+// and the facts around it survive, not a shape to conform to.
+const STANDARD_NOTICE = '本声音资源仅供学习交流，严禁用于商业用途，如有侵权，请联系作者，作者得知后会于24小时内删除。'
+
 const voiceNotice = join(root, sanctionedDir, 'NOTICE.txt')
-check('voice/ carries the materials notice', existsSync(voiceNotice))
+check('voice/ carries the notice', existsSync(voiceNotice))
 if (existsSync(voiceNotice)) {
   const notice = readFileSync(voiceNotice, 'utf8')
-  check('it marks the use as non-commercial', /not for commercial|不得商用/.test(notice))
-  check('it points at the archive for the full notice',
-    /archive|压缩包/.test(notice))
+  check('it states the standard terms', notice.includes(STANDARD_NOTICE))
+  check('it promises removal on request within 24 hours', /24\s*小时内删除|within 24 hours/.test(notice))
+  check('it points at the archive for the full notice', /NOTICE-weights|压缩包/.test(notice))
   // The convention is short. An essay is how this file went wrong the first time:
-  // it restated one point four ways and buried the facts people need.
+  // it restated one point four ways and buried the terms people need.
   const lines = notice.split(/\r?\n/).length
   check('it stays a one-screen fact sheet', lines <= 40, `${lines} lines`)
 }
@@ -177,14 +179,13 @@ check('the archive entry name cannot clobber the repository notice',
   !existsSync(join(root, sanctionedDir, 'archive', 'NOTICE.txt')))
 if (existsSync(archiveNotice)) {
   const notice = readFileSync(archiveNotice, 'utf8')
-  check('the archive notice names the rights holder', /miHoYo|米哈游/.test(notice))
-  check('the archive notice states the project cannot license the material',
-    /cannot (grant|forbid|license)|无法(授予|许可)|不能(授予|许可)/.test(notice))
-  check('the archive notice identifies the clips as the rights holder\'s voice',
-    /reference-\*\.wav|《崩坏：星穹铁道》/.test(notice))
-  check('the archive notice marks the use as non-commercial', /not for commercial|不得商用/.test(notice))
-  check('the archive notice says the project is not affiliated',
-    /not affiliated|与米哈游无关/i.test(notice))
+  check('the archive notice states the standard terms', notice.includes(STANDARD_NOTICE))
+  check('the archive notice documents the trainable pair',
+    /reference-中立\.txt/.test(notice),
+    'the neutral clip ships with its transcript, and the notice has to say so')
+  check('the archive notice keeps the base model licenses',
+    /Apache-2\.0/.test(notice) && /MIT/.test(notice),
+    'redistributing those models requires keeping their attribution')
 }
 if (publishedWeights.length > 0) console.log(`     voice/ holds ${publishedWeights.length} weight/audio file(s)`)
 else console.log('     voice/ ships no weights (the 148 MB checkpoint is fetched, not committed)')

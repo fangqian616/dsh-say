@@ -40,5 +40,9 @@ voice/*.zip
 
 # Commit messages written to a file, because a heredoc is not available in every
 # shell this project is developed from. Never content.
+# The archive's own notice, dropped into voice/ by a fetch. The source of truth
+# is voice/archive/NOTICE-weights.txt, which is versioned.
+voice/NOTICE-weights.txt
+
 /COMMIT_MSG.txt
 /MSG.txt

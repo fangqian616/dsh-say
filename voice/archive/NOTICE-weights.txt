@@ -3,6 +3,14 @@ Voice material notice / 素材说明
 
 silver-wolf — GPT-SoVITS v2ProPlus
 
+**本声音资源仅供学习交流，严禁用于商业用途，如有侵权，请联系作者，作者得知后会于24小时内删除。**
+
+This voice resource is for learning and exchange only. Commercial use is strictly
+prohibited. If it infringes any right, contact the author and it will be removed
+within 24 hours.
+
+---
+
 Contents / 内容
   silver-wolf-e10.ckpt            GPT checkpoint
   silver-wolf_e10_s120.pth        SoVITS weights
@@ -12,27 +20,15 @@ Contents / 内容
 可以自己拿去训练 / Trainable
   `reference-中立.wav` 加 `reference-中立.txt` 是一对可用的微调素材 ——
   可以直接导入 GPT-SoVITS 训练，文本与音频是对应的。
-  其余五条**没有文本**：文件名里的情绪只用来帮你挑音色，别当成它的文本。
+  其余五条没有文本：文件名里的情绪只用来帮你挑音色，别当成它的文本。
   缺文本比配错文本好 —— 微调会照着错的学。
 
-The weights were trained by this project's maintainer.
-权重由本项目维护者训练。
-学习与研究用途，不得商用。
-
-- reference-*.wav 取自《崩坏：星穹铁道》角色语音（米哈游）。
-- 角色与声音权利属于米哈游；维护者不持有，既不能授予也不能禁止。
-  商用许可只有米哈游能给。
-
-与米哈游无关，未获其赞助或认可。
-
-- The reference clips are the character's voice from *Honkai: Star Rail* (miHoYo).
-- Character and voice rights belong to miHoYo. The maintainer holds none of them,
-  and can neither grant nor forbid a use. A commercial license can only come from
-  miHoYo.
-
-Not affiliated with miHoYo: this is a third-party project, not sponsored or
-endorsed by them.
+Base models / 基础模型
+  以下四个模型按各自许可原样分发，未做修改：
+  bert/            chinese-roberta-wwm-ext-large   Apache-2.0
+  hubert/          chinese-hubert-base             Apache-2.0
+  s1v3.ckpt        GPT base                         MIT
+  s2Gv2ProPlus.pth VITS base                        MIT
 
 ---
 Repository: https://github.com/fangqian616/dsh-say
-The repository's voice/NOTICE.txt points here for the full notice.

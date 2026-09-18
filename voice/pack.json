@@ -4,5 +4,5 @@
     "emotion":  "中立",
     "sovits":  "SoVITS_weights_v2ProPlus/silver-wolf_e10_s120.pth",
     "gpt":  "GPT_weights_v2ProPlus/silver-wolf-e10.ckpt",
-    "notice":  "Weights trained by this project's maintainer. Learning and research use; not for commercial use. The character, the voice, and ref.wav belong to miHoYo, so the maintainer cannot license them. See NOTICE.txt."
+    "notice":  "本声音资源仅供学习交流，严禁用于商业用途，如有侵权，请联系作者，作者得知后会于24小时内删除。"
 }

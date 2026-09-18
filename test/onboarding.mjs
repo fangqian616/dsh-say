@@ -88,8 +88,43 @@ const manual = await onboard({
   agent: fakeAgent,
 })
 check('"I decide" leaves auto-report off', manual.autoReport === false)
-check('importing a voice asks for follow-up', (manual.todos || []).some((t) => t.includes('导入别的声线')))
 check('setting a persona asks for follow-up', (manual.todos || []).some((t) => t.includes('人设')))
+
+console.log('\n5b. wanting a voice without an engine says so, instead of a dead end')
+// The failure this prevents: a user picks "import a voice", gets asked for weight
+// paths, and only finds out after installing that nothing can speak them. The
+// engine check turns that into an explicit instruction carrying the download link.
+check('no engine, so the follow-up is about the engine',
+  (manual.todos || []).some((t) => /GPT-SoVITS 引擎/.test(t)),
+  (manual.todos || []).join(' | '))
+check('the follow-up carries the official package link',
+  (manual.todos || []).some((t) => /huggingface\.co\/lj1995/.test(t)))
+check('it does not ask for weight paths before an engine exists',
+  !(manual.todos || []).some((t) => /问清楚模型权重位置/.test(t)))
+check('it says the release is models, not a runtime',
+  (manual.todos || []).some((t) => /不是运行时/.test(t)))
+
+resetOnboarding()
+const engineReady = await onboard({
+  userQuestions: answerWith('我要导入别的声线', '用默认人设', '不要自动播报'),
+  agent: fakeAgent,
+  engineAvailable: true,
+})
+check('with an engine, it asks for the weights instead',
+  (engineReady.todos || []).some((t) => /问清楚模型权重位置/.test(t)),
+  (engineReady.todos || []).join(' | '))
+check('with an engine, it does not raise the engine question',
+  !(engineReady.todos || []).some((t) => /GPT-SoVITS 引擎/.test(t)))
+
+resetOnboarding()
+const keepSystem = await onboard({
+  userQuestions: answerWith('先用系统语音', '用默认人设', '要，压缩后播报'),
+  agent: fakeAgent,
+  engineAvailable: false,
+})
+check('choosing the system voice never raises the engine question',
+  (keepSystem.todos || []).length === 0,
+  (keepSystem.todos || []).join(' | '))
 
 console.log('\n6. a refused or cancelled question does not throw')
 resetOnboarding()

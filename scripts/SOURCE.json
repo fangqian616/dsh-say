@@ -24,5 +24,5 @@
     "reference/reference-难过.wav",
     "reference/reference-恐惧.wav"
   ],
-  "notice": "A voice and the models needed to run it. The voice's weights were trained by this project's maintainer; the character, the voice, and the reference clips belong to miHoYo. The neutral clip ships with its transcript, so it can also be used for fine-tuning; the other five clips are named by emotion and carry no transcript. The four base models are redistributed unchanged under Apache-2.0 (chinese-roberta, hubert) and MIT (GPT-SoVITS). Learning and research use; not for commercial use. The full notice travels inside the archive as NOTICE-weights.txt."
+  "notice": "本声音资源仅供学习交流，严禁用于商业用途，如有侵权，请联系作者，作者得知后会于24小时内删除。A voice and the models needed to run it. The neutral reference clip ships with its transcript so it can also be used for fine-tuning; the other five carry no transcript. The four base models are redistributed unchanged under Apache-2.0 (chinese-roberta, hubert) and MIT (GPT-SoVITS). The full notice travels inside the archive as NOTICE-weights.txt."
 }

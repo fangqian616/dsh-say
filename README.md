@@ -28,10 +28,18 @@
 ### 1 · 装插件
 
 ```sh
+npx dsh-say
+```
+
+**就这一条，不用参数。** 它默认装进 `web` profile；用别的 profile 加 `--profile <名字>`，想看它要执行什么加 `--print`。
+
+等价的手写命令（`npx` 那条就是替你跑这个）：
+
+```sh
 dsh plugin --profile web add dsh-say
 ```
 
-**然后重启 profile** —— 这一步必须由你做，命令行没法替你重启你正开着的会话。
+**然后重启 profile** —— 这一步必须由你做，命令行没法替你重启你正开着的会话。`npx` 跑完会把这句再说一遍，因为它只负责装，重启不了你的会话。
 
 装完就结束。这条命令会把包装好、登记进 profile、并自动应用本包自带的组合层，`tts_*` 工具在重启后出现。
 
@@ -160,7 +168,7 @@ node scripts/install-voice.mjs --from "D:/downloads/某个.zip" --engine "D:/GPT
 > 还没有的话，官方 Windows 整合包解压双击即可（[下载](https://huggingface.co/lj1995/GPT-SoVITS-windows-package/resolve/main/GPT-SoVITS-v3lora-20250228.7z)，6.4 GB）。
 > **两者不冲突**：整合包负责运行时，Releases 那个包负责让它用银狼的声音，而且比整合包自带的那套小得多。
 
-装之前先读 [`voice/NOTICE.txt`](voice/NOTICE.txt)（素材来源说明，不是许可证）。
+装之前先读 [`voice/NOTICE.txt`](voice/NOTICE.txt)：**本声音资源仅供学习交流，严禁用于商业用途，如有侵权，请联系作者，作者得知后会于24小时内删除。**
 
 ---
 
@@ -296,7 +304,7 @@ The default backend is whatever speech voices your operating system already has,
 dsh plugin --profile web add dsh-say
 ```
 
-Restart the profile, then ask the agent to *"say hello out loud"*. The command installs the package, registers it in the profile, and applies the bundle layer this package ships; the `tts_*` tools appear after the restart.
+Restart the profile, then ask the agent to *"say hello out loud"*. `npx dsh-say` does the same thing with no arguments and then repeats the restart step, because installing is all it can do — it cannot restart your session.
 
 | Tool | Purpose |
 |:--|:--|
@@ -349,7 +357,7 @@ trainable material:
 A wrong transcript is worse than a missing one, so none is invented for the five:
 the emotion in the filename is a label for the listener, not the line being spoken.
 
-Read [`voice/NOTICE.txt`](voice/NOTICE.txt) before installing — a materials notice, not a license.
+Read [`voice/NOTICE.txt`](voice/NOTICE.txt) before installing: **this voice resource is for learning and exchange only; commercial use is strictly prohibited; if it infringes any right, contact the author and it will be removed within 24 hours.**
 
 ---
 

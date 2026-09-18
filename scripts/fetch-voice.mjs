@@ -15,7 +15,7 @@ import { execFileSync } from 'node:child_process'
 import { createWriteStream, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { connect as netConnect } from 'node:net'
 import { connect as tlsConnect } from 'node:tls'
-import { dirname, join, resolve } from 'node:path'
+import { basename, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const here = dirname(fileURLToPath(import.meta.url))
@@ -223,6 +223,14 @@ const args = process.argv.slice(2)
 const fromIndex = args.indexOf('--from')
 const fromPath = fromIndex >= 0 ? args[fromIndex + 1] : ''
 const printOnly = args.includes('--print-commands')
+// `--out <dir>` unpacks somewhere other than voice/, and `--url <url>` fetches a
+// different archive. Both exist because the download is also useful on its own -
+// staging the bundle for a machine that has no checkout, or verifying what a
+// release actually serves without unpacking 1.4 GB into the repository.
+const outIndex = args.indexOf('--out')
+const outDir = outIndex >= 0 ? resolve(args[outIndex + 1]) : ''
+const urlIndex = args.indexOf('--url')
+const urlOverride = urlIndex >= 0 ? args[urlIndex + 1] : ''
 
 const source = existsSync(sourcePath)
   ? JSON.parse(readFileSync(sourcePath, 'utf8').replace(/^\uFEFF/, ''))
@@ -252,7 +260,8 @@ function walk(dir, out = []) {
 }
 
 function install(archive, label) {
-  console.log(`extracting ${label} into voice/`)
+  const into = outDir || voiceDir
+  console.log(`extracting ${label} into ${shownPath(into)}`)
   // The paths go through the environment rather than the command string. Node's
   // own filesystem layer could unzip this, but the archive is extracted with the
   // platform's tool so a user's existing unzip behaviour (long paths, odd
@@ -264,12 +273,22 @@ function install(archive, label) {
     'Expand-Archive -LiteralPath $env:DSH_FETCH_ARCHIVE -DestinationPath $env:DSH_FETCH_INTO -Force',
   ], {
     stdio: 'inherit',
-    env: { ...process.env, DSH_FETCH_ARCHIVE: archive, DSH_FETCH_INTO: voiceDir },
+    env: { ...process.env, DSH_FETCH_ARCHIVE: archive, DSH_FETCH_INTO: into },
   })
 
-  const files = walk(voiceDir)
-  const gpt = files.find((file) => file.endsWith('.ckpt'))
-  const sovits = files.find((file) => file.endsWith('.pth'))
+  const files = walk(into)
+  // The bundle carries the base models alongside the voice, so "the first .ckpt"
+  // picks `s1v3.ckpt` and "the first .pth" picks `s2Gv2ProPlus.pth` - both base
+  // models. The guidance printed below would then tell the user to register a base
+  // model as their voice: an install that succeeds and speaks in the wrong voice.
+  // The same exclusion runs in install-voice, which is what actually registers.
+  const BUNDLED_BASE = new Set([
+    's1v3.ckpt', 's2Gv2ProPlus.pth', 'config.json',
+    'preprocessor_config.json', 'tokenizer.json', 'pytorch_model.bin',
+  ])
+  const voiceFiles = files.filter((file) => !BUNDLED_BASE.has(basename(file)))
+  const gpt = voiceFiles.find((file) => file.endsWith('.ckpt'))
+  const sovits = voiceFiles.find((file) => file.endsWith('.pth'))
   const references = files.filter((file) => file.endsWith('.wav'))
 
   console.log('\ninstalled:')
@@ -312,7 +331,7 @@ if (fromPath) {
   process.exit(0)
 }
 
-const url = source.url
+const url = urlOverride || source.url
 if (!url) {
   console.error('scripts/SOURCE.json has no "url" set.')
   console.error('Either fill it in, or pass a local archive:')
@@ -320,8 +339,9 @@ if (!url) {
   process.exit(1)
 }
 
-mkdirSync(voiceDir, { recursive: true })
-const archive = join(voiceDir, source.archive || 'voice-weights.zip')
+const intoDir = outDir || voiceDir
+mkdirSync(intoDir, { recursive: true })
+const archive = join(intoDir, source.archive || 'voice-weights.zip')
 
 console.log(`downloading ${url}`)
 await download(url, archive)
