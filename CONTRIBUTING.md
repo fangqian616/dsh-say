@@ -26,11 +26,16 @@ testing nothing.
 
 **2. Never commit model weights, voice data, or audio.**
 
-`test/smoke.mjs` fails if weights or audio appear outside `voice/`, and if
-published weights lack a license notice. This is deliberate and it is not
-negotiable: the project's promise is that installing it never downloads a voice.
-`voice/` is the single sanctioned place for a published voice, and it must carry
-`LICENSE.txt`.
+`test/smoke.mjs` fails if weights or audio appear outside `voice/`, and if the
+materials notice there is missing or starts claiming rights this project does not
+hold. This is deliberate and it is not negotiable: the project's promise is that
+installing it never downloads a voice. `voice/` is the single sanctioned place for
+a published voice, and `voice/LICENSE.txt` must travel with it.
+
+That notice is **not a license**. The code is MIT; the material is not this
+project's to license, because a character voice and a clip of existing audio
+belong to their owner. The notice says so plainly, and the test enforces it — a
+contributor who "improves" it into a license grant will see CI fail.
 
 **3. Do not add a hard dependency on an optional service.**
 
@@ -82,8 +87,10 @@ most wanted contribution: implement `probe`, `listVoices`, `synthesize` and
 
 Only contribute material you are allowed to contribute. A real person's voice
 needs their permission; a character voice belongs to whoever owns the character,
-separately from whoever trained the model. `voice/LICENSE.txt` shows the notice
-format for anything published in `voice/`.
+separately from whoever trained the model, and a reference clip taken from
+existing audio belongs to the rights holder as well. `voice/LICENSE.txt` shows the
+notice format for anything published in `voice/` — and it does not grant anything,
+so do not write one that purports to.
 
 ## Reporting a bug
 

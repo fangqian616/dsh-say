@@ -7,7 +7,7 @@
  * built-in engine, voice-pack discovery, and the engine-selection router.
  */
 
-import { existsSync, mkdtempSync, readdirSync } from 'node:fs'
+import { existsSync, mkdtempSync, readdirSync, readFileSync } from 'node:fs'
 import { homedir, tmpdir } from 'node:os'
 import { dirname, extname, join, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -119,8 +119,10 @@ console.log('\n7. repository hygiene')
 // licensing problem for everyone downstream.
 //
 // Second: `voice/` is the single sanctioned place for a published voice, and a
-// published voice must carry its license notice. Weight files without a notice
-// next to them are the exact failure this check exists to catch.
+// published voice must carry a notice stating where the material came from and
+// that the rights are not the project's to grant. Weight files without one, or
+// a notice that reads like a license the maintainer cannot issue, are the exact
+// failures this check exists to catch.
 const forbidden = ['.ckpt', '.pth', '.safetensors', '.wav', '.mp3', '.flac']
 const ignoredDirs = ['node_modules', '.git', 'local']
 const sanctionedDir = 'voice'
@@ -144,14 +146,20 @@ const walk = (dir, depth = 0) => {
 walk(root)
 check('no model weights or audio outside voice/', offenders.length === 0, offenders.join(', '))
 
+// The notice is required whether or not weights are committed: the reference
+// clip is always here, and it is the rights holder's audio, not this project's.
 const voiceNotice = join(root, sanctionedDir, 'LICENSE.txt')
-if (publishedWeights.length > 0) {
-  check('published weights carry their license notice', existsSync(voiceNotice))
-  console.log(`     voice/ holds ${publishedWeights.length} weight/audio file(s)`)
-} else {
-  check('voice/ ships no weights (weights are fetched, not committed)', !existsSync(voiceNotice) || true)
-  check('the license notice is present for whenever weights are added', existsSync(voiceNotice))
+check('voice/ carries the materials notice', existsSync(voiceNotice))
+if (existsSync(voiceNotice)) {
+  const notice = readFileSync(voiceNotice, 'utf8')
+  check('the notice says it is not a license', /not a license|不是许可证/i.test(notice))
+  check('the notice does not claim rights the project does not hold',
+    /cannot grant|无法授予|不持有/.test(notice))
+  check('the notice names the reference clip as the rights holder\'s audio',
+    /ref\.wav/.test(notice))
 }
+if (publishedWeights.length > 0) console.log(`     voice/ holds ${publishedWeights.length} weight/audio file(s)`)
+else console.log('     voice/ ships no weights (the 148 MB checkpoint is fetched, not committed)')
 check('the gitignore exists', existsSync(join(root, '.gitignore')))
 
 console.log(`\n${failures === 0 ? 'ALL CHECKS PASSED' : `${failures} CHECK(S) FAILED`}`)

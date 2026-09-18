@@ -14,5 +14,5 @@
     "reference-难过.wav",
     "reference-恐惧.wav"
   ],
-  "license": "Learning and research use only. Non-commercial. Rights to the character and voice belong to miHoYo."
+  "notice": "This archive holds weights and reference clips of a character voice. The maintainer trained the weights but owns none of the rights in the character or the voice, so this is a provenance note, not a license. Learning and research use; not for commercial use. Rights to the character and voice belong to miHoYo. The reference clips are miHoYo's own audio. See voice/LICENSE.txt."
 }

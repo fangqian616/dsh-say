@@ -53,6 +53,7 @@ Only register material you are allowed to use, and think about what that means b
 
 - **A real person's voice** — you need their permission. A voice is personal data in many jurisdictions; cloning someone who has not agreed is not a technical question.
 - **A character voice model** — check the terms of whoever trained it. Community models commonly forbid commercial use and redistribution, and require credit.
+- **A reference clip** — if it is an excerpt of existing audio (a game, a film, a recording), then it is the rights holder's work, not yours, even though you are the one registering it.
 - **Redistribution** — do not publish a voice pack you do not own. dsh-voice never will; that is why `voicesDir` lives in your home directory and not in the package.
 
-Record the terms in `pack.json`'s `license` field when you register, so your future self knows the constraints.
+Record where the material came from in `pack.json`'s `notice` field when you register, so your future self knows the constraints. It is a **note for your records, not a license**: registering a pack grants nothing, because the rights in a cloned voice belong to whoever owns the character and the recording — not to you, and not to this plugin. `tts_voices add` accepts `license` as an older alias for the same field.

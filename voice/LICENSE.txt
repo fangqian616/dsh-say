@@ -1,27 +1,101 @@
-# Voice notice
+# Materials notice — voice/ / 素材声明
 
-**本声线仅用于学习和研究讨论，不能用于任何商用用途。最终版权归米哈游所有。**
+This file is **not a license**. The code in this repository is MIT (see
+[../LICENSE](../LICENSE)); the material in `voice/` is a different kind of thing,
+and the maintainer holds no rights in it to license.
 
-This voice is provided for learning and research discussion only. It must not be
-used for any commercial purpose. All rights to the underlying character and
-voice belong to miHoYo (米哈游).
+本文件**不是许可证**。本仓库的代码是 MIT（见 [../LICENSE](../LICENSE)）；`voice/`
+目录里的素材是另一回事，维护者对它们不持有任何可以授予的权利。
 
----
+## Three separate things / 三样不同的东西
+
+| What | Owner of the rights | Where it says so |
+|:--|:--|:--|
+| The plugin code | this project's contributors | [../LICENSE](../LICENSE) — MIT |
+| The trained weights | the maintainer trained them; the character and voice belong to miHoYo | this file |
+| `ref.wav` / `ref.txt` | **miHoYo** — it is a clip of the game's own audio | this file |
 
 ## 中文
 
-本声线模型由本项目维护者自行训练，仅用于学习和研究讨论，不得用于任何商用用途，
-不得出售、不得打包进付费产品或服务。
+### 1 · 训练权重
 
-本声线所涉及的角色形象与语音，其**最终版权归米哈游所有**。本声明仅覆盖模型权重
-本身的授权范围，不主张、也不转让任何属于米哈游的权利。
+权重由本项目维护者用自己采集的数据训练，用于学习和研究。
+
+维护者不是这些权利的所有人，**因此无法授予你任何许可**。把它们理解为"仅限学习
+与研究、不得商用"是**维护者的意愿**，不是一份有法律效力的授权 —— 能设定条件的
+是权利人。若权利人提出异议，维护者会移除这些权重。
+
+### 2 · 参考音（`ref.wav` / `ref.txt`）
+
+**这不是维护者的作品。** 它取自米哈游《崩坏：星穹铁道》中角色"银狼"的语音片段，
+是权利人的录音，**不在本仓库 MIT 许可的覆盖范围内**。
+
+用它、以及用它合成出来的音频，都需要遵守权利人的条款。商用需要米哈游的许可 ——
+维护者给不了这份许可。
+
+### 3 · 本项目与米哈游无关
+
+未获米哈游赞助、认可或审核。本项目是第三方作品。
 
 ## English
 
-These model weights were trained by this project's maintainer for learning and
-research discussion. They must not be used commercially, sold, or bundled into a
-paid product or service.
+### 1 · The trained weights
 
-All rights to the character and voice this model reproduces belong to miHoYo.
-This notice covers the model weights only; it neither claims nor transfers any
-right belonging to miHoYo.
+Trained by this project's maintainer on data the maintainer collected, for
+learning and research.
+
+The maintainer does not own these rights and **therefore cannot grant you a
+license to them**. Reading them as "learning and research only, no commercial
+use" is the **maintainer's intent, not a legally effective grant** — the party
+who can set terms is the rights holder. The maintainer will remove the weights
+if the rights holder objects.
+
+### 2 · The reference clip (`ref.wav` / `ref.txt`)
+
+**Not the maintainer's work.** It is an excerpt of miHoYo's own audio for the
+character Silver Wolf, from *Honkai: Star Rail*. It is the rights holder's
+recording and is **not covered by this repository's MIT license**.
+
+Using it, and any audio synthesized from it, is subject to the rights holder's
+terms. Commercial use needs miHoYo's permission, which the maintainer cannot
+give.
+
+### 3 · Not affiliated with miHoYo
+
+Not sponsored, endorsed, or reviewed by miHoYo. This is a third-party project.
+
+## Legal reference / 法律参考
+
+A cloned character voice can engage rights beyond copyright. The PRC Civil Code
+(中华人民共和国民法典) is the reference most projects in this space cite:
+
+- **第一千零一十九条** — 未经肖像权人同意，不得制作、使用、公开肖像权人的肖像……
+  **对自然人声音的保护，参照适用肖像权保护的有关规定。**
+  *Voice is protected by reference to the rules on likeness.*
+- **第一千零二十四条** — 民事主体享有名誉权。任何组织或者个人不得以侮辱、诽谤等
+  方式侵害他人的名誉权。
+- **第一千零二十七条** — 行为人发表的文学、艺术作品以真人真事或者特定人为描述
+  对象，含有侮辱、诽谤内容，侵害他人名誉权的，受害人有权依法请求该行为人承担
+  民事责任。
+
+This is the same reference [so-vits-svc](https://github.com/svc-develop-team/so-vits-svc)
+publishes. It is **not legal advice** — check your own jurisdiction before
+publishing anything made with this.
+
+上面这份参考与 [so-vits-svc](https://github.com/svc-develop-team/so-vits-svc)
+公开列出的一致。**这不是法律意见** —— 发布作品前请按你所在法域自行确认。
+
+## What this file does not say / 本文件没有说的话
+
+- It does not grant you anything. The maintainer is not the rights holder, so
+  there is nothing here to grant.
+- It does not promise the material is safe to publish. That depends on your use
+  and your jurisdiction.
+- It does not control what you do. This project cannot monitor its users; the
+  responsibility for a use is the user's.
+
+Understand "learning and research only" as a description of intent, not as a
+permission or a prohibition.
+
+本文件不授予任何权利，也不保证发布安全，更无法控制使用者 —— 使用后果由使用者承担。
+把"仅限学习研究"理解为对意图的说明，而不是许可或禁止。

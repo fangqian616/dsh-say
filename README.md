@@ -111,8 +111,10 @@ node scripts/install-voice.mjs --engine "D:/GPT-SoVITS"
 ```
 
 > [!WARNING]
-> **用之前请读声明**：本声线仅用于学习和研究讨论，**禁止商用**，最终版权归米哈游所有。
-> 详见 [`voice/LICENSE.txt`](voice/LICENSE.txt)。
+> **用之前请读声明**：[`voice/LICENSE.txt`](voice/LICENSE.txt) **不是许可证** —— 它是一个素材来源说明。
+> 代码是 MIT，但 `voice/` 里的东西不是这个项目能授权的：**参考音是米哈游的游戏原声**，
+> 角色与声音的权利属于米哈游，维护者不持有、也无法授予任何权利。
+> 把"仅限学习研究、不得商用"理解为**维护者的意愿**，而不是一份有法律效力的授权。
 
 ---
 
@@ -270,6 +272,6 @@ Restart the profile, then ask the agent to *"say hello out loud"*. The command i
 
 **MIT** · 不附带任何模型权重、声音数据或音频
 
-<sub>插画与角色形象版权归其所有者 · Illustration and character rights belong to their owners</sub>
+<sub>代码 MIT · 角色、声音与参考音的权利归其所有者 · Code is MIT; character, voice, and reference-audio rights belong to their owners</sub>
 
 </div>

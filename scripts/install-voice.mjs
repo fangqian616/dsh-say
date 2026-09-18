@@ -139,7 +139,10 @@ const registered = await voices(
     gpt: `${gptRelDir}/${gptName}`,
     sovits: `${sovitsRelDir}/${sovitsName}`,
     version,
-    license: packConfig.license || 'Non-commercial use only.',
+    // The notice travels with the material, from its own pack.json. The installer
+    // must not invent terms: it holds no rights in a cloned voice, so a default
+    // it made up would be a claim it cannot support.
+    notice: packConfig.notice || packConfig.license || 'terms not recorded in pack.json — see voice/LICENSE.txt',
   },
   { config: { voicesDir, engines: { gptSovits: { version } } } },
 )
