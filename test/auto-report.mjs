@@ -75,6 +75,34 @@ check('it explains why length is a hard limit', /字\/秒|字一秒/.test(skill)
 check('it gives a concrete length ceiling', /150\s*字|100 字|超过\s*\d+\s*字/.test(skill))
 check('it tells the agent not to switch strategies on its own', /不要.*擅自改走\s*subagent/.test(skill))
 
+console.log('\n2b. every skill frontmatter parses, and names the installable package')
+// A skill is loaded through its YAML frontmatter, so a frontmatter that does not
+// parse means the skill silently never loads — the agent simply behaves as if the
+// instructions were absent, with no error anywhere. A plain scalar containing
+// ": " does exactly that (an ASCII colon before a space starts a nested mapping),
+// which is easy to introduce while editing prose and invisible in a diff.
+const skillFiles = ['voice-setup', 'voice-report'].map((name) => ({
+  name, file: join(root, 'skills', name, 'SKILL.md'),
+}))
+for (const { name, file } of skillFiles) {
+  const text = readFileSync(file, 'utf8')
+  const block = /^---\r?\n([\s\S]*?)\r?\n---/.exec(text)
+  check(`${name}: frontmatter is present`, block !== null)
+  check(`${name}: frontmatter has name and description`, /^name:\s*\S/m.test(block?.[1] ?? '') && /^description:\s*\S/m.test(block?.[1] ?? ''))
+  // The two characters that break a plain YAML scalar, checked directly so the
+  // failure names the cause instead of only "does not parse".
+  const descLine = (block?.[1] ?? '').split(/\r?\n/).find((line) => line.startsWith('description:')) ?? ''
+  const value = descLine.slice('description:'.length).trim()
+  const quoted = (value.startsWith("'") && value.endsWith("'")) || (value.startsWith('"') && value.endsWith('"'))
+  check(`${name}: description needs no quoting tricks`, quoted || !/: /.test(value),
+    quoted ? 'quoted, so a colon is safe' : '')
+}
+// The npm package is dsh-say while the repo is dsh-voice; the install skill is
+// what an agent follows, so it must name the package a user can actually install.
+const setupSkill = readFileSync(join(root, 'skills', 'voice-setup', 'SKILL.md'), 'utf8')
+check('the setup skill names the installable package', setupSkill.includes('dsh-say'))
+check('the setup skill warns that dsh-voice is someone else\'s package on npm', /另一个人的项目|unrelated project/.test(setupSkill))
+
 console.log('\n3. the report tool returns what an agent must check')
 const longReport = [
   '# 本轮结果',

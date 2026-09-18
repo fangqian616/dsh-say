@@ -1,5 +1,5 @@
 {
-  "name": "dsh-voice",
+  "name": "dsh-say",
   "version": "0.1.0",
   "description": "Give your DSH agent a voice: speak text aloud through your speakers, with pluggable TTS engines (built-in system voices out of the box, GPT-SoVITS for character voices).",
   "type": "module",

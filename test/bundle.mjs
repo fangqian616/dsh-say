@@ -90,7 +90,14 @@ check('the patch parses as YAML', parseError === '', parseError)
 check('it contributes exactly one row', rows.length === 1, `got ${rows.length}`)
 check('the row names this package', rows[0]?.name === packageName, `row=${rows[0]?.name} package=${packageName}`)
 check('the row carries an id', typeof rows[0]?.id === 'string' && rows[0].id.length > 0, rows[0]?.id)
+check('the row id is the package short name', rows[0]?.id === 'say', String(rows[0]?.id))
 check('the row is not disabled', rows[0]?.disabled !== true)
+
+// The npm package is `dsh-say` while the repository is `dsh-voice`, so the two
+// names deliberately differ. Pinning it here stops a well-meaning rename back to
+// the repository name — which is already taken on npm by an unrelated project
+// that is also a dsh bundle, so installing it would silently mount the wrong one.
+check('the package name is the free npm name, not the repo name', packageName === 'dsh-say', String(packageName))
 
 // The entry point the row resolves must be the plugin this package actually
 // exports, or the layer mounts and contributes no tools.

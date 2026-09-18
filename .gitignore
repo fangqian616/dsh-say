@@ -37,3 +37,8 @@ voice/*.zip
 # Repository-local, never published: drives a private voice pack on the
 # maintainer's own machine for pre-release testing. Ships no data itself.
 /local/
+
+# Commit messages written to a file, because a heredoc is not available in every
+# shell this project is developed from. Never content.
+/COMMIT_MSG.txt
+/MSG.txt

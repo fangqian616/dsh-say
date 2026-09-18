@@ -1,13 +1,16 @@
-# The dsh-voice bundle patch: the layer this package contributes to a dsh
-# profile that lists it.
+# The dsh-say bundle patch: the layer this package contributes to a dsh profile
+# that lists it.
 #
 # One row: the host plugin `lib/index.js` that registers the `tts_*` model
 # tools. `name` is the npm package name (not a relative path) so Node resolves
 # the installed copy inside the profile's node_modules.
 #
-# You do not edit this by hand. `dsh plugin --profile <name> add dsh-voice`
+# The repo is called dsh-voice; the npm package is dsh-say, because `dsh-voice`
+# was already taken on npm by an unrelated project.
+#
+# You do not edit this by hand. `dsh plugin --profile <name> add dsh-say`
 # installs the package and adds it to `dsh.profile.bundles`; this file is then
 # applied automatically on the next start.
 - insert:
-    - id: tool-voice
-      name: dsh-voice
+    - id: say
+      name: dsh-say

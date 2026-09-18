@@ -28,12 +28,17 @@
 ### 1 · 装插件
 
 ```sh
-dsh plugin --profile web add dsh-voice
+dsh plugin --profile web add dsh-say
 ```
 
 **然后重启 profile** —— 这一步必须由你做，命令行没法替你重启你正开着的会话。
 
 装完就结束。这条命令会把包装好、登记进 profile、并自动应用本包自带的组合层，`tts_*` 工具在重启后出现。
+
+> [!IMPORTANT]
+> **仓库叫 `dsh-voice`，npm 包叫 `dsh-say`。** npm 上的 `dsh-voice` 是**另一个人的项目**
+> （另一个语音插件，同样是 dsh bundle）—— 装它不会报错，但你会得到一个完全不同的东西。
+> 请按上面的包名装。
 
 <details>
 <summary><b>还没发布到 npm？用 git 地址装（首次需要放行构建）</b></summary>
@@ -63,8 +68,8 @@ profile 根目录的 `cordis.yml` 是空的，它自己写着不要改它。真�
 
 ```yaml
 - insert:
-    - id: tool-voice
-      name: dsh-voice
+    - id: say
+      name: dsh-say
 ```
 
 这是 dsh 插件的标准打包方式，所以升级、卸载、`dsh plugin list` 都能正常跟踪。
@@ -228,7 +233,7 @@ node scripts/install-voice.mjs --engine "D:/GPT-SoVITS"
 
 ```sh
 git clone https://github.com/fangqian616/dsh-voice && cd dsh-voice
-npm test              # 6 个测试，不出声
+npm test              # 7 个测试，不出声
 npm run test:audible  # 真实播放检查
 ```
 
@@ -247,10 +252,13 @@ npm run test:audible  # 真实播放检查
 The default backend is whatever speech voices your operating system already has, so step 1 and 2 need no download: no Python, no GPU, no account.
 
 ```sh
-dsh plugin --profile web add dsh-voice
+dsh plugin --profile web add dsh-say
 ```
 
 Restart the profile, then ask the agent to *"say hello out loud"*. The command installs the package, registers it in the profile, and applies the bundle layer this package ships; the `tts_*` tools appear after the restart.
+
+> [!IMPORTANT]
+> **The repository is `dsh-voice`; the npm package is `dsh-say`.** The name `dsh-voice` on npm belongs to an unrelated project — another voice plugin, also a dsh bundle — so installing that one succeeds and gives you something else entirely. Use the package name above.
 
 | Tool | Purpose |
 |:--|:--|

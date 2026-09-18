@@ -1,9 +1,11 @@
 ---
 name: voice-setup
-description: 当需要安装、启用或排查 dsh-voice 插件时使用 —— 用户说"装上这个语音插件""为什么没声音""启用 dsh-voice""配置语音"，或者察觉到这个会话里没有 tts_speak 工具时。Install, enable, or troubleshoot the dsh-voice plugin.
+description: '当需要安装、启用或排查语音插件时使用 —— 仓库叫 dsh-voice，npm 包名是 dsh-say（装的时候用 dsh-say）。触发场景：装上这个语音插件 / 为什么没声音 / 启用语音插件 / 配置语音，或者察觉到这个会话里没有 tts_speak 工具。Install, enable, or troubleshoot the dsh-say plugin.'
 ---
 
 # 安装与启用 dsh-voice / Install and enable dsh-voice
+
+> 仓库叫 **dsh-voice**，npm 包叫 **dsh-say**。**装的时候用包名 `dsh-say`。**
 
 把插件从"仓库里的代码"变成"这个会话里能用的工具"。只有一条命令要跑，外加一个**无法在会话内完成的步骤** —— 先说清楚，免得你卡在那儿。
 Turn the plugin from code in a repository into tools in this session. There is exactly one command, plus one step that cannot be done from inside a session — say so up front instead of getting stuck on it.
@@ -36,14 +38,17 @@ That step is the one that makes the plugin exist. You cannot restart the session
 ### 2. 装（一条命令）
 
 ```sh
-dsh plugin --profile web add dsh-voice
+dsh plugin --profile web add dsh-say
 ```
 
-**就这一步。** dsh-voice 声明了 `dsh.bundle`（`package.json` 里的 `"dsh": { "bundle": { "patch": "./cordis.patch.yml" } }`），所以 `dsh plugin add` 会自动：
+**就这一步。** dsh-say 声明了 `dsh.bundle`（`package.json` 里的 `"dsh": { "bundle": { "patch": "./cordis.patch.yml" } }`），所以 `dsh plugin add` 会自动：
 
 - 把包装进 profile 的 `node_modules`
 - 把它列进 profile `package.json` 的 `dsh.profile.bundles`
-- 启动时套用包内自带的 `cordis.patch.yml`，插入 `id: tool-voice` 那一行
+- 启动时套用包内自带的 `cordis.patch.yml`，插入 `id: say` 那一行
+
+> [!IMPORTANT]
+> **仓库叫 `dsh-voice`，npm 包叫 `dsh-say`。** npm 上的 `dsh-voice` 是**另一个人的项目**（另一个语音插件，同样是 dsh bundle）—— 装它不会报错，但用户会得到完全不同的东西。**装的时候必须用 `dsh-say`**，不要因为仓库叫 dsh-voice 就把包名写成 dsh-voice。
 
 **不要手改 profile 里的任何文件。** 尤其是不要手工往 `cordis.patch.yml` 追加行 —— 那是旧办法，现在由包自己的组合层负责，手写反而会和 `dsh plugin list` / 升级路径不一致。
 
@@ -94,9 +99,9 @@ tts_speak 在列表里 → 跑 tts_engines 看后端状态
 |---|---|
 | `tts_speak` 重启后仍不出现 | ① 装到了别的 profile ② 重启的是另一个 profile ③ 装完没重启。先 `dsh plugin --profile web list` 确认它在层栈里 |
 | `dsh plugin add` 报 pnpm 构建被拦 | git 来源的正常提示，按提示放行一次（见上） |
-| profile 起不来 | `dsh plugin --profile web remove dsh-voice` 移除本插件那一层，再启动 |
+| profile 起不来 | `dsh plugin --profile web remove dsh-say` 移除本插件那一层，再启动 |
 | `no such profile` | profile 名不对，列一下 `~/.dsh/profiles/` |
-| 包装上了但 `name: dsh-voice` 解析不到 | profile 的 `node_modules` 里没有它 —— 在 profile 目录重跑 `dsh plugin --profile web install` |
+| 包装上了但 `name: dsh-say` 解析不到 | profile 的 `node_modules` 里没有它 —— 在 profile 目录重跑 `dsh plugin --profile web install` |
 | 工具在但没声音 | 那是运行期问题，不是安装问题 —— 跑 `tts_engines`，或见主 README 的排错表 |
 
 ## 不要做的事
