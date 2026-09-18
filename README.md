@@ -105,12 +105,7 @@ voice packs: 0 in ~/.dsh/voice-packs
 
 ### 4 · 想要角色声线（可选）
 
-> [!WARNING]
-> **这一步之前先读 [`voice/LICENSE.txt`](voice/LICENSE.txt) —— 它不是许可证，是素材来源说明。**
->
-> 代码是 MIT，但 `voice/` 里的东西本项目**无权授权**：**参考音是米哈游的游戏原声**，
-> 角色与声音的权利归米哈游。维护者不持有这些权利，**所以既不能授予、也无权禁止**你的用途 ——
-> 商用许可只有权利人能给。把"仅限学习研究"理解为**维护者的意愿**，不是一份有法律效力的条款。
+装之前先读 [`voice/LICENSE.txt`](voice/LICENSE.txt)（素材来源说明，不是许可证）。
 
 本仓库自带一条可以直接装的声线，参考音也一并附带：
 
@@ -279,10 +274,7 @@ Restart the profile, then ask the agent to *"say hello out loud"*. The command i
 
 **Engines:** the built-in one drives SAPI on Windows and needs no external media program; GPT-SoVITS is optional and switches in automatically once a voice pack exists.
 
-> [!WARNING]
-> **Before installing the bundled character voice, read [`voice/LICENSE.txt`](voice/LICENSE.txt) — it is not a license, it is a materials notice.**
->
-> The code is MIT, but this project **cannot license what is in `voice/`**: the reference clip is **miHoYo's own game audio**, and the rights in the character and voice belong to miHoYo. The maintainer holds none of those rights, so they can **neither grant nor forbid** your use — a commercial license can only come from the rights holder. Read "learning and research only" as the **maintainer's intent**, not as a legally effective term.
+Read [`voice/LICENSE.txt`](voice/LICENSE.txt) before installing the bundled character voice — a materials notice, not a license.
 
 ---
 
