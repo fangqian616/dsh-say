@@ -1,19 +1,27 @@
 {
   "note": "权重归档的取用地址。填上 url 后 `node scripts/fetch-voice.mjs` 就能一键下载；留空则用户自带归档，用 --from 指向本地文件。",
-  "url": "https://github.com/fangqian616/dsh-say/releases/latest/download/silver-wolf-weights-v2ProPlus.zip",
-  "sha256": "bdfe9f563b68454bdcdf902a28475fb0d0552b2223d3f0e1964f51a80980a577",
-  "archive": "silver-wolf-weights-v2ProPlus.zip",
-  "bytes": 305573812,
+  "url": "https://github.com/fangqian616/dsh-say/releases/latest/download/silver-wolf-full-v2ProPlus.zip",
+  "sha256": "50b4e98183b634565e1095307c56729b10d81a2203de88818670ad5f63faa07f",
+  "archive": "silver-wolf-full-v2ProPlus.zip",
+  "bytes": 1409073439,
   "contents": [
     "NOTICE-weights.txt",
+    "bert/config.json",
+    "bert/pytorch_model.bin",
+    "bert/tokenizer.json",
+    "hubert/config.json",
+    "hubert/preprocessor_config.json",
+    "hubert/pytorch_model.bin",
+    "s1v3.ckpt",
+    "s2Gv2ProPlus.pth",
     "silver-wolf-e10.ckpt",
     "silver-wolf_e10_s120.pth",
-    "reference-中立.wav",
-    "reference-开心.wav",
-    "reference-吃惊.wav",
-    "reference-生气.wav",
-    "reference-难过.wav",
-    "reference-恐惧.wav"
+    "reference/reference-中立.wav",
+    "reference/reference-开心.wav",
+    "reference/reference-吃惊.wav",
+    "reference/reference-生气.wav",
+    "reference/reference-难过.wav",
+    "reference/reference-恐惧.wav"
   ],
-  "notice": "Character-voice weights and reference clips. The character, the voice, and the reference clips belong to miHoYo; the maintainer cannot license them. The full notice travels inside the archive as NOTICE-weights.txt — the same text is versioned at voice/archive/NOTICE-weights.txt. Learning and research use; not for commercial use."
+  "notice": "A voice and the models needed to run it. The voice's weights were trained by this project's maintainer; the character, the voice, and the reference clips belong to miHoYo. The four base models are redistributed unchanged under Apache-2.0 (chinese-roberta, hubert) and MIT (GPT-SoVITS). Learning and research use; not for commercial use. The full notice travels inside the archive as NOTICE-weights.txt."
 }

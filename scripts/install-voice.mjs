@@ -19,7 +19,7 @@
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import { homedir } from 'node:os'
-import { dirname, join, resolve } from 'node:path'
+import { basename, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { discover } from '../lib/engines/gptsovits.js'
@@ -98,12 +98,30 @@ if (!weightsPresent(weightsDir)) {
   }
 }
 
-const gptFile = walk(weightsDir).find((file) => file.endsWith('.ckpt'))
-const sovitsFile = walk(weightsDir).find((file) => file.endsWith('.pth'))
+// Which files are the *voice*.
+//
+// The release bundle also carries the four base models inference needs, and that
+// broke the obvious `.find(endsWith('.pth'))`: walk() returns files in name order,
+// so `s2Gv2ProPlus.pth` (the base) sorted ahead of `silver-wolf_e10_s120.pth` (the
+// voice), and the pack was registered pointing at the base model instead. Both are
+// valid files, so nothing failed loudly - the voice simply was not the voice.
+// Excluding the bundled base models by name is what makes the pick unambiguous.
+const BUNDLED_BASE = new Set([
+  's1v3.ckpt',
+  's2Gv2ProPlus.pth',
+  'config.json',
+  'preprocessor_config.json',
+  'tokenizer.json',
+  'pytorch_model.bin',
+])
+
+const voiceCandidates = walk(weightsDir).filter((file) => !BUNDLED_BASE.has(basename(file)))
+
+const gptFile = voiceCandidates.find((file) => file.endsWith('.ckpt'))
+const sovitsFile = voiceCandidates.find((file) => file.endsWith('.pth'))
 if (!gptFile || !sovitsFile) {
   console.error(`\nmodel weights are still not present in ${weightsDir} after fetching.`)
-  console.error('  expected a .ckpt and a .pth somewhere under it')
-  console.error('  or point at where they already are:  --weights "<dir>"')
+  console.error('  expected a .ckpt and a .pth that are not one of the bundled base models')
   process.exit(1)
 }
 console.log(`weights in: ${weightsDir}`)
@@ -120,6 +138,45 @@ const gptRelDir = `GPT_weights_${version}`
 const sovitsRelDir = `SoVITS_weights_${version}`
 mkdirSync(join(engineRoot, gptRelDir), { recursive: true })
 mkdirSync(join(engineRoot, sovitsRelDir), { recursive: true })
+
+// The release bundle also carries the four base models inference needs, because
+// the official GPT-SoVITS package is 6.4 GB of training code, ASR, vocal
+// separation and a pretrained weight for every model version. Those belong in the
+// engine's pretrained_models/, not in voice/, and each one is skipped when it is
+// already there so an existing checkout is never overwritten.
+const PRETRAINED = [
+  ['bert', join('GPT_SoVITS', 'pretrained_models', 'chinese-roberta-wwm-ext-large')],
+  ['hubert', join('GPT_SoVITS', 'pretrained_models', 'chinese-hubert-base')],
+  ['s1v3.ckpt', join('GPT_SoVITS', 'pretrained_models', 's1v3.ckpt')],
+  ['s2Gv2ProPlus.pth', join('GPT_SoVITS', 'pretrained_models', 'v2Pro', 's2Gv2ProPlus.pth')],
+]
+
+let placedModels = 0
+let skippedModels = 0
+for (const [staged, target] of PRETRAINED) {
+  const from = join(weightsDir, staged)
+  if (!existsSync(from)) continue
+  const to = join(engineRoot, target)
+  if (existsSync(to)) { skippedModels += 1; continue }
+  if (statSync(from).isDirectory()) {
+    // Walk with the prefix so a nested file keeps its relative path; slicing the
+    // absolute path instead would collapse it to a bare name and leave the
+    // destination directory uncreated.
+    for (const file of walk(from)) {
+      const rel = file.slice(from.length + 1)
+      const dest = join(to, rel)
+      mkdirSync(dirname(dest), { recursive: true })
+      copyFileSync(file, dest)
+    }
+  } else {
+    mkdirSync(dirname(to), { recursive: true })
+    copyFileSync(from, to)
+  }
+  placedModels += 1
+}
+if (placedModels > 0 || skippedModels > 0) {
+  console.log(`base models: ${placedModels} placed, ${skippedModels} already present`)
+}
 
 const gptName = `${chosen}-e10.ckpt`
 const sovitsName = `${chosen}_e10_s120.pth`

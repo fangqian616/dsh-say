@@ -100,6 +100,18 @@ voice packs: 0 in ~/.dsh/voice-packs
 
 ### 4 · 想要角色声线（可选）
 
+> **先说清楚 main 和 release 的分工 —— 这是本项目唯一需要你选的地方。**
+>
+> | | **main（本仓库）** | **Releases（那个 1.4 GB 的包）** |
+> |:--|:--|:--|
+> | 是什么 | **插件本体**：调用 TTS、压缩汇报、人设、声线注册 | **SoVITS 推理素材**：4 个 base 模型 + 银狼声线 |
+> | 声音从哪来 | **你系统自带的语音**（SAPI） | 银狼（GPT-SoVITS 角色声线） |
+> | 下载量 | **0** | 约 1.4 GB |
+> | 要 Python / 显卡 | **不要** | 要一个能跑的 GPT-SoVITS |
+>
+> **只要你不想装角色声线，就到此为止** —— main 已经能说话，一步都不用多。
+> 想听银狼，再取 release 那份。
+
 装之前先读 [`voice/NOTICE.txt`](voice/NOTICE.txt)（素材来源说明，不是许可证）。
 
 本仓库自带一条可以直接装的声线，参考音也一并附带：
@@ -108,7 +120,7 @@ voice packs: 0 in ~/.dsh/voice-packs
 node scripts/install-voice.mjs
 ```
 
-**一条命令**：自动取权重、自动找你的 GPT-SoVITS、自动放到位并登记。不用手动下载，也不用自己找文件夹。
+**一条命令**：自动取素材、自动找你的 GPT-SoVITS、自动放到位并登记。不用手动下载，也不用自己找文件夹。
 
 如果 GPT-SoVITS 不在默认位置：
 

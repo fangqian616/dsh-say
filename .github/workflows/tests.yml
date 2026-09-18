@@ -65,6 +65,13 @@ jobs:
         # the checksum guard still refusing a mismatched archive.
         run: node test/fetch.mjs
 
+      - name: Voice install wiring
+        # Drives the real installer against a scratch engine. The release bundle
+        # carries base models beside the voice, which made the file pick ambiguous
+        # and registered a base model as the voice - silently, since both are valid
+        # files. This asserts what ended up registered.
+        run: node test/install-voice.mjs
+
       - name: Audible playback
         # Proves audio actually reaches the output device. On a headless runner
         # this may fail for lack of an audio endpoint, so it is reported but not
