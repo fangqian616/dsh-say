@@ -6,10 +6,8 @@ and that license does not cover them.
 
 **silver-wolf** — GPT-SoVITS v2ProPlus weights and reference clips.
 
-- The weights were trained by this project's maintainer. 学习与研究用途，不得商用。
-- `ref.wav` is a clip of the character's voice from *Honkai: Star Rail* (miHoYo).
-- Character and voice rights belong to miHoYo. The maintainer holds none of them,
-  and cannot grant or forbid a use. 角色与声音的权利属于米哈游。
+The weights were trained by this project's maintainer. 学习与研究用途，不得商用。
 
-Not affiliated with miHoYo: this is a third-party project, not sponsored or
-endorsed by them.
+The full notice — who owns the character and voice, and what this project can and
+cannot do about it — travels inside the weights archive as `NOTICE-weights.txt`.
+素材来源与权利归属的完整说明随权重压缩包（`NOTICE-weights.txt`）一同分发。

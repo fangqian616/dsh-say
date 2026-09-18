@@ -1,0 +1,31 @@
+Voice material notice / 素材说明
+================================
+
+silver-wolf — GPT-SoVITS v2ProPlus
+
+Contents / 内容
+  silver-wolf-e10.ckpt          GPT checkpoint
+  silver-wolf_e10_s120.pth      SoVITS weights
+  reference-*.wav               参考音（多情绪片段）
+
+The weights were trained by this project's maintainer.
+权重由本项目维护者训练。
+学习与研究用途，不得商用。
+
+- reference-*.wav 取自《崩坏：星穹铁道》角色语音（米哈游）。
+- 角色与声音权利属于米哈游；维护者不持有，既不能授予也不能禁止。
+  商用许可只有米哈游能给。
+
+与米哈游无关，未获其赞助或认可。
+
+- The reference clips are the character's voice from *Honkai: Star Rail* (miHoYo).
+- Character and voice rights belong to miHoYo. The maintainer holds none of them,
+  and can neither grant nor forbid a use. A commercial license can only come from
+  miHoYo.
+
+Not affiliated with miHoYo: this is a third-party project, not sponsored or
+endorsed by them.
+
+---
+Repository: https://github.com/fangqian616/dsh-voice
+The repository's voice/NOTICE.txt points here for the full notice.

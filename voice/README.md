@@ -16,8 +16,13 @@ voice/
 ├─ README.md                this file
 ├─ pack.json                version, expected weight paths, provenance note
 ├─ ref.wav                  参考音（3-10 秒干净人声，米哈游游戏原声）
-└─ ref.txt                  参考音的逐字文本
+├─ ref.txt                  参考音的逐字文本
+└─ archive/NOTICE-weights.txt       权重压缩包内附的声明（重新打包时使用）
 ```
+
+The weights archive carries `NOTICE.txt` of its own, so the notice travels with
+the material to whoever downloads it. [`archive/NOTICE-weights.txt`](archive/NOTICE-weights.txt)
+is that file's source, kept here so the archive can be rebuilt reproducibly.
 
 The model weights are **not** here. Three hundred megabytes of weights would
 make every clone of this repository three hundred megabytes larger, and GitHub
