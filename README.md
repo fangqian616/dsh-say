@@ -4,7 +4,7 @@
 
 # dsh-say
 
-**给你的 DSH 智能体一副嗓子 · 用它喜欢的声音开口说话、汇报内容**
+**让你的 DSH 用你喜欢的声音开口说话、汇报内容！**
 
 [![tests](https://github.com/fangqian616/dsh-say/actions/workflows/tests.yml/badge.svg)](https://github.com/fangqian616/dsh-say/actions/workflows/tests.yml)
 [![license](https://img.shields.io/badge/license-MIT-0b1f3a.svg)](LICENSE)
