@@ -41,18 +41,53 @@ const packName = nameFlag >= 0 ? process.argv[nameFlag + 1] : ''
 const weightsFlag = process.argv.indexOf('--weights')
 let weightsDir = weightsFlag >= 0 ? resolve(process.argv[weightsFlag + 1]) : voiceDir
 
-// `--from <archive.zip>` installs straight from the download, which is the path
-// most people take: they have a zip from the Releases page and nothing else. The
-// error message further down already told them to use this flag, so it has to
-// exist — it did not, and anyone following that advice hit "no such archive".
+// `--from <archive.zip>` installs straight from a downloaded file, and `--download`
+// fetches it. Neither should be necessary: the common case is someone with the zip
+// in Downloads who wants it installed, and making them type a long path is its own
+// kind of broken. So the archive is looked for, and `--from` overrides the guess.
 const fromFlag = process.argv.indexOf('--from')
 const fromArchive = fromFlag >= 0 ? process.argv[fromFlag + 1] : ''
+const wantDownload = process.argv.includes('--download')
 if (fromFlag >= 0 && !fromArchive) {
   console.error('--from needs a path:  --from "<archive.zip>"')
   process.exit(1)
 }
-if (fromArchive) {
-  const absolute = resolve(fromArchive)
+
+/** The archive, if it is already sitting somewhere obvious. */
+function findArchive() {
+  const names = [/^silver-wolf-full.*\.zip$/i, /^silver-wolf-weights.*\.zip$/i, /^dsh-say.*\.zip$/i]
+  const places = [
+    join(homedir(), 'Downloads'),
+    process.cwd(),
+    join(process.env.TEMP || homedir(), 'dsh-voice-release'),
+  ]
+  const found = []
+  for (const dir of places) {
+    if (!existsSync(dir)) continue
+    for (const name of readdirSync(dir)) {
+      if (!/\.zip$/i.test(name)) continue
+      if (!names.some((pattern) => pattern.test(name))) continue
+      found.push(join(dir, name))
+    }
+  }
+  if (found.length === 0) return ''
+  // Newest wins: someone who downloaded twice means the second one.
+  found.sort((a, b) => statSync(b).mtimeMs - statSync(a).mtimeMs)
+  return found[0]
+}
+
+let archiveToUse = fromArchive
+if (!archiveToUse && !wantDownload && !weightsPresent(weightsDir)) {
+  const guess = findArchive()
+  if (guess) {
+    console.log(`found the archive: ${guess}`)
+    console.log('  (pass it explicitly with --from if that is not the one you meant)')
+    archiveToUse = guess
+  }
+}
+
+if (archiveToUse) {
+  const absolute = resolve(archiveToUse)
   if (!existsSync(absolute)) {
     console.error(`no such archive: ${absolute}`)
     process.exit(1)
