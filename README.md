@@ -105,6 +105,13 @@ voice packs: 0 in ~/.dsh/voice-packs
 
 ### 4 · 想要角色声线（可选）
 
+> [!WARNING]
+> **这一步之前先读 [`voice/LICENSE.txt`](voice/LICENSE.txt) —— 它不是许可证，是素材来源说明。**
+>
+> 代码是 MIT，但 `voice/` 里的东西本项目**无权授权**：**参考音是米哈游的游戏原声**，
+> 角色与声音的权利归米哈游。维护者不持有这些权利，**所以既不能授予、也无权禁止**你的用途 ——
+> 商用许可只有权利人能给。把"仅限学习研究"理解为**维护者的意愿**，不是一份有法律效力的条款。
+
 本仓库自带一条可以直接装的声线，参考音也一并附带：
 
 ```sh
@@ -118,12 +125,6 @@ node scripts/install-voice.mjs
 ```sh
 node scripts/install-voice.mjs --engine "D:/GPT-SoVITS"
 ```
-
-> [!WARNING]
-> **用之前请读声明**：[`voice/LICENSE.txt`](voice/LICENSE.txt) **不是许可证** —— 它是一个素材来源说明。
-> 代码是 MIT，但 `voice/` 里的东西不是这个项目能授权的：**参考音是米哈游的游戏原声**，
-> 角色与声音的权利属于米哈游，维护者不持有、也无法授予任何权利。
-> 把"仅限学习研究、不得商用"理解为**维护者的意愿**，而不是一份有法律效力的授权。
 
 ---
 
@@ -277,6 +278,11 @@ Restart the profile, then ask the agent to *"say hello out loud"*. The command i
 **Configuration lives in `~/.dsh/voice/config.json`**, written by first-run onboarding and editable through `tts_config`. Precedence is user file > composition > default.
 
 **Engines:** the built-in one drives SAPI on Windows and needs no external media program; GPT-SoVITS is optional and switches in automatically once a voice pack exists.
+
+> [!WARNING]
+> **Before installing the bundled character voice, read [`voice/LICENSE.txt`](voice/LICENSE.txt) — it is not a license, it is a materials notice.**
+>
+> The code is MIT, but this project **cannot license what is in `voice/`**: the reference clip is **miHoYo's own game audio**, and the rights in the character and voice belong to miHoYo. The maintainer holds none of those rights, so they can **neither grant nor forbid** your use — a commercial license can only come from the rights holder. Read "learning and research only" as the **maintainer's intent**, not as a legally effective term.
 
 ---
 

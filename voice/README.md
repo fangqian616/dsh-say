@@ -22,11 +22,11 @@ voice/
 └─ ref.txt                  参考音的逐字文本
 ```
 
-The model weights are **not** here. Three hundred megabytes of non-commercial
-weights would make every clone of this repository three hundred megabytes
-larger, and GitHub rejects any file over 100 MB anyway — the checkpoint alone is
-148 MB. So the repository carries the pack definition and the reference clip,
-and the weights are fetched when a user actually wants the voice.
+The model weights are **not** here. Three hundred megabytes of weights would
+make every clone of this repository three hundred megabytes larger, and GitHub
+rejects any file over 100 MB anyway — the checkpoint alone is 148 MB. So the
+repository carries the pack definition and the reference clip, and the weights
+are fetched when a user actually wants the voice.
 
 The published archive uses neutral filenames (`silver-wolf-e10.ckpt`,
 `reference-中立.wav`) and its checksum is recorded in
