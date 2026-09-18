@@ -312,7 +312,44 @@ Restart the profile, then ask the agent to *"say hello out loud"*. The command i
 
 **Engines:** the built-in one drives SAPI on Windows and needs no external media program; GPT-SoVITS is optional and switches in automatically once a voice pack exists.
 
-Read [`voice/NOTICE.txt`](voice/NOTICE.txt) before installing the bundled character voice — a materials notice, not a license.
+### The character voice (optional)
+
+Everything above works with the voices your system already has, at zero download. A
+character voice needs the bundle from
+**[Releases](https://github.com/fangqian616/dsh-say/releases/latest)** — **1.34 GB**,
+carrying the `silver-wolf` voice plus the four base models inference needs. (The
+official GPT-SoVITS package is 6.4 GB because it also carries training code, ASR,
+vocal separation and a pretrained weight for every model version. None of that is
+needed to talk.)
+
+**No commands.** Download the bundle, then tell your agent:
+
+> install the silver-wolf voice
+
+It finds the archive in Downloads, unpacks it, places the base models into
+`GPT_SoVITS/pretrained_models/` and the voice weights into `GPT_weights_v2ProPlus/`
+and `SoVITS_weights_v2ProPlus/`, then registers the pack. Files that already exist
+are skipped, so your tuned engine is never overwritten. Then ask it to *"read this
+out loud in the silver-wolf voice"*.
+
+**Before this:** you need a working GPT-SoVITS checkout with a Python environment.
+The bundle is models, not a runtime — Python and torch are several GB and do not fit
+in a Release. Without one, the official Windows package unzips and runs as-is
+([download](https://huggingface.co/lj1995/GPT-SoVITS-windows-package/resolve/main/GPT-SoVITS-v3lora-20250228.7z),
+6.4 GB); the two do not conflict.
+
+**The six reference clips** are samples for picking a tone, and one of them is also
+trainable material:
+
+| | | |
+|:--|:--|:--|
+| `reference/中立.wav` + `reference/中立.txt` | audio **with** its transcript | audition it, and import the pair to fine-tune |
+| the other five (开心/吃惊/生气/难过/恐惧) | audio only, **no transcript** | audition them to pick a tone |
+
+A wrong transcript is worse than a missing one, so none is invented for the five:
+the emotion in the filename is a label for the listener, not the line being spoken.
+
+Read [`voice/NOTICE.txt`](voice/NOTICE.txt) before installing — a materials notice, not a license.
 
 ---
 
