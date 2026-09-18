@@ -1,6 +1,6 @@
 {
   "note": "权重归档的取用地址。填上 url 后 `node scripts/fetch-voice.mjs` 就能一键下载；留空则用户自带归档，用 --from 指向本地文件。",
-  "url": "",
+  "url": "https://github.com/fangqian616/dsh-voice/releases/latest/download/silver-wolf-weights-v2ProPlus.zip",
   "sha256": "9d46f0d172e6762b88421963970b9ad421f95ff7cc5adf68bc337a99abe83b7e",
   "archive": "silver-wolf-weights-v2ProPlus.zip",
   "bytes": 305573812,

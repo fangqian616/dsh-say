@@ -58,6 +58,13 @@ jobs:
         # on a user's machine after a restart, so it is checked here.
         run: node test/bundle.mjs
 
+      - name: Voice fetch wiring
+        # The download itself needs a live release, so what is checked is the
+        # wiring that has already broken once: no path handed to a shell, a proxy
+        # actually discovered (Node's fetch ignores one without a dispatcher), and
+        # the checksum guard still refusing a mismatched archive.
+        run: node test/fetch.mjs
+
       - name: Audible playback
         # Proves audio actually reaches the output device. On a headless runner
         # this may fail for lack of an audio endpoint, so it is reported but not
