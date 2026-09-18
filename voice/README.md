@@ -3,19 +3,16 @@
 A voice pack for the GPT-SoVITS engine, with its reference clip included so the
 setup can be verified the moment it finishes. The clip is an excerpt of the
 game's own audio, not something this project recorded — see
-[LICENSE.txt](LICENSE.txt). Everything here is optional: dsh-voice works without
+[NOTICE.txt](NOTICE.txt). Everything here is optional: dsh-voice works without
 it, using the speech voices your operating system already has.
 
-**Read [LICENSE.txt](LICENSE.txt) first.** It is a materials notice, not a
-license: the code here is MIT, but the reference clip is miHoYo's own audio and
-the maintainer holds no rights in the character or voice to grant.
-先读 [LICENSE.txt](LICENSE.txt) —— 它是素材声明，不是许可证。
+**Read [NOTICE.txt](NOTICE.txt) first.** 先读 [NOTICE.txt](NOTICE.txt)。
 
 ## Contents
 
 ```
 voice/
-├─ LICENSE.txt              materials notice — read this first
+├─ NOTICE.txt              materials notice — read this first
 ├─ README.md                this file
 ├─ pack.json                version, expected weight paths, provenance note
 ├─ ref.wav                  参考音（3-10 秒干净人声，米哈游游戏原声）
@@ -76,11 +73,9 @@ is cheap if you want to compare.
 
 ## Before you use it
 
-Read [LICENSE.txt](LICENSE.txt). The weights reproduce a character voice and the
-reference clip *is* the game's own audio — rights to both belong to their owner,
-which is why the notice says plainly that it grants nothing. Keep it
-non-commercial, and think twice before publishing anything you make with it.
+Read [NOTICE.txt](NOTICE.txt). The weights reproduce a character voice and the
+reference clip *is* the game's own audio. Keep it non-commercial.
 
 If you want a voice you can redistribute freely, use a permissively licensed
-dataset instead of a character voice — the terms are the ones that let you
-publish what you make with it.
+dataset instead of a character voice — those terms are what let you publish what
+you make with it.

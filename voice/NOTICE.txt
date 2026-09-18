@@ -1,0 +1,15 @@
+# Voice material notice / 素材说明
+
+Repository code: MIT — see [../LICENSE](../LICENSE). The files here are not code
+and that license does not cover them.
+代码是 MIT，见 [../LICENSE](../LICENSE)；本目录的文件不是代码，不在那个许可范围内。
+
+**silver-wolf** — GPT-SoVITS v2ProPlus weights and reference clips.
+
+- The weights were trained by this project's maintainer. 学习与研究用途，不得商用。
+- `ref.wav` is a clip of the character's voice from *Honkai: Star Rail* (miHoYo).
+- Character and voice rights belong to miHoYo. The maintainer holds none of them,
+  and cannot grant or forbid a use. 角色与声音的权利属于米哈游。
+
+Not affiliated with miHoYo: this is a third-party project, not sponsored or
+endorsed by them.

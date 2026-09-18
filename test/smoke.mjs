@@ -148,15 +148,26 @@ check('no model weights or audio outside voice/', offenders.length === 0, offend
 
 // The notice is required whether or not weights are committed: the reference
 // clip is always here, and it is the rights holder's audio, not this project's.
-const voiceNotice = join(root, sanctionedDir, 'LICENSE.txt')
+//
+// It is a fact sheet, matching how this material is actually published elsewhere
+// (a bundled model carries a one-screen notice, or none at all). So the checks
+// are the facts that must not go missing, not a shape to conform to: the owner is
+// named, the clip is identified as theirs, and the project's own limits are
+// stated rather than a grant it has no standing to make.
+const voiceNotice = join(root, sanctionedDir, 'NOTICE.txt')
 check('voice/ carries the materials notice', existsSync(voiceNotice))
 if (existsSync(voiceNotice)) {
   const notice = readFileSync(voiceNotice, 'utf8')
-  check('the notice says it is not a license', /not a license|不是许可证/i.test(notice))
-  check('the notice does not claim rights the project does not hold',
-    /cannot grant|无法授予|不持有/.test(notice))
-  check('the notice names the reference clip as the rights holder\'s audio',
+  check('the notice names the rights holder', /miHoYo|米哈游/.test(notice))
+  check('the notice states the project cannot license the material',
+    /cannot (grant|forbid|license)|无法(授予|许可)|不能(授予|许可)/.test(notice))
+  check('the notice identifies the reference clip as the rights holder\'s audio',
     /ref\.wav/.test(notice))
+  check('the notice marks the use as non-commercial', /not for commercial|不得商用/.test(notice))
+  // The convention is short. An essay is how this file went wrong the first time:
+  // it restated the same point four ways and buried the facts people need.
+  const lines = notice.split(/\r?\n/).length
+  check('the notice stays a one-screen fact sheet', lines <= 40, `${lines} lines`)
 }
 if (publishedWeights.length > 0) console.log(`     voice/ holds ${publishedWeights.length} weight/audio file(s)`)
 else console.log('     voice/ ships no weights (the 148 MB checkpoint is fetched, not committed)')

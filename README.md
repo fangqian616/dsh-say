@@ -105,7 +105,7 @@ voice packs: 0 in ~/.dsh/voice-packs
 
 ### 4 · 想要角色声线（可选）
 
-装之前先读 [`voice/LICENSE.txt`](voice/LICENSE.txt)（素材来源说明，不是许可证）。
+装之前先读 [`voice/NOTICE.txt`](voice/NOTICE.txt)（素材来源说明，不是许可证）。
 
 本仓库自带一条可以直接装的声线，参考音也一并附带：
 
@@ -274,7 +274,7 @@ Restart the profile, then ask the agent to *"say hello out loud"*. The command i
 
 **Engines:** the built-in one drives SAPI on Windows and needs no external media program; GPT-SoVITS is optional and switches in automatically once a voice pack exists.
 
-Read [`voice/LICENSE.txt`](voice/LICENSE.txt) before installing the bundled character voice — a materials notice, not a license.
+Read [`voice/NOTICE.txt`](voice/NOTICE.txt) before installing the bundled character voice — a materials notice, not a license.
 
 ---
 

@@ -5,7 +5,7 @@ node_modules/
 *.wav
 !docs/**/*.wav
 # The shipped voice pack's reference clip is committed on purpose: it is small,
-# it is covered by voice/LICENSE.txt, and without it a user cannot verify the
+# it is covered by voice/NOTICE.txt, and without it a user cannot verify the
 # setup without fetching the weights first.
 !voice/voice-packs/**/*.wav
 
@@ -27,7 +27,7 @@ Thumbs.db
 /voice-packs/
 !voice/GPT_weights_*/*.ckpt
 !voice/SoVITS_weights_*/*.pth
-# The shipped pack is small, licensed by voice/LICENSE.txt, and without it a
+# The shipped pack is small, licensed by voice/NOTICE.txt, and without it a
 # user cannot verify the setup before fetching hundreds of megabytes.
 !voice/voice-packs/**
 
