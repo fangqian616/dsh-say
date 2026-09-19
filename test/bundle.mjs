@@ -104,9 +104,11 @@ check('public access is explicit, not left to a default', manifest.publishConfig
 check('the tarball ships a README and a license', manifest.files?.includes('README.md') && manifest.files?.includes('LICENSE'))
 // A release helper added for the maintainer's own publish flow shipped to users
 // the first time it existed, because `files` lists whole directories. The
-// exclusion is easy to drop in a later reshuffle, and nothing else would notice.
+// exclusions are easy to drop in a later reshuffle, and nothing else would notice.
 check('the maintainer-only publish helper is excluded from the tarball',
   manifest.files?.includes('!scripts/publish.mjs'), 'a later files[] edit could silently republish it')
+check('the maintainer-only release uploader is excluded too',
+  manifest.files?.includes('!scripts/upload-release.mjs'))
 check('the scripts users run are still shipped',
   manifest.files?.includes('scripts') && !manifest.files?.includes('!scripts'))
 

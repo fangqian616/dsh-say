@@ -25,6 +25,7 @@
     "voice",
     "scripts",
     "!scripts/publish.mjs",
+    "!scripts/upload-release.mjs",
     "cordis.patch.yml",
     "README.md",
     "CONTRIBUTING.md",
