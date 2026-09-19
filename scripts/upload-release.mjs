@@ -15,7 +15,8 @@
  */
 
 import { createHash } from 'node:crypto'
-import { createReadStream, existsSync, readFileSync, statSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
+import { createReadStream, existsSync, readFileSync, rmSync, statSync } from 'node:fs'
 import { basename, join } from 'node:path'
 
 const args = process.argv.slice(2)
@@ -137,17 +138,25 @@ console.log(`uploaded  : id=${asset.id} size=${asset.size}`)
 
 // What matters is what a download gets, not what the API reports, so the published
 // bytes are fetched back and hashed.
+//
+// The download goes through fetch-voice rather than a plain fetch here: node's fetch
+// cannot reach github.com behind a proxy on this machine, so the verification step
+// would hang instead of verifying - which is exactly what happened the first time
+// this ran. fetch-voice already streams through the proxy and checks the hash
+// against SOURCE.json, so the check is the same code a user runs.
 console.log('\nverifying what the release now serves...')
-const served = await fetch(`https://github.com/${repo}/releases/latest/download/${name}`, { redirect: 'follow' })
-if (!served.ok) {
-  console.error(`the release did not serve the asset back: HTTP ${served.status}`)
+const verifyDir = join(process.env.TEMP || '/tmp', 'dsh-say-upload-verify')
+rmSync(verifyDir, { recursive: true, force: true })
+try {
+  execFileSync(process.execPath, [
+    join(import.meta.dirname, 'fetch-voice.mjs'),
+    '--url', `https://github.com/${repo}/releases/latest/download/${name}`,
+    '--out', verifyDir,
+  ], { stdio: 'inherit' })
+} catch {
+  console.error('\nverification failed: the published archive does not match SOURCE.json')
+  console.error('(the upload itself succeeded; the release is serving something else)')
   process.exit(1)
 }
-const bytes = Buffer.from(await served.arrayBuffer())
-const servedDigest = createHash('sha256').update(bytes).digest('hex')
-console.log(`served    : ${(bytes.length / 1048576).toFixed(1)} MB  ${servedDigest}`)
-if (servedDigest !== source.sha256) {
-  console.error('\nthe published bytes do not match SOURCE.json')
-  process.exit(1)
-}
+rmSync(verifyDir, { recursive: true, force: true })
 console.log('\nok: the release serves the archive SOURCE.json describes')
