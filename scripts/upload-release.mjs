@@ -33,10 +33,32 @@ const source = JSON.parse(readFileSync(join(import.meta.dirname, '..', 'scripts'
 
 if (!token) {
   console.error('no GitHub token. Create one with the "repo" scope and pass it:')
-  console.error('  GITHUB_TOKEN=<token> node scripts/upload-release.mjs')
-  console.error('  (or --token <token>, or set GITHUB_TOKEN in the environment)')
+  console.error('  $env:GITHUB_TOKEN = "ghp_<paste the real token here>"')
+  console.error('  node scripts/upload-release.mjs')
+  console.error('  (or --token <token>)')
+  console.error('\nCreate one at https://github.com/settings/tokens — it looks like a long')
+  console.error('random string beginning with ghp_ or github_pat_.')
   process.exit(1)
 }
+
+// A token is ASCII and unbroken. Without this check, a placeholder pasted as-is
+// (`ghp_你的token`) reaches the HTTP layer, which rejects non-Latin1 header bytes
+// with "Cannot convert argument to a ByteString ... a value of 20320" - a message
+// that says nothing about the actual mistake. The prefix check comes first so the
+// common "I copied it including the word Bearer" case gets its own explanation.
+if (/^(Bearer|token)\s/i.test(token)) {
+  console.error('pass the token itself, without the "Bearer " prefix — the script adds it.')
+  process.exit(1)
+}
+if (!/^[\x21-\x7e]+$/.test(token)) {
+  const bad = [...token].find((char) => char.charCodeAt(0) > 255 || /\s/.test(char))
+  console.error('that does not look like a GitHub token.')
+  console.error(`  it contains ${JSON.stringify(bad)} (code ${bad.charCodeAt(0)}); tokens are ASCII with no spaces.`)
+  console.error('  an unreplaced placeholder is the usual cause — paste the real token.')
+  console.error('  create one at https://github.com/settings/tokens (scope: repo)')
+  process.exit(1)
+}
+
 if (!existsSync(archive)) {
   console.error(`no such file: ${archive}`)
   process.exit(1)
