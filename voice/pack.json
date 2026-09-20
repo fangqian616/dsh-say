@@ -1,8 +1,8 @@
 {
     "version":  "v2ProPlus",
-    "name":  "silver-wolf",
+    "name":  "sample",
     "emotion":  "中立",
-    "sovits":  "SoVITS_weights_v2ProPlus/silver-wolf_e10_s120.pth",
-    "gpt":  "GPT_weights_v2ProPlus/silver-wolf-e10.ckpt",
+    "sovits":  "SoVITS_weights_v2ProPlus/sample_e10_s120.pth",
+    "gpt":  "GPT_weights_v2ProPlus/sample-e10.ckpt",
     "notice":  "本声音资源仅供学习交流，严禁用于商业用途，如有侵权，请联系作者，作者得知后会于24小时内删除。"
 }

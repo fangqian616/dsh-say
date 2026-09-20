@@ -28,7 +28,7 @@ const repo = repoFlag >= 0 ? args[repoFlag + 1] : 'fangqian616/dsh-say'
 const fileFlag = args.indexOf('--file')
 const archive = fileFlag >= 0
   ? args[fileFlag + 1]
-  : join(process.env.TEMP || '/tmp', 'dsh-voice-release', 'silver-wolf-full-v2ProPlus.zip')
+  : join(process.env.TEMP || '/tmp', 'dsh-voice-release', 'sample-full-v2ProPlus.zip')
 
 const source = JSON.parse(readFileSync(join(import.meta.dirname, '..', 'scripts', 'SOURCE.json'), 'utf8'))
 

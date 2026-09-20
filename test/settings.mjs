@@ -51,10 +51,10 @@ console.log('\n1. a fresh install has no settings file')
 check('reading returns an empty object', Object.keys(readSettings()).length === 0)
 
 console.log('\n2. writing merges instead of replacing')
-const first = writeSettings({ defaultVoice: 'silver-wolf' })
-check('the first key is stored', first.defaultVoice === 'silver-wolf')
+const first = writeSettings({ defaultVoice: 'sample' })
+check('the first key is stored', first.defaultVoice === 'sample')
 const second = writeSettings({ speed: 1.2 })
-check('the earlier key survives', second.defaultVoice === 'silver-wolf', JSON.stringify(second))
+check('the earlier key survives', second.defaultVoice === 'sample', JSON.stringify(second))
 check('the new key is added', second.speed === 1.2)
 check('the file parses as JSON', JSON.parse(readFileSync(settingsPath(), 'utf8')).speed === 1.2)
 
@@ -77,7 +77,7 @@ const read = await configTool({ action: 'read' }, ctx)
 check('read succeeds', read.ok === true)
 check('it names the settings file', read.path === settingsPath())
 check('it lists every key', Object.keys(read.keys).length === Object.keys(SETTING_KEYS).length)
-check('it reports the effective values', read.effective.defaultVoice === 'silver-wolf')
+check('it reports the effective values', read.effective.defaultVoice === 'sample')
 
 const set = await configTool({ action: 'set', key: 'textLang', value: 'en' }, ctx)
 check('set succeeds', set.ok === true, set.reason || '')
@@ -111,7 +111,7 @@ const decided = await onboard({
     }),
   },
   agent: { id: 'test' },
-  installedVoice: 'silver-wolf',
+  installedVoice: 'sample',
 })
 check('onboarding succeeded', decided.status === 'asked', decided.status)
 const stored = readSettings()
@@ -136,12 +136,12 @@ const reimported = await onboard({
     }),
   },
   agent: { id: 'test' },
-  installedVoice: 'silver-wolf',
+  installedVoice: 'sample',
 })
 check('onboarding ran again after the reset', reimported.status === 'asked', reimported.status)
 const imported = readSettings()
 check('importing pins the gpt-sovits engine', imported.engine === 'gpt-sovits', String(imported.engine))
-check('it names the installed pack', imported.defaultVoice === 'silver-wolf', String(imported.defaultVoice))
+check('it names the installed pack', imported.defaultVoice === 'sample', String(imported.defaultVoice))
 check('"no persona" is recorded', imported.useSoul === false)
 check('"no auto-report" is recorded', imported.autoReport === false)
 

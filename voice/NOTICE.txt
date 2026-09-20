@@ -11,7 +11,7 @@ within 24 hours.
 Repository code is MIT — see [../LICENSE](../LICENSE). These files are not code.
 代码是 MIT，见 [../LICENSE](../LICENSE)；本目录的文件不是代码。
 
-**silver-wolf** — GPT-SoVITS v2ProPlus weights and reference clips.
+**试听音频**（包名 `sample`）— GPT-SoVITS v2ProPlus 权重与参考音 / sample audio: GPT-SoVITS v2ProPlus weights and reference clips.
 
 The full notice travels inside the weights archive as `NOTICE-weights.txt`.
 完整说明随权重压缩包（`NOTICE-weights.txt`）一同分发。

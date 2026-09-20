@@ -1,7 +1,8 @@
 Voice material notice / 素材说明
 ================================
 
-silver-wolf — GPT-SoVITS v2ProPlus
+试听音频（包名 sample）— GPT-SoVITS v2ProPlus
+sample audio (pack id: sample) — GPT-SoVITS v2ProPlus
 
 **本声音资源仅供学习交流，严禁用于商业用途，如有侵权，请联系作者，作者得知后会于24小时内删除。**
 
@@ -12,8 +13,8 @@ within 24 hours.
 ---
 
 Contents / 内容
-  silver-wolf-e10.ckpt            GPT checkpoint
-  silver-wolf_e10_s120.pth        SoVITS weights
+  sample-e10.ckpt            GPT checkpoint
+  sample_e10_s120.pth        SoVITS weights
   reference/*.wav                 参考音（六条，按情绪命名，供你试听挑选）
   reference/reference-中立.txt    中立那条的逐字文本
 

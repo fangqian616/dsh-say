@@ -30,7 +30,7 @@ rejects any file over 100 MB anyway — the checkpoint alone is 148 MB. So the
 repository carries the pack definition and the reference clip, and the weights
 are fetched when a user actually wants the voice.
 
-The published archive uses neutral filenames (`silver-wolf-e10.ckpt`,
+The published archive uses neutral filenames (`sample-e10.ckpt`,
 `reference-中立.wav`) and its checksum is recorded in
 [../scripts/SOURCE.json](../scripts/SOURCE.json), which the fetch script verifies
 before extracting.
@@ -44,7 +44,7 @@ dsh-say can point at them. The installer does both.
 ```sh
 # 1. get the bundle (or copy its files into voice/ yourself)
 node scripts/fetch-voice.mjs                     # uses the url in SOURCE.json
-node scripts/fetch-voice.mjs --from "D:/downloads/silver-wolf-full-v2ProPlus.zip"
+node scripts/fetch-voice.mjs --from "D:/downloads/sample-full-v2ProPlus.zip"
 
 # 2. place them into the engine and register the pack
 node scripts/install-voice.mjs
@@ -64,7 +64,7 @@ The installer prints the registered pack name when it finishes. Then ask your
 agent to speak, or run:
 
 ```sh
-node local/verify-pack.mjs silver-wolf "测试一句"
+node local/verify-pack.mjs sample "测试一句"
 ```
 
 If `fetch-voice.mjs` reports no url, the maintainer has not published an archive
@@ -72,7 +72,7 @@ yet — use `--from` with a copy you obtained yourself.
 
 ## What you get
 
-One voice, `silver-wolf`, using the 【开心】 reference clip. The pack publisher
+One voice, `sample`, using the 【开心】 reference clip. The pack publisher
 names each clip after its own transcript, so `ref.txt` needed no transcription.
 
 The three emotion clips that ship with the archive sound nearly identical in

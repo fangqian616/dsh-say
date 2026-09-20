@@ -4,7 +4,7 @@
  * The release bundle carries both the voice and the four base models inference
  * needs, which made the installer's file pick ambiguous: it took the first `.pth`
  * it found, and `s2Gv2ProPlus.pth` (a base model) sorts before
- * `silver-wolf_e10_s120.pth` (the voice). Nothing failed - the pack simply
+ * `sample_e10_s120.pth` (the voice). Nothing failed - the pack simply
  * registered a base model as its voice, which is the wrong voice and impossible to
  * notice without reading the registered paths.
  *
@@ -42,8 +42,8 @@ const stub = (path, text = 'x') => {
 try {
   stub(join(weights, 's1v3.ckpt'), 'BASE-GPT')
   stub(join(weights, 's2Gv2ProPlus.pth'), 'BASE-SOVITS')
-  stub(join(weights, 'silver-wolf-e10.ckpt'), 'VOICE-GPT')
-  stub(join(weights, 'silver-wolf_e10_s120.pth'), 'VOICE-SOVITS')
+  stub(join(weights, 'sample-e10.ckpt'), 'VOICE-GPT')
+  stub(join(weights, 'sample_e10_s120.pth'), 'VOICE-SOVITS')
   stub(join(weights, 'bert', 'config.json'), 'bert-config')
   stub(join(weights, 'bert', 'pytorch_model.bin'), 'bert-weights')
   stub(join(weights, 'hubert', 'config.json'), 'hubert-config')
@@ -65,13 +65,13 @@ try {
     env: { ...process.env, DSH_VOICE_VOICES_DIR: packs },
   })
 
-  const packPath = join(packs, 'silver-wolf', 'pack.json')
+  const packPath = join(packs, 'sample', 'pack.json')
   check('a pack was registered', existsSync(packPath))
   const pack = JSON.parse(readFileSync(packPath, 'utf8'))
 
   console.log('\n2. the registered weights are the voice, not a base model')
-  check('the GPT checkpoint is the voice', /silver-wolf-e10\.ckpt$/.test(pack.gpt), pack.gpt)
-  check('the SoVITS weights are the voice', /silver-wolf_e10_s120\.pth$/.test(pack.sovits), pack.sovits)
+  check('the GPT checkpoint is the voice', /sample-e10\.ckpt$/.test(pack.gpt), pack.gpt)
+  check('the SoVITS weights are the voice', /sample_e10_s120\.pth$/.test(pack.sovits), pack.sovits)
   check('the SoVITS weights are not the base model',
     !/s2Gv2ProPlus/.test(pack.sovits),
     'the base model sorts first, so a name-blind pick lands on it')
@@ -87,7 +87,7 @@ try {
     check(rel.replace(/\\/g, '/'), existsSync(join(engine, rel)))
   }
   check('the voice weights landed in the engine',
-    existsSync(join(engine, 'GPT_weights_v2ProPlus', 'silver-wolf-e10.ckpt')))
+    existsSync(join(engine, 'GPT_weights_v2ProPlus', 'sample-e10.ckpt')))
 
   console.log('\n4. a second run does not overwrite the engine')
   writeFileSync(join(engine, 'GPT_SoVITS', 'pretrained_models', 's1v3.ckpt'), 'TOUCHED')

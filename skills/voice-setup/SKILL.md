@@ -1,6 +1,6 @@
 ---
 name: voice-setup
-description: '当需要安装、启用或排查语音插件与声线时使用 —— 插件与仓库都叫 dsh-say。触发场景：装上这个语音插件 / 为什么没声音 / 启用语音插件 / 配置语音；以及装声线：把 silver-wolf 装上 / 用这个包装声线 / 加载这个声线 / 从 zip 装声线。也用于察觉到这个会话里没有 tts_speak 工具时。Install, enable, or troubleshoot the dsh-say plugin; also install a voice pack from a downloaded archive.'
+description: '当需要安装、启用或排查语音插件与声线时使用 —— 插件与仓库都叫 dsh-say。触发场景：装上这个语音插件 / 为什么没声音 / 启用语音插件 / 配置语音；以及装声线：把试听音频装上（包名 sample）/ 用这个包装声线 / 加载这个声线 / 从 zip 装声线。也用于察觉到这个会话里没有 tts_speak 工具时。Install, enable, or troubleshoot the dsh-say plugin; also install a voice pack from a downloaded archive.'
 ---
 
 # 安装与启用 dsh-say / Install and enable dsh-say
@@ -88,7 +88,7 @@ tts_speak 在列表里 → 跑 tts_engines 看后端状态
 - **装插件** = 让会话里有 `tts_speak` 工具（上面 1-4 步）
 - **装声线** = 让工具能发出**某个角色**的声音，素材在 Releases 那个包里
 
-用户说"把 silver-wolf 装上""用这个包装声线""加载这个声线"时，就是这个。**用户不该自己敲命令** —— 他下载了 zip，剩下的你来做：
+用户说"把试听音频装上""装那个 sample 包""用这个包装声线""加载这个声线"时，就是这个。**用户不该自己敲命令** —— 他下载了 zip，剩下的你来做：
 
 ```sh
 node scripts/install-voice.mjs

@@ -56,10 +56,10 @@ if (fromFlag >= 0 && !fromArchive) {
 /** The archive, if it is already sitting somewhere obvious. */
 function findArchive() {
   // Only the current bundle is matched. The older weights-only archive shipped
-  // under a `silver-wolf-weights-` name and is a strict subset of this one, so
+  // under a `sample-weights-` name and is a strict subset of this one, so
   // treating it as a candidate would install a voice with no base models and fail
   // in a way that looks like a bad download.
-  const names = [/^silver-wolf-full.*\.zip$/i, /^dsh-say.*\.zip$/i]
+  const names = [/^sample-full.*\.zip$/i, /^dsh-say.*\.zip$/i]
   const places = [
     join(homedir(), 'Downloads'),
     process.cwd(),
@@ -121,7 +121,7 @@ function walk(dir, out = []) {
 
 // Which pack are we installing? The repository ships one; a user may have added
 // more, so ask rather than assume when it is ambiguous.
-const chosen = packName || 'silver-wolf'
+const chosen = packName || 'sample'
 console.log(`pack      : ${chosen}`)
 
 // Locate the reference clip and the weights this pack expects.
@@ -169,7 +169,7 @@ if (!weightsPresent(weightsDir)) {
 //
 // The release bundle also carries the four base models inference needs, and that
 // broke the obvious `.find(endsWith('.pth'))`: walk() returns files in name order,
-// so `s2Gv2ProPlus.pth` (the base) sorted ahead of `silver-wolf_e10_s120.pth` (the
+// so `s2Gv2ProPlus.pth` (the base) sorted ahead of `sample_e10_s120.pth` (the
 // voice), and the pack was registered pointing at the base model instead. Both are
 // valid files, so nothing failed loudly - the voice simply was not the voice.
 // Excluding the bundled base models by name is what makes the pick unambiguous.

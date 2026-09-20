@@ -140,7 +140,7 @@ voice packs: 0 in ~/.dsh/voice-packs
 
 把上面那个 zip 下载好，对你的 AI 说一句：
 
-> 把 silver-wolf 声线装上
+> 把试听音频装上
 
 它自己会去 Downloads 找到那个包、解压、把四个 base 模型铺进 `GPT_SoVITS/pretrained_models/`、把声线权重铺进 `GPT_weights_v2ProPlus/` 和 `SoVITS_weights_v2ProPlus/`，然后登记声线包。**已经存在的文件会跳过**，不会覆盖你调好的环境。
 
@@ -171,7 +171,7 @@ node scripts/install-voice.mjs --from "D:/downloads/某个.zip" --engine "D:/GPT
 > **前置条件：本机要有一个能跑的 GPT-SoVITS 检出加 Python 环境。**
 > [Releases](../../releases/latest) 那个包给的是**模型**，不是**运行时** —— Python 和 torch 那几 GB 装不进 Release，也不该装。
 > 还没有的话，官方 Windows 整合包解压双击即可（[下载](https://huggingface.co/lj1995/GPT-SoVITS-windows-package/resolve/main/GPT-SoVITS-v3lora-20250228.7z)，6.4 GB）。
-> **两者不冲突**：整合包负责运行时，Releases 那个包负责让它用银狼的声音，而且比整合包自带的那套小得多。
+> **两者不冲突**：整合包负责运行时，Releases 那个包负责让它用试听音频的声音，而且比整合包自带的那套小得多。
 
 装之前先读 [`voice/NOTICE.txt`](voice/NOTICE.txt)：**本声音资源仅供学习交流，严禁用于商业用途，如有侵权，请联系作者，作者得知后会于24小时内删除。**
 
@@ -330,20 +330,20 @@ Restart the profile, then ask the agent to *"say hello out loud"*. `npx dsh-say`
 Everything above works with the voices your system already has, at zero download. A
 character voice needs the bundle from
 **[Releases](https://github.com/fangqian616/dsh-say/releases/latest)** — **1.34 GB**,
-carrying the `silver-wolf` voice plus the four base models inference needs. (The
+carrying the `sample` voice plus the four base models inference needs. (The
 official GPT-SoVITS package is 6.4 GB because it also carries training code, ASR,
 vocal separation and a pretrained weight for every model version. None of that is
 needed to talk.)
 
 **No commands.** Download the bundle, then tell your agent:
 
-> install the silver-wolf voice
+> install the sample audio
 
 It finds the archive in Downloads, unpacks it, places the base models into
 `GPT_SoVITS/pretrained_models/` and the voice weights into `GPT_weights_v2ProPlus/`
 and `SoVITS_weights_v2ProPlus/`, then registers the pack. Files that already exist
 are skipped, so your tuned engine is never overwritten. Then ask it to *"read this
-out loud in the silver-wolf voice"*.
+out loud in the sample voice"*.
 
 **What the bundle integrates, and what it does not.** It carries the **models**, not
 the **program**. The four base models and the voice weights are what is easy to get
