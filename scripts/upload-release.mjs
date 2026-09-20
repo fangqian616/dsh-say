@@ -108,10 +108,18 @@ if (!Array.isArray(releases) || releases.length === 0) {
 const release = releases[0]
 console.log(`release   : ${release.tag_name}`)
 
-// Same-named assets cannot coexist, so the old one goes first. Deleting by id
-// rather than by name avoids a race with anything else touching the release.
-for (const asset of release.assets.filter((a) => a.name === name)) {
-  console.log(`deleting  : asset ${asset.id} (${(asset.size / 1048576).toFixed(1)} MB)`)
+// One archive per release, and it must be the current one.
+//
+// Deleting only the same-named asset is not enough: this release once carried
+// `silver-wolf-full-v2ProPlus.zip`, and superseding it with a differently-named
+// archive would leave the old one downloadable — which, after the voice was
+// de-identified, means the character-named file stays on the internet even though
+// nothing in the repository mentions it any more. So every archive-shaped asset
+// that is not the one being uploaded goes.
+const ARCHIVE_LIKE = /^(?:silver-wolf|sample)[\w.-]*\.zip$/i
+const stale = release.assets.filter((asset) => asset.name !== name && ARCHIVE_LIKE.test(asset.name))
+for (const asset of release.assets.filter((a) => a.name === name || ARCHIVE_LIKE.test(a.name))) {
+  console.log(`deleting  : ${asset.name} (asset ${asset.id}, ${(asset.size / 1048576).toFixed(1)} MB)`)
   const response = await fetch(`${api}/releases/assets/${asset.id}`, { method: 'DELETE', headers })
   if (!response.ok && response.status !== 404) {
     console.error(`could not delete asset ${asset.id}: HTTP ${response.status}`)
