@@ -112,36 +112,25 @@ voice packs: 0 in ~/.dsh/voice-packs
 >
 > | | **main（本仓库）** | **[Releases](../../releases/latest)（那个 1.34 GB 的包）** |
 > |:--|:--|:--|
-> | 是什么 | **插件本体**：调用 TTS、压缩汇报、人设、声线注册 | **SoVITS 推理素材**：4 个 base 模型 + 银狼声线 |
-> | 声音从哪来 | **你系统自带的语音**（SAPI） | 银狼（GPT-SoVITS 角色声线） |
+> | 是什么 | **插件本体**：调用 TTS、压缩汇报、人设、声线注册 | **SoVITS 推理素材**：4 个 base 模型 + GPT-SoVITS训练集 |
+> | 声音从哪来 | **你系统自带的语音**（SAPI） | （GPT-SoVITS 角色声线） |
 > | 下载量 | **0** | **1.34 GB** |
-> | 要 Python / 显卡 | **不要** | 要一个能跑的 GPT-SoVITS |
+> | 要 Python / 显卡 | **不要** | GPT-SoVITS |
 >
-> **只要你不想装角色声线，就到此为止** —— main 已经能说话，一步都不用多。
-> 想听银狼，去 [Releases](../../releases/latest) 下那个包，继续往下看。
+> main可以使用系统语音。
+> GPT-SoVITS的使用，需要去 [Releases](../../releases/latest) 下载包，继续往下看。
 
 #### 怎么装
 
-**不用敲任何命令。** 把上面那个 zip 下载好，对你的 AI 说一句：
+把上面那个 zip 下载好，对你的 AI 说一句：
 
 > 把 silver-wolf 声线装上
 
 它自己会去 Downloads 找到那个包、解压、把四个 base 模型铺进 `GPT_SoVITS/pretrained_models/`、把声线权重铺进 `GPT_weights_v2ProPlus/` 和 `SoVITS_weights_v2ProPlus/`，然后登记声线包。**已经存在的文件会跳过**，不会覆盖你调好的环境。
 
-装完直接说「用银狼念一下这段」就能听到。
+装完直接说「用XX声线念一下这段」就能听到。
 
-#### 包里那六条参考音
 
-参考音是**你挑音色用的样本**，也是**能直接拿去训练的素材**：
-
-| | 说明 |
-|:--|:--|
-| `reference/中立.wav` + `reference/中立.txt` | **成对**：音频配逐字文本。可以直接导入 GPT-SoVITS 微调，文本与音频是对应的 |
-| 其余五条（开心/吃惊/生气/难过/恐惧） | 只有音频，**没有文本**。用来试听挑音色；文件名里的情绪是给你看的标签，不是它的文本 |
-
-想自己训一版：把 `中立.wav` 和 `中立.txt` 丢进 GPT-SoVITS 的微调流程即可，**素材已经在包里**，不用重新切音频、也不用自己听写。
-
-> 为什么不给其余五条配文本：**配错比没有更糟** —— 微调会照着错的学。
 
 <details>
 <summary><b>想自己动手 / AI 没有自动做</b></summary>
@@ -208,7 +197,7 @@ node scripts/install-voice.mjs --from "D:/downloads/某个.zip" --engine "D:/GPT
 首次加载时它会问你三个问题（声线、人设、要不要自动播报），答案直接写进去。之后想改，**跟智能体说就行**：
 
 > 把语速调到 1.2
-> 默认声线换成 silver-wolf
+> 默认声线换成 XX
 > 看看现在的配置
 
 <details>
@@ -240,7 +229,7 @@ node scripts/install-voice.mjs --from "D:/downloads/某个.zip" --engine "D:/GPT
 | 安装成本 | **零** | 约 2 GB 起 |
 | 音质 | 清晰但机械 | 角色声线、零样本克隆 |
 | 英文 | 原生分语言 | 声明语言即可 |
-| 依赖 | Windows SAPI，**连 ffmpeg 都不需要** | 本地检出或远端 API |
+| 依赖 | Windows SAPI| 本地检出或远端 API |
 
 `engine: auto` 会在你登记声线包之后**自动切到 GPT-SoVITS**，不用改配置。
 
