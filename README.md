@@ -112,13 +112,29 @@ voice packs: 0 in ~/.dsh/voice-packs
 >
 > | | **main（本仓库）** | **[Releases](../../releases/latest)（那个 1.34 GB 的包）** |
 > |:--|:--|:--|
-> | 是什么 | **插件本体**：调用 TTS、压缩汇报、人设、声线注册 | **SoVITS 推理素材**：4 个 base 模型 + GPT-SoVITS训练集 |
-> | 声音从哪来 | **你系统自带的语音**（SAPI） | （GPT-SoVITS 角色声线） |
+> | 是什么 | **插件本体**：调用 TTS、压缩汇报、人设、声线注册 | **推理素材**：4 个 base 模型 + 声线权重 + 可训练参考音 |
+> | 声音从哪来 | **你系统自带的语音**（SAPI） | 声线包里的角色声线（GPT-SoVITS） |
 > | 下载量 | **0** | **1.34 GB** |
-> | 要 Python / 显卡 | **不要** | GPT-SoVITS |
+> | 要不要 Python | **不要** | **要** —— 模型在包里，**运行时不在** |
 >
-> main可以使用系统语音。
-> GPT-SoVITS的使用，需要去 [Releases](../../releases/latest) 下载包，继续往下看。
+> main 可以用系统语音，零下载。想用 GPT-SoVITS 角色声线，去 [Releases](../../releases/latest) 下载包，继续往下看。
+
+#### 包里整合了什么、没整合什么
+
+**整合的是「模型」，不是「程序」。** 这两件事经常被当成一件，所以写清楚：
+
+| | 在包里吗 | 说明 |
+|:--|:--|:--|
+| 4 个 base 模型（推理必需） | ✅ 在 | chinese-roberta、chinese-hubert、s1v3、s2Gv2ProPlus，约 1.14 GB |
+| 声线权重 + 参考音 | ✅ 在 | 约 316 MB |
+| GPT-SoVITS 程序本身 | ❌ 不在 | 代码只有几 MB，但**没有 torch 跑不起来** |
+| Python + torch 运行时 | ❌ 不在 | **约 6 GB，而且分平台** |
+
+**为什么运行时整合不了**：Python 和 torch 加起来好几 GB，还分 Windows/Linux、分 CUDA 版本。npm 单文件上限 100 MB，Release 也不适合塞一个平台专属的运行环境。所以**你要跑它，仍然需要本机已有能跑的 GPT-SoVITS**。
+
+包里给的东西替你省掉的是：**自己找那四个 base 模型、自己裁参考音、自己听写文本** —— 这部分最容易装错（模型版本对不上、参考音不规范），现在不用你操心。
+
+> 想彻底不要 GPT-SoVITS？那需要换一条**推理路径**（把模型转 ONNX，用小体积运行时，就不需要 Python/torch 了）。那是另一个工程，不是文档改动 —— 想做的话说一声。
 
 #### 怎么装
 
@@ -329,11 +345,20 @@ and `SoVITS_weights_v2ProPlus/`, then registers the pack. Files that already exi
 are skipped, so your tuned engine is never overwritten. Then ask it to *"read this
 out loud in the silver-wolf voice"*.
 
-**Before this:** you need a working GPT-SoVITS checkout with a Python environment.
-The bundle is models, not a runtime — Python and torch are several GB and do not fit
-in a Release. Without one, the official Windows package unzips and runs as-is
+**What the bundle integrates, and what it does not.** It carries the **models**, not
+the **program**. The four base models and the voice weights are what is easy to get
+wrong — mismatched model versions, reference clips that are not cut to spec — so those
+ship in the bundle. GPT-SoVITS itself is a Python program, and Python plus torch is
+several GB and platform-specific: it cannot go in npm (100 MB per file) or sensibly in
+a Release. **So you still need a working GPT-SoVITS on the machine.** Without one, the
+official Windows package unzips and runs as-is
 ([download](https://huggingface.co/lj1995/GPT-SoVITS-windows-package/resolve/main/GPT-SoVITS-v3lora-20250228.7z),
-6.4 GB); the two do not conflict.
+6.4 GB); the two do not conflict — the package supplies the runtime, the bundle
+supplies the models.
+
+> Removing that requirement entirely means a different inference path — the models
+> converted to ONNX with a small runtime, no Python or torch. That is a real project,
+> not a documentation change.
 
 **The six reference clips** are samples for picking a tone, and one of them is also
 trainable material:
