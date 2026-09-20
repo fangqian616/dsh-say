@@ -155,16 +155,30 @@ console.log(`uploaded  : id=${asset.id} size=${asset.size}`)
 console.log('\nverifying what the release now serves...')
 const verifyDir = join(process.env.TEMP || '/tmp', 'dsh-say-upload-verify')
 rmSync(verifyDir, { recursive: true, force: true })
+let verifyError = null
 try {
   execFileSync(process.execPath, [
     join(import.meta.dirname, 'fetch-voice.mjs'),
     '--url', `https://github.com/${repo}/releases/latest/download/${name}`,
     '--out', verifyDir,
-  ], { stdio: 'inherit' })
-} catch {
-  console.error('\nverification failed: the published archive does not match SOURCE.json')
-  console.error('(the upload itself succeeded; the release is serving something else)')
-  process.exit(1)
+  ], { stdio: ['ignore', 'inherit', 'pipe'] })
+} catch (error) {
+  verifyError = error?.stderr ? String(error.stderr).trim().split('\n').slice(-2).join(' ') : String(error?.message || error)
+}
+
+if (verifyError !== null) {
+  // Two very different failures look identical from here, and saying the wrong one
+  // is worse than saying neither: a network or proxy problem means the release was
+  // never read, while a checksum failure means it was read and is wrong. The upload
+  // is confirmed by the API in both cases, so the message must not imply otherwise.
+  const unreachable = /proxy|ECONNRESET|ENOTFOUND|ETIMEDOUT|Connect Timeout|Unable to connect|download failed/i.test(verifyError)
+  console.error(unreachable
+    ? `\ncould not verify: the archive could not be downloaded (${verifyError})`
+    : `\nverification failed: the published archive does not match SOURCE.json (${verifyError})`)
+  console.error('the upload itself succeeded — the API reports ' + (size / 1048576).toFixed(1) + ' MB, matching this file.')
+  console.error('re-run the check when the network allows:')
+  console.error(`  node scripts/fetch-voice.mjs --url https://github.com/${repo}/releases/latest/download/${name} --out <dir>`)
+  process.exit(unreachable ? 2 : 1)
 }
 rmSync(verifyDir, { recursive: true, force: true })
 console.log('\nok: the release serves the archive SOURCE.json describes')
