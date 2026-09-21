@@ -231,20 +231,20 @@ const outIndex = args.indexOf('--out')
 const outDir = outIndex >= 0 ? resolve(args[outIndex + 1]) : ''
 const urlIndex = args.indexOf('--url')
 const urlOverride = urlIndex >= 0 ? args[urlIndex + 1] : ''
-// The release carries two archives and SOURCE.json describes both: the PyTorch one
-// at the top level and the much smaller ONNX one under `onnx`. `--onnx` splices that
-// block over the top level, so every existing reader of source.url, source.sha256 and
-// source.archive keeps working without knowing there are two.
-const wantOnnx = args.includes('--onnx')
+// The release carries several archives and SOURCE.json describes each: the PyTorch
+// one at the top level, the ONNX voice under `onnx`, the portable runtime under
+// `runtime`. The flag splices that block over the top level, so every existing reader
+// of source.url, source.sha256 and source.archive keeps working without knowing.
+const assetKey = args.includes('--runtime') ? 'runtime' : args.includes('--onnx') ? 'onnx' : ''
 
 const parsedSource = existsSync(sourcePath)
   ? JSON.parse(readFileSync(sourcePath, 'utf8').replace(/^\uFEFF/, ''))
   : {}
 
-const source = wantOnnx ? { ...parsedSource, ...(parsedSource.onnx || {}) } : parsedSource
+const source = assetKey ? { ...parsedSource, ...(parsedSource[assetKey] || {}) } : parsedSource
 
-if (wantOnnx && !parsedSource.onnx?.url) {
-  console.error('scripts/SOURCE.json has no "onnx" archive described, so --onnx has nothing to fetch.')
+if (assetKey && !parsedSource[assetKey]?.url) {
+  console.error(`scripts/SOURCE.json has no "${assetKey}" archive described, so --${assetKey} has nothing to fetch.`)
   process.exit(1)
 }
 
@@ -308,7 +308,7 @@ function install(archive, label) {
   // a model directory instead - so printing it there produces a wall of "NOT FOUND"
   // and three instructions that do not apply. Its caller (install-onnx.mjs) knows
   // what to do with the files, so it just gets the archive.
-  if (wantOnnx) {
+  if (assetKey) {
     console.log(`\nunpacked into ${shownPath(intoDir)}: ${files.length} file(s)`)
     process.exit(0)
   }
@@ -346,7 +346,7 @@ if (printOnly) {
   console.log(`sha256  : ${source.sha256 || '(not recorded)'}`)
   console.log('')
   console.log('fetch it with:')
-  console.log(`  node scripts/fetch-voice.mjs${wantOnnx ? ' --onnx' : ''}`)
+  console.log(`  node scripts/fetch-voice.mjs${assetKey ? ` --${assetKey}` : ''}`)
   console.log('or unpack a file you already have:')
   console.log('  node scripts/fetch-voice.mjs --from <archive.zip>')
   process.exit(0)

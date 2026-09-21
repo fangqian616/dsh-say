@@ -116,11 +116,11 @@ node scripts/install-voice.mjs
 **ONNX 那条（推荐给"不想下 6.4 GB"的人）：**
 
 ```sh
-node scripts/install-onnx.mjs          # 装引擎（约 700 MB）
-node scripts/install-onnx.mjs --voice  # 再装声线（290.8 MB，去 Downloads 找那个包）
+node scripts/install-onnx.mjs          # 装引擎（约 406.7 MB 的便携运行时）
+node scripts/install-onnx.mjs --voice  # 同时把声线也下载并装上（290.8 MB）
 ```
 
-**声线是另一个包**：`sample-onnx-v2ProPlus.zip`（290.8 MB），里面是**已经转好的 ONNX 模型** —— 不需要 PyTorch、不需要引擎、不需要任何 base 模型，Genie 自带 hubert 和 BERT。用户下载到 Downloads 之后，`--voice` 会自己找到它；在别处就用 `--from "<zip路径>"`。
+**本机什么都不需要预先装** —— 不需要 Python、不需要 PyTorch、不需要 GPT-SoVITS。脚本下载一个**预构建的便携运行时**（便携版 Python + 装好的依赖 + Genie 运行时数据），解包即用。合计约 **697 MB**；GPT-SoVITS 那条路是 6.4 GB 整合包 + 1.34 GB 声线包，约 7.7 GB。
 
 **别让用户去下那个 1.34 GB 的包。** 那份是给 GPT-SoVITS 后端的，含 4 个 base 模型；ONNX 路线用不上，白下 1 GB。
 
@@ -142,7 +142,7 @@ node scripts/install-onnx.mjs
 
 **注意**：`textLang` 是**整个角色**的语言，不是每句话的。角色的语言在加载时就定了，所以念日文要把 `textLang` 设成 `ja`。
 
-引擎那条命令会建受管 venv（Python 3.9-3.13）、装 genie-tts、下 Genie 运行时资源。三件它替你处理掉的坑，**失败时不要去让用户装 Visual Studio**：
+引擎那条命令会建受管 venv（Python 3.9-3.13）、装 genie-tts、下 Genie 运行时资源 —— **只在 `--venv` 时才走这条路**，默认走便携运行时。三件它替你处理掉的坑，**失败时不要去让用户装 Visual Studio**：
 
 1. `jieba_fast` 是 C 扩展源码包、任何平台都没有 wheel —— 脚本装一个纯 Python 垫片代替
 2. `import genie_tts` 在导入时就检查运行时数据，缺了会阻塞或抛异常 —— 所以数据必须先下

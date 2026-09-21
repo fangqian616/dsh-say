@@ -11,6 +11,15 @@
     "archive": "sample-onnx-v2ProPlus.zip",
     "bytes": 304901975
   },
+  "runtime": {
+    "note": "预构建便携运行时：便携版 Python + 装好的依赖 + Genie 运行时数据。解包即用，用户本机不需要有 Python（含 pip，所以 --with-japanese 仍然可用）。由 node scripts/install-onnx.mjs 默认使用。",
+    "url": "https://github.com/fangqian616/dsh-say/releases/latest/download/dsh-say-onnx-runtime-win-x64.zip",
+    "sha256": "d0571fd92526d649195f34fb76aff9d829c6952e2dc2d64d323c118a7f953b58",
+    "archive": "dsh-say-onnx-runtime-win-x64.zip",
+    "bytes": 426506151,
+    "platform": "win32-x64",
+    "python": "3.10.20"
+  },
   "contents": [
     "NOTICE-weights.txt",
     "bert/config.json",

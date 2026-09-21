@@ -121,8 +121,8 @@ voice packs: 0 in ~/.dsh/voice-packs
 
 | | ONNX 那条 | GPT-SoVITS 那条 |
 |:--|:--|:--|
-| 你要先准备什么 | **什么都不用** | 本机得有一个能跑的 GPT-SoVITS |
-| 声线包 | `sample-onnx-v2ProPlus.zip` **290.8 MB** | `sample-full-v2ProPlus.zip` **1,343.8 MB** |
+| 你要先准备什么 | **什么都不用**（本机连 Python 都不用有） | 本机得有一个能跑的 GPT-SoVITS |
+| 下载量 | **约 697 MB** | **约 7.7 GB**（1.34 GB 声线包 + 6.4 GB 官方整合包） |
 | 什么时候选它 | 本机没有 GPT-SoVITS | 已经有了：零下载，而且更快 |
 
 两条路跑的是同一套声线模型，只是运行时不同（onnxruntime / PyTorch）。
@@ -144,7 +144,14 @@ voice packs: 0 in ~/.dsh/voice-packs
 | 参考音 + 逐字文本 | ✅ 在 | `ref.wav` + `ref.txt` |
 | base 模型 | ➖ 不需要 | Genie-TTS 自带 hubert 和 BERT |
 | GPT-SoVITS / PyTorch | ➖ 不需要 | 用 onnxruntime 跑 |
-| Python 环境 + Genie 资源 | ❌ 不在 | 由 `install-onnx.mjs` 装，约 700 MB |
+
+#### dsh-say-onnx-runtime-win-x64.zip 里有什么（便携运行时，406.7 MB）
+
+| | 在包里吗 | 内容 |
+|:--|:--|:--|
+| Python 运行时 | ✅ 在 | 便携版 CPython 3.10 + 标准库，27 MB |
+| 引擎依赖 | ✅ 在 | genie-tts、onnxruntime 等，已装好 |
+| Genie 运行时数据 | ✅ 在 | hubert 和 BERT，392 MB，所有人一样 |
 
 #### 安装GPT-SoVITS
 
@@ -181,9 +188,9 @@ node scripts/install-voice.mjs --from "D:/downloads/某个.zip" --engine "D:/GPT
 node scripts/install-onnx.mjs --voice
 ```
 
-一条命令：建 Python 环境、装引擎、下运行时数据、下载并铺好声线。对 AI 说「安装试听音频」也行。
+一条命令，**本机不需要有 Python、不需要 PyTorch、不需要 GPT-SoVITS**。脚本会下载一个预构建的便携运行时（406.7 MB，里面是便携版 Python + 装好的依赖 + Genie 运行时数据），再铺好声线（290.8 MB）。对 AI 说「安装试听音频」也行。
 
-要日文再加 `--with-japanese`（约 317 MB，默认不装，见 [排错](#-排错)）。唯一要本机有的是 **Python 3.9-3.13**；没有的话对 AI 说一声，它会装。`--check` 随时复查状态。
+合计约 **697 MB**。要日文再加 `--with-japanese`（约 317 MB，默认不装）。`--check` 随时复查状态。
 
 
 **本试用声音资源仅供学习交流，严禁用于商业用途，如有侵权，请联系作者，作者得知后会于24小时内删除。**
@@ -429,6 +436,14 @@ PyTorch).
 | GPT-SoVITS itself | no | needs a working checkout on the machine |
 | Python + torch | no | about 6 GB, per-platform and per-CUDA |
 
+**What is in `dsh-say-onnx-runtime-win-x64.zip`** (the portable runtime, 406.7 MB):
+
+| | In the bundle | Contents |
+|:--|:--|:--|
+| a Python runtime | yes | relocatable CPython 3.10 plus its stdlib, 27 MB |
+| the engine's dependencies | yes | genie-tts, onnxruntime and the rest, already installed |
+| Genie runtime data | yes | hubert and BERT, 392 MB - the same for everyone |
+
 **What is in `sample-onnx-v2ProPlus.zip`:**
 
 | | In the bundle | Contents |
@@ -437,21 +452,20 @@ PyTorch).
 | reference clip + its transcript | yes | |
 | base models | n/a | Genie-TTS ships its own hubert and BERT |
 | GPT-SoVITS / PyTorch | n/a | runs on onnxruntime |
-| Python environment + Genie data | no | `install-onnx.mjs` installs it, about 700 MB |
 
 ### Installing it
 
-**ONNX route** — no GPT-SoVITS and no PyTorch needed:
+**ONNX route** — the machine needs no Python, no PyTorch and no GPT-SoVITS:
 
 ```sh
 node scripts/install-onnx.mjs --voice
 ```
 
-One command: it builds the Python environment, installs the engine, fetches the
-runtime data, and downloads and installs the voice. Add `--with-japanese` for
-Japanese (about 317 MB, off by default). The one thing the machine needs is
-**Python 3.9-3.13**; `node scripts/install-onnx.mjs --check` re-reports the status at
-any time.
+One command. It downloads a prebuilt portable runtime (406.7 MB: a relocatable Python,
+the engine's dependencies already installed, and Genie's runtime data) and the voice
+bundle (290.8 MB). About **697 MB** in total. Add `--with-japanese` for Japanese
+(about 317 MB, off by default). `node scripts/install-onnx.mjs --check` re-reports the
+status at any time.
 
 **GPT-SoVITS route.** Prerequisite: a working GPT-SoVITS checkout with Python. Without
 one, the official Windows package unzips and runs as-is

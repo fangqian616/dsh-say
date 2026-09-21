@@ -63,6 +63,11 @@ const config = {
   check: process.argv.includes('--check'),
   skipData: process.argv.includes('--skip-data'),
   venvOnly: process.argv.includes('--venv-only'),
+  // Opts into building from a local Python instead of downloading the portable
+  // runtime. The default is the portable one because it is the only path that asks
+  // the machine for nothing; this exists for a non-Windows host and for pinning an
+  // interpreter the wheels were not built against.
+  venv: process.argv.includes('--venv'),
   voice: process.argv.includes('--voice'),
   voiceOnly: process.argv.includes('--voice-only'),
   noVoice: process.argv.includes('--no-voice'),
@@ -74,6 +79,18 @@ const venv = join(config.root, 'venv')
 const dataDir = join(config.root, 'GenieData')
 const isWindows = process.platform === 'win32'
 const venvPython = isWindows ? join(venv, 'Scripts', 'python.exe') : join(venv, 'bin', 'python')
+
+/**
+ * The interpreter to actually run with.
+ *
+ * Two layouts, both current. The portable runtime unpacks a bare interpreter at the
+ * engine root - that is what makes the machine need no Python of its own. A venv
+ * built from a local Python keeps its interpreter one level down. The portable one
+ * wins when it is there, because that is the layout this script installs by default.
+ */
+const portablePython = isWindows ? join(config.root, 'python.exe') : join(config.root, 'bin', 'python3')
+const hasPortable = () => existsSync(portablePython)
+const interpreter = () => (hasPortable() ? portablePython : venvPython)
 
 // --- helpers ----------------------------------------------------------------
 
@@ -150,9 +167,13 @@ function findPython() {
   return { rejected }
 }
 
-/** Every `site-packages` under the venv, whichever layout the platform uses. */
+/** Every `site-packages` under the engine root, whichever layout is installed. */
 function sitePackagesDirs() {
   const found = []
+  // The portable runtime keeps its interpreter at the engine root, so its packages
+  // are one level down from there rather than inside a venv.
+  const portable = isWindows ? join(config.root, 'Lib', 'site-packages') : join(config.root, 'lib', 'python3', 'site-packages')
+  if (existsSync(portable)) found.push(portable)
   const windowsLayout = join(venv, 'Lib', 'site-packages')
   if (existsSync(windowsLayout)) found.push(windowsLayout)
   const lib = join(venv, 'lib')
@@ -405,10 +426,45 @@ async function resolveVoiceArchive() {
   return { ok: true, archive, source: 'downloaded' }
 }
 
+/**
+ * Download and unpack the portable runtime.
+ *
+ * This is what removes the plugin's last prerequisite. The asset carries a working
+ * interpreter, the engine's dependencies already installed and Genie's runtime data,
+ * so the machine needs no Python of its own and pip never runs. Measured at 397.8 MB
+ * for 729.2 MB unpacked, against roughly 700 MB of downloads across three steps on
+ * the venv path.
+ *
+ * The archive's entries are relative to the engine root, so it unpacks straight into
+ * `config.root` and the layout is what `config.js` looks for.
+ */
+async function installPortableRuntime() {
+  console.log(`  downloading the portable runtime (about 398 MB)`)
+  const fetched = await run(process.execPath, [
+    join(HERE, 'fetch-voice.mjs'),
+    '--runtime',
+    '--out', config.root,
+  ], { echo: true })
+
+  if (fetched.code !== 0) {
+    return {
+      ok: false,
+      reason:
+        `the portable runtime download failed (exit ${fetched.code}). Its checksum is ` +
+        'checked against scripts/SOURCE.json, so a mismatch means the release asset is ' +
+        'not what this version expects. Retry, or build a venv instead with --venv.',
+    }
+  }
+  if (!hasPortable()) {
+    return { ok: false, reason: `the runtime unpacked but ${portablePython} is not there` }
+  }
+  return { ok: true }
+}
+
 /** Run the readiness probe that the plugin itself uses. */
 async function verify() {
   const probe = join(HERE, '..', 'lib', 'engines', 'genie_probe.py')
-  const result = await run(venvPython, [probe], {
+  const result = await run(interpreter(), [probe], {
     env: { GENIE_DATA_DIR: dataDir, PYTHONIOENCODING: 'utf-8' },
     cwd: config.root,
   })
@@ -540,7 +596,7 @@ s = ort.InferenceSession(p, providers=["CUDAExecutionProvider", "CPUExecutionPro
 print(json.dumps({"providers": s.get_providers(), "available": ort.get_available_providers()}))
 `
   const probePath = join(config.root, 'provider-probe.onnx')
-  const result = await run(venvPython, ['-c', code, probePath], {
+  const result = await run(interpreter(), ['-c', code, probePath], {
     env: { GENIE_DATA_DIR: dataDir, PYTHONIOENCODING: 'utf-8', DSH_SAY_CUDA_DLL_DIRS: process.env.DSH_SAY_CUDA_DLL_DIRS || '' },
     cwd: config.root,
   })
@@ -564,11 +620,11 @@ console.log('dsh-say ONNX engine install')
 console.log(`  root  : ${config.root}`)
 console.log(`  mode  : ${config.gpu ? 'requesting the CUDA build' : 'CPU (default)'}`)
 
-const existing = existsSync(venvPython)
+const existing = existsSync(venvPython) || hasPortable()
 if (existing) {
-  console.log(`  venv  : already present`)
+  console.log(`  engine: already present (${hasPortable() ? 'portable runtime' : 'venv'})`)
 } else {
-  console.log(`  venv  : will be created`)
+  console.log(`  engine: none yet — will ${config.venv ? 'build a venv' : 'download the portable runtime'}`)
 }
 
 // Installing the voice without touching the engine, for the two cases where the
@@ -618,7 +674,19 @@ if (config.check) {
 }
 
 // 1. the interpreter
-if (!existing) {
+//
+// Nothing installed yet: the portable runtime is the default, because it is the only
+// path that asks the machine for nothing. `--venv` opts into building from a local
+// Python instead, which is what a non-Windows host or a pinned interpreter needs.
+if (!existing && !config.venv && isWindows) {
+  console.log('\n1. portable runtime')
+  const portable = await installPortableRuntime()
+  if (!portable.ok) {
+    console.error(`  ${portable.reason}`)
+    process.exit(1)
+  }
+  console.log(`  unpacked into ${config.root}`)
+} else if (!existing) {
   const found = findPython()
   if (!found.path) {
     console.error('\nno usable Python found.')
@@ -640,6 +708,13 @@ if (!existing) {
   console.log('\n1. interpreter\n  using the existing venv')
 }
 
+// Everything below builds the engine from wheels. The portable runtime already
+// contains the result, so those steps are not skipped as an optimisation - running
+// them would describe work that is not happening and make the installer's own output
+// misleading about where the engine came from.
+const justUnpacked = !existing && !config.venv && !config.venvOnly && isWindows && hasPortable()
+
+if (!justUnpacked) {
 // 2. the shim, before anything tries to install the real jieba_fast
 console.log('\n2. jieba_fast shim')
 {
@@ -689,6 +764,7 @@ if (config.venvOnly) {
   console.log('\nstopping here: --venv-only was given.')
   process.exit(0)
 }
+} // end of the wheel-building path
 
 // 3c. Japanese, which is off by default
 console.log('\n3c. Japanese support')

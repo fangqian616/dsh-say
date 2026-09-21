@@ -20,9 +20,19 @@
  */
 
 /** The archives this project publishes. Everything else archive-shaped is stale. */
-export const CURRENT_ASSETS = ['sample-full-v2ProPlus.zip', 'sample-onnx-v2ProPlus.zip']
+export const CURRENT_ASSETS = [
+  'sample-full-v2ProPlus.zip',
+  'sample-onnx-v2ProPlus.zip',
+  'dsh-say-onnx-runtime-win-x64.zip',
+]
 
-/** Archive names, including the ones retired by the de-identification. */
+/**
+ * Archive names, including the ones retired by the de-identification.
+ *
+ * The portable runtime is deliberately outside this pattern: it is named after the
+ * package, not after a voice, and matching it would put it in the same bucket as the
+ * character-named archives that have to be swept away.
+ */
 export const ARCHIVE_LIKE = /^(?:silver-wolf|sample)[\w.-]*\.zip$/i
 
 /**
