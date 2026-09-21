@@ -178,9 +178,43 @@ const noPath = (() => {
     return { code: error.status ?? 1, stdout: error.stdout || '', stderr: error.stderr || '' }
   }
 })()
-check('with no archive and no --from, it says how to get one',
-  noPath.code !== 0 && /releases\/latest\/download\/sample-onnx/.test(noPath.stderr || ''),
+check('with no archive and no --voice, it says how to get one',
+  noPath.code !== 0 && /--voice to download it/.test(noPath.stderr || ''),
   (noPath.stderr || '').trim().slice(0, 200))
+
+// And with --voice it does not ask the user to go and find anything: it starts the
+// download, which is what makes "the plugin installs its own runtime and voice" true
+// rather than nearly true.
+//
+// Deliberately killed after a few seconds. The claim under test is the decision, not
+// the transfer - letting it finish would pull 291 MB on every run and would make this
+// suite depend on the network. `--root` points the staging directory at a temp path so
+// a killed download cannot litter the real engine directory.
+const wantsDownload = (() => {
+  try {
+    const stdout = execFileSync(process.execPath, [SCRIPT, '--voice-only', '--voice', '--root', join(work, 'root')], {
+      stdio: 'pipe',
+      encoding: 'utf8',
+      cwd: emptyCwd,
+      timeout: 12000,
+      env: {
+        ...process.env,
+        DSH_VOICE_VOICES_DIR: join(work, 'voices-download'),
+        USERPROFILE: emptyHome,
+        HOME: emptyHome,
+        TEMP: emptyTemp,
+        TMP: emptyTemp,
+      },
+    })
+    return { stdout, stderr: '' }
+  } catch (error) {
+    return { stdout: error.stdout || '', stderr: error.stderr || '', killed: error.killed === true }
+  }
+})()
+const downloadOutput = `${wantsDownload.stdout || ''}${wantsDownload.stderr || ''}`
+check('--voice starts a download instead of telling the user to go and find it',
+  /not found locally; downloading/.test(downloadOutput),
+  downloadOutput.trim().slice(0, 200))
 
 rmSync(work, { recursive: true, force: true })
 

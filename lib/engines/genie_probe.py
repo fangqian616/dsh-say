@@ -34,6 +34,30 @@ except (ImportError, ValueError):
 report["genieTts"] = spec is not None
 report["genieTtsPath"] = getattr(spec, "origin", "") or "" if spec else ""
 
+# Japanese is optional and off by default: pyopenjtalk-plus brings 207 MB of Sudachi
+# dictionaries for a language most voices never speak. dsh-say writes a stand-in
+# module under that name, so "the module exists" is not the question - "is it the
+# real one" is. The stand-in carries a DSH_SAY_SHIM marker, which is a real
+# module-level name and therefore not something its __getattr__ can fake.
+try:
+    jp_spec = importlib.util.find_spec("pyopenjtalk")
+except (ImportError, ValueError):
+    jp_spec = None
+
+if jp_spec is None:
+    report["japanese"] = "missing"
+else:
+    origin = getattr(jp_spec, "origin", "") or ""
+    is_shim = False
+    if origin:
+        try:
+            with open(origin, "r", encoding="utf-8", errors="ignore") as handle:
+                is_shim = "DSH_SAY_SHIM" in handle.read(4096)
+        except Exception:
+            is_shim = False
+    report["japanese"] = "stand-in" if is_shim else "installed"
+    report["japanesePath"] = origin
+
 if report["dataDirExists"]:
     report["missing"] = [name for name in REQUIRED if not os.path.exists(os.path.join(DATA_DIR, name))]
 

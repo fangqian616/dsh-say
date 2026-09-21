@@ -7,7 +7,7 @@
  *
  * This is the route for someone with no GPT-SoVITS: it runs the same
  * GPT-SoVITS architecture through onnxruntime instead of PyTorch, which is
- * about 800 MB rather than 6.4 GB. It is still Python - the saving is PyTorch
+ * about 700 MB rather than 6.4 GB. It is still Python - the saving is PyTorch
  * and the CUDA toolkit, not the interpreter.
  *
  * Four steps, and three of them exist because the straightforward version fails
@@ -66,6 +66,7 @@ const config = {
   voice: process.argv.includes('--voice'),
   voiceOnly: process.argv.includes('--voice-only'),
   noVoice: process.argv.includes('--no-voice'),
+  withJapanese: process.argv.includes('--with-japanese'),
   from: flagValue('--from', ''),
 }
 
@@ -279,6 +280,131 @@ async function downloadData() {
   return { ok: false, reason: `the Genie runtime data could not be downloaded.\n  ${failures.join('\n  ')}` }
 }
 
+/**
+ * The pyopenjtalk stand-in, written when Japanese support is not installed.
+ *
+ * Genie-TTS imports pyopenjtalk at load time — `GetPhonesAndBert.py` does
+ * `from .G2P.Japanese.JapaneseG2P import japanese_to_phones` at module level — but
+ * only calls it for Japanese text. Installing the real thing pulls
+ * `pyopenjtalk-plus`, which brings `sudachidict_core`: 207 MB of Japanese
+ * dictionaries plus 106 MB of library, for a language most voices never speak.
+ *
+ * So this satisfies the import and refuses the call. Every attribute returns
+ * something that raises when used, which keeps a module-level reference in
+ * JapaneseG2P loading while an actual Japanese synthesis fails with a message that
+ * says what to install.
+ *
+ * `DSH_SAY_SHIM` is a real module attribute, not something __getattr__ fakes, so
+ * the probe can tell this apart from the genuine package. A module-level name takes
+ * precedence over __getattr__, which is what makes that work.
+ */
+const PYOPENJTAALK_SHIM = `"""pyopenjtalk is not installed, on purpose.
+
+Genie-TTS imports it at load time but only calls it for Japanese text. The real
+package pulls 207 MB of Sudachi dictionaries for a language this voice does not
+use, so its absence is the default and its presence is a choice.
+
+dsh-say writes this file during install-onnx.mjs. Run
+\`node scripts/install-onnx.mjs --with-japanese\` to install the real thing.
+"""
+
+DSH_SAY_SHIM = True
+
+_MESSAGE = (
+    "Japanese speech is not installed. Run "
+    "\`node scripts/install-onnx.mjs --with-japanese\` (about 317 MB), "
+    "or set textLang to zh or en."
+)
+
+
+def _unavailable(*args, **kwargs):
+    raise RuntimeError(_MESSAGE)
+
+
+def __getattr__(name):
+    return _unavailable
+`
+
+/** Write or remove the shim, or install the real package, per `--with-japanese`. */
+async function installJapanese() {
+  const dirs = sitePackagesDirs()
+  if (dirs.length === 0) return { ok: false, reason: 'no site-packages directory in the venv' }
+  const shim = join(dirs[0], 'pyopenjtalk.py')
+
+  if (config.withJapanese) {
+    rmSync(shim, { force: true })
+    // The name is pyopenjtalk-plus on PyPI; it is the maintained fork that builds
+    // on current Python, and it is what genie-tts depends on.
+    const installed = await pipInstall(['pyopenjtalk-plus'], 'pyopenjtalk-plus')
+    if (!installed.ok) {
+      // Put the shim back rather than leaving the engine unable to import the
+      // module at all: a broken install is worse than a limited one.
+      writeFileSync(shim, PYOPENJTAALK_SHIM, 'utf8')
+      return { ok: false, reason: `${installed.reason}\n  the stand-in was restored, so the engine still works without Japanese` }
+    }
+    return { ok: true, note: `installed (via ${installed.index}) — about 317 MB of it is dictionaries` }
+  }
+
+  writeFileSync(shim, PYOPENJTAALK_SHIM, 'utf8')
+  // Any leftover from a previous --with-japanese run would otherwise keep the 317 MB
+  // around while the shim shadows it.
+  const leftovers = ['pyopenjtalk-plus', 'sudachidict_core', 'sudachipy']
+  const present = await run(venvPython, ['-m', 'pip', 'show', '--files', ...leftovers])
+  if (present.code === 0) {
+    await run(venvPython, ['-m', 'pip', 'uninstall', '-y', ...leftovers])
+    for (const dir of sitePackagesDirs()) {
+      for (const name of ['pyopenjtalk', 'sudachidict_core', 'sudachipy', 'pyopenjtalk_plus.libs']) {
+        rmSync(join(dir, name), { recursive: true, force: true })
+      }
+    }
+  }
+  return { ok: true, note: 'not installed (317 MB saved). Add --with-japanese if you need it.' }
+}
+
+/**
+ * The voice archive: found locally, or fetched.
+ *
+ * `--voice` used to only look for a file the user had already downloaded, which
+ * made "the plugin installs its own runtime and voice" not quite true - the voice
+ * was one manual download away from being installed. It now fetches it, through the
+ * same script and checksum that a user running fetch-voice.mjs by hand would get.
+ */
+async function resolveVoiceArchive() {
+  const local = findVoiceArchive()
+  if (local) return { ok: true, archive: local, source: 'found locally' }
+
+  if (!config.voice) {
+    return {
+      ok: false,
+      reason: 'no sample-onnx*.zip found. Pass --voice to download it, or --from "<path>" to point at one.',
+    }
+  }
+
+  const staging = join(config.root, 'voice-download')
+  console.log(`  not found locally; downloading (about 291 MB)`)
+  const fetched = await run(process.execPath, [
+    join(HERE, 'fetch-voice.mjs'),
+    '--onnx',
+    '--out', staging,
+  ], { echo: true })
+
+  if (fetched.code !== 0) {
+    return {
+      ok: false,
+      reason:
+        `the download failed (exit ${fetched.code}). Its checksum is checked against ` +
+        'scripts/SOURCE.json, so a mismatch means the release asset is not what this ' +
+        'version expects. Retry, or download it by hand and pass --from "<path>".',
+    }
+  }
+
+  const archive = join(staging, 'sample-onnx-v2ProPlus.zip')
+  if (!existsSync(archive)) {
+    return { ok: false, reason: `the download reported success but ${archive} is not there` }
+  }
+  return { ok: true, archive, source: 'downloaded' }
+}
+
 /** Run the readiness probe that the plugin itself uses. */
 async function verify() {
   const probe = join(HERE, '..', 'lib', 'engines', 'genie_probe.py')
@@ -449,19 +575,13 @@ if (existing) {
 // engine is already there: someone re-installing a voice, and the test suite,
 // which must be able to exercise this path on a machine with no engine at all.
 if (config.voiceOnly) {
-  const archive = findVoiceArchive()
-  if (!archive) {
-    console.error('--voice-only needs an archive: pass --from "<path to sample-onnx-*.zip>"')
-    console.error('  or download one from')
-    console.error('    https://github.com/fangqian616/dsh-say/releases/latest/download/sample-onnx-v2ProPlus.zip')
+  const resolved = await resolveVoiceArchive()
+  if (!resolved.ok) {
+    console.error(`--voice-only: ${resolved.reason}`)
     process.exit(1)
   }
-  if (!existsSync(archive)) {
-    console.error(`no such file: ${archive}`)
-    process.exit(1)
-  }
-  console.log(`\nvoice archive: ${archive}`)
-  const installed = installVoice(archive)
+  console.log(`\nvoice archive: ${resolved.archive}  (${resolved.source})`)
+  const installed = installVoice(resolved.archive)
   if (!installed.ok) {
     console.error(`  ${installed.reason}`)
     process.exit(1)
@@ -570,6 +690,17 @@ if (config.venvOnly) {
   process.exit(0)
 }
 
+// 3c. Japanese, which is off by default
+console.log('\n3c. Japanese support')
+{
+  const japanese = await installJapanese()
+  if (!japanese.ok) {
+    console.error(`  ${japanese.reason}`)
+    process.exit(1)
+  }
+  console.log(`  ${japanese.note}`)
+}
+
 // 4. the runtime data
 console.log('\n4. Genie runtime data')
 if (existsSync(join(dataDir, 'chinese-hubert-base')) && existsSync(join(dataDir, 'speaker_encoder.onnx'))) {
@@ -625,31 +756,26 @@ console.log('\nthe engine is ready.')
 // installed here only when asked for, because a 290 MB download that the user did
 // not ask for is exactly the behaviour the 6.4 GB rule exists to prevent.
 if (!config.noVoice) {
-  const archive = config.voice || config.from ? findVoiceArchive() : ''
-  if (archive) {
-    console.log(`\n6. voice archive\n  ${archive}`)
-    if (!existsSync(archive)) {
-      console.error(`  no such file: ${archive}`)
+  const wanted = config.voice || config.from
+  if (wanted) {
+    const resolved = await resolveVoiceArchive()
+    if (!resolved.ok) {
+      console.error(`\n${resolved.reason}`)
       process.exit(1)
     }
-    const installed = installVoice(archive)
+    console.log(`\n6. voice archive\n  ${resolved.archive}  (${resolved.source})`)
+    const installed = installVoice(resolved.archive)
     if (!installed.ok) {
       console.error(`  ${installed.reason}`)
       process.exit(1)
     }
     console.log(`  installed "${installed.name}" into ${installed.dir}`)
     console.log(`  model: ${(installed.bytes / 1048576).toFixed(1)} MB`)
-  } else if (config.voice) {
-    console.error('\n--voice was given but no sample-onnx*.zip could be found.')
-    console.error('  download it first:')
-    console.error('    https://github.com/fangqian616/dsh-say/releases/latest/download/sample-onnx-v2ProPlus.zip')
-    console.error('  then run this again, or point at it with --from "<path to the zip>".')
-    process.exit(1)
   }
 }
 
 console.log('\nnext:')
 console.log('  node scripts/install-onnx.mjs --check              # re-report at any time')
-console.log('  node scripts/install-onnx.mjs --voice              # install the sample voice (about 291 MB)')
-console.log('  node scripts/install-onnx.mjs --from "<zip>"       # or install a voice archive you already have')
+console.log('  node scripts/install-onnx.mjs --voice              # find or download the sample voice')
+console.log('  node scripts/install-onnx.mjs --with-japanese      # add Japanese (about 317 MB)')
 console.log('  restart DSH so the plugin picks the engine up.')

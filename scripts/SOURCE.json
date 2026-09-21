@@ -4,6 +4,13 @@
   "sha256": "09d140b9d7037150b7d5dba193800282da11bc2af0aba6892d06592d86aa3d31",
   "archive": "sample-full-v2ProPlus.zip",
   "bytes": 1409073780,
+  "onnx": {
+    "note": "ONNX 后端用的声线包，小得多：不含 base 模型（Genie-TTS 自带 hubert/BERT），也不含 PyTorch 权重。由 `node scripts/install-onnx.mjs --voice` 使用。",
+    "url": "https://github.com/fangqian616/dsh-say/releases/latest/download/sample-onnx-v2ProPlus.zip",
+    "sha256": "a714471dab2dd563f7a65eaef5fcd4ff87f5267afa96b559d3a1c57fe517d9cd",
+    "archive": "sample-onnx-v2ProPlus.zip",
+    "bytes": 304901975
+  },
   "contents": [
     "NOTICE-weights.txt",
     "bert/config.json",

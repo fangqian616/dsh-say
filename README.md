@@ -144,7 +144,7 @@ voice packs: 0 in ~/.dsh/voice-packs
 | 参考音 + 逐字文本 | ✅ 在 | `ref.wav` + `ref.txt` |
 | base 模型 | ➖ 不需要 | Genie-TTS 自带 hubert 和 BERT |
 | GPT-SoVITS / PyTorch | ➖ 不需要 | 用 onnxruntime 跑 |
-| Python 环境 + Genie 资源 | ❌ 不在 | 由 `install-onnx.mjs` 装，约 800 MB |
+| Python 环境 + Genie 资源 | ❌ 不在 | 由 `install-onnx.mjs` 装，约 700 MB |
 
 #### 安装GPT-SoVITS
 
@@ -177,15 +177,13 @@ node scripts/install-voice.mjs --from "D:/downloads/某个.zip" --engine "D:/GPT
 
 #### 安装 ONNX
 
-把 `sample-onnx-v2ProPlus.zip` 下载好：
-
 ```sh
 node scripts/install-onnx.mjs --voice
 ```
 
-脚本自己建 Python 环境、装引擎、下运行时数据、铺声线。对 AI 说「安装试听音频」也行。
+一条命令：建 Python 环境、装引擎、下运行时数据、下载并铺好声线。对 AI 说「安装试听音频」也行。
 
-唯一要本机有的是 **Python 3.9-3.13**；没有的话对 AI 说一声，它会装。`--check` 随时复查状态。
+要日文再加 `--with-japanese`（约 317 MB，默认不装，见 [排错](#-排错)）。唯一要本机有的是 **Python 3.9-3.13**；没有的话对 AI 说一声，它会装。`--check` 随时复查状态。
 
 
 **本试用声音资源仅供学习交流，严禁用于商业用途，如有侵权，请联系作者，作者得知后会于24小时内删除。**
@@ -292,7 +290,7 @@ node scripts/install-onnx.mjs --voice
 
 | | 系统语音（默认） | ONNX | GPT-SoVITS |
 |:--|:--|:--|:--|
-| 安装成本 | **零** | 约 1.1 GB | 约 6.4 GB |
+| 安装成本 | **零** | 约 1 GB | 约 6.4 GB |
 | 音质 | 清晰但机械 | 角色声线 | 角色声线、零样本克隆 |
 | 报告长度一句话（生成 12 秒音频） | 瞬时 | 8.9s | **4.7s** |
 | 语速调节 | 支持 | **不支持** | 支持 |
@@ -439,20 +437,21 @@ PyTorch).
 | reference clip + its transcript | yes | |
 | base models | n/a | Genie-TTS ships its own hubert and BERT |
 | GPT-SoVITS / PyTorch | n/a | runs on onnxruntime |
-| Python environment + Genie data | no | `install-onnx.mjs` installs it, about 800 MB |
+| Python environment + Genie data | no | `install-onnx.mjs` installs it, about 700 MB |
 
 ### Installing it
 
-**ONNX route** — no GPT-SoVITS and no PyTorch needed. Download
-`sample-onnx-v2ProPlus.zip`, then:
+**ONNX route** — no GPT-SoVITS and no PyTorch needed:
 
 ```sh
 node scripts/install-onnx.mjs --voice
 ```
 
-The script builds its own Python environment, installs the engine, fetches its runtime
-data and installs the voice. The one thing the machine needs is **Python 3.9-3.13**;
-`node scripts/install-onnx.mjs --check` re-reports the status at any time.
+One command: it builds the Python environment, installs the engine, fetches the
+runtime data, and downloads and installs the voice. Add `--with-japanese` for
+Japanese (about 317 MB, off by default). The one thing the machine needs is
+**Python 3.9-3.13**; `node scripts/install-onnx.mjs --check` re-reports the status at
+any time.
 
 **GPT-SoVITS route.** Prerequisite: a working GPT-SoVITS checkout with Python. Without
 one, the official Windows package unzips and runs as-is

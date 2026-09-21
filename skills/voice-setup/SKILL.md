@@ -108,7 +108,7 @@ node scripts/install-voice.mjs
 
 | | ONNX 后端 | 官方整合包 |
 |:--|:--|:--|
-| 下载 | 约 1.1 GB | 6.4 GB |
+| 下载 | 约 1 GB | 6.4 GB |
 | 报告长度一句话（生成 12 秒音频） | 8.9s | **4.7s** |
 | 语速调节 | **不支持** | 支持 |
 | Python | 要（脚本自己建环境） | 整合包自带 |
@@ -116,13 +116,31 @@ node scripts/install-voice.mjs
 **ONNX 那条（推荐给"不想下 6.4 GB"的人）：**
 
 ```sh
-node scripts/install-onnx.mjs          # 装引擎（约 800 MB）
+node scripts/install-onnx.mjs          # 装引擎（约 700 MB）
 node scripts/install-onnx.mjs --voice  # 再装声线（290.8 MB，去 Downloads 找那个包）
 ```
 
 **声线是另一个包**：`sample-onnx-v2ProPlus.zip`（290.8 MB），里面是**已经转好的 ONNX 模型** —— 不需要 PyTorch、不需要引擎、不需要任何 base 模型，Genie 自带 hubert 和 BERT。用户下载到 Downloads 之后，`--voice` 会自己找到它；在别处就用 `--from "<zip路径>"`。
 
 **别让用户去下那个 1.34 GB 的包。** 那份是给 GPT-SoVITS 后端的，含 4 个 base 模型；ONNX 路线用不上，白下 1 GB。
+
+**用户要日文时：默认没装，你给他补上。**
+
+ONNX 引擎默认**不带日语支持**——`pyopenjtalk-plus` 会拖进 207 MB 的 Sudachi 词典加 106 MB 库，**共 317 MB**，而绝大多数声线根本不说日文。所以默认放一个垫片：中文英文照常，日文会**明确报错**（不是静默出垃圾），报错里就写着要跑什么。
+
+用户说「念一句日文」「我要日语」时，直接跑这条，**不要问他、不要让他自己装**：
+
+```sh
+node scripts/install-onnx.mjs --with-japanese
+```
+
+装完 `tts_engines` 里的 `japanese` 会从 `stand-in` 变成 `installed`。要撤销（省回 317 MB）就跑不带这个 flag 的：
+
+```sh
+node scripts/install-onnx.mjs
+```
+
+**注意**：`textLang` 是**整个角色**的语言，不是每句话的。角色的语言在加载时就定了，所以念日文要把 `textLang` 设成 `ja`。
 
 引擎那条命令会建受管 venv（Python 3.9-3.13）、装 genie-tts、下 Genie 运行时资源。三件它替你处理掉的坑，**失败时不要去让用户装 Visual Studio**：
 

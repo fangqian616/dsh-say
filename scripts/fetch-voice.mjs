@@ -231,10 +231,22 @@ const outIndex = args.indexOf('--out')
 const outDir = outIndex >= 0 ? resolve(args[outIndex + 1]) : ''
 const urlIndex = args.indexOf('--url')
 const urlOverride = urlIndex >= 0 ? args[urlIndex + 1] : ''
+// The release carries two archives and SOURCE.json describes both: the PyTorch one
+// at the top level and the much smaller ONNX one under `onnx`. `--onnx` splices that
+// block over the top level, so every existing reader of source.url, source.sha256 and
+// source.archive keeps working without knowing there are two.
+const wantOnnx = args.includes('--onnx')
 
-const source = existsSync(sourcePath)
+const parsedSource = existsSync(sourcePath)
   ? JSON.parse(readFileSync(sourcePath, 'utf8').replace(/^\uFEFF/, ''))
   : {}
+
+const source = wantOnnx ? { ...parsedSource, ...(parsedSource.onnx || {}) } : parsedSource
+
+if (wantOnnx && !parsedSource.onnx?.url) {
+  console.error('scripts/SOURCE.json has no "onnx" archive described, so --onnx has nothing to fetch.')
+  process.exit(1)
+}
 
 /**
  * A path relative to the repository, for display.
@@ -291,6 +303,16 @@ function install(archive, label) {
   const sovits = voiceFiles.find((file) => file.endsWith('.pth'))
   const references = files.filter((file) => file.endsWith('.wav'))
 
+  // The summary below describes the PyTorch pack: weights to copy into a checkout, a
+  // reference clip to register. The ONNX pack has none of those - no .ckpt, no .pth,
+  // a model directory instead - so printing it there produces a wall of "NOT FOUND"
+  // and three instructions that do not apply. Its caller (install-onnx.mjs) knows
+  // what to do with the files, so it just gets the archive.
+  if (wantOnnx) {
+    console.log(`\nunpacked into ${shownPath(intoDir)}: ${files.length} file(s)`)
+    process.exit(0)
+  }
+
   console.log('\ninstalled:')
   console.log(`  checkpoint : ${gpt ? shownPath(gpt) : 'NOT FOUND'}`)
   console.log(`  weights    : ${sovits ? shownPath(sovits) : 'NOT FOUND'}`)
@@ -316,8 +338,17 @@ function install(archive, label) {
 }
 
 if (printOnly) {
-  console.log('voice weights are not bundled. Fetch them, then:')
-  console.log('  node scripts/fetch-voice.mjs')
+  // Reports the resolved source rather than a canned line, so `--onnx` is visible
+  // in the answer. A hint that always names the same command is a hint that quietly
+  // stops being true the moment a second archive exists.
+  console.log(`archive : ${source.archive || '(unnamed)'}`)
+  console.log(`url     : ${source.url || '(none — SOURCE.json has no url)'}`)
+  console.log(`sha256  : ${source.sha256 || '(not recorded)'}`)
+  console.log('')
+  console.log('fetch it with:')
+  console.log(`  node scripts/fetch-voice.mjs${wantOnnx ? ' --onnx' : ''}`)
+  console.log('or unpack a file you already have:')
+  console.log('  node scripts/fetch-voice.mjs --from <archive.zip>')
   process.exit(0)
 }
 
