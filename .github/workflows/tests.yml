@@ -51,6 +51,13 @@ jobs:
       - name: Settings
         run: node test/settings.mjs
 
+      - name: Entry point
+        # The plugin shipped twice with a bug that made it mount nothing at all:
+        # relative imports that resolved to lib/lib/..., and tool definitions wrapped
+        # in defineTool, which rejects JSON Schema. Both throw while loading, and no
+        # other check would have caught either.
+        run: node test/entry.mjs
+
       - name: Bundle contract
         # dsh only mounts this package as a profile layer when the manifest
         # declares dsh.bundle.patch AND the patch is published in the tarball.

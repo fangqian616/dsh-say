@@ -58,7 +58,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "test": "node test/smoke.mjs && node test/gptsovits.mjs && node test/summarize.mjs && node test/onboarding.mjs && node test/auto-report.mjs && node test/settings.mjs && node test/bundle.mjs && node test/fetch.mjs && node test/install-voice.mjs",
+    "test": "node test/smoke.mjs && node test/gptsovits.mjs && node test/summarize.mjs && node test/onboarding.mjs && node test/auto-report.mjs && node test/settings.mjs && node test/entry.mjs && node test/bundle.mjs && node test/fetch.mjs && node test/install-voice.mjs",
     "test:audible": "node test/play.mjs",
     "test:smoke": "node test/smoke.mjs",
     "test:summarize": "node test/summarize.mjs",
@@ -66,7 +66,8 @@
     "test:settings": "node test/settings.mjs",
     "test:bundle": "node test/bundle.mjs",
     "test:fetch": "node test/fetch.mjs",
-    "test:install-voice": "node test/install-voice.mjs"
+    "test:install-voice": "node test/install-voice.mjs",
+    "test:entry": "node test/entry.mjs"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "*",
