@@ -108,87 +108,67 @@ voice packs: 0 in ~/.dsh/voice-packs
 
 ### 4 · 想要角色声线（可选）
 
-> **先说清楚 main 和 release 的分工 —— 这是本项目唯一需要你选的地方。**
+> **main 和 releases 的分工 —— 本项目唯一需要你选的地方。**
 >
-> | | **main（本仓库）** | **[Releases](../../releases/latest)（那个 1.34 GB 的包）** |
+> | | **main（本仓库）** | **[Releases](../../releases/latest)** |
 > |:--|:--|:--|
-> | 是什么 | **插件本体**：调用 TTS、压缩汇报、人设、声线注册 | **推理素材**：4 个 base 模型 + 声线权重 + 可训练参考音 |
-> | 声音从哪来 | **你系统自带的语音**（SAPI） | 声线包里的角色声线（GPT-SoVITS） |
-> | 下载量 | **0** | **1.34 GB** |
-> | 要不要 Python | **不要** | **要** —— 模型在包里，**运行时不在** |
+> | 是什么 | **插件本体**：调用 TTS、压缩汇报、人设、声线注册 | **推理素材**：模型 + 声线权重 + 参考音 |
+> | 声音从哪来 | **你系统自带的语音**（SAPI） | 声线包里的角色声线 |
+> | 下载量 | **0** | 见下面几张表 |
+> | 要不要 Python | **不要** | **要** |
 >
-> main 可以用系统语音，零下载。想用 GPT-SoVITS 角色声线，去 [Releases](../../releases/latest) 下载包，继续往下看。
+> main 可以用系统语音，零下载。
 
-#### 包里整合了什么、没整合什么
+#### 两个发布包，按你的后端选一个
 
-**整合的是「模型」，不是「程序」。** 这两件事经常被当成一件，所以写清楚：
+| 资产 | 大小 | 后端 |
+|:--|:--|:--|
+| `sample-onnx-v2ProPlus.zip` | **290.8 MB** | ONNX（Genie-TTS） |
+| `sample-full-v2ProPlus.zip` | **1,343.8 MB** | GPT-SoVITS |
 
-| | 在包里吗 | 说明 |
+#### sample-full-v2ProPlus.zip 里有什么
+
+| | 在包里吗 | 内容 |
 |:--|:--|:--|
 | 4 个 base 模型（推理必需） | ✅ 在 | chinese-roberta、chinese-hubert、s1v3、s2Gv2ProPlus，约 1.14 GB |
 | 声线权重 + 参考音 | ✅ 在 | 约 316 MB |
-| GPT-SoVITS 程序本身 | ❌ 不在 | 代码只有几 MB，但**没有 torch 跑不起来** |
-| Python + torch 运行时 | ❌ 不在 | **约 6 GB，而且分平台** |
+| GPT-SoVITS 程序本身 | ❌ 不在 | 需要本机已有一个能跑的检出 |
+| Python + torch 运行时 | ❌ 不在 | 约 6 GB，分 Windows/Linux、分 CUDA 版本 |
 
-**为什么运行时整合不了**：Python 和 torch 加起来好几 GB，还分 Windows/Linux、分 CUDA 版本。npm 单文件上限 100 MB，Release 也不适合塞一个平台专属的运行环境。所以**你要跑它，仍然需要本机已有能跑的 GPT-SoVITS**。
+#### sample-onnx-v2ProPlus.zip 里有什么
 
-包里给的东西替你省掉的是：**自己找那四个 base 模型、自己裁参考音、自己听写文本** —— 这部分最容易装错（模型版本对不上、参考音不规范），现在不用你操心。
-
-> 想彻底不要 GPT-SoVITS？**现在有这条路了** —— 换成 ONNX 后端，模型用 onnxruntime 跑，不需要 PyTorch 和 CUDA 那几 GB。见下面的 [三种后端](#-三种后端)。
-
-#### 或者：不装 GPT-SoVITS，走 ONNX 后端
-
-如果你**本机没有也不想装** GPT-SoVITS，有一条小得多的路：
-
-```sh
-node scripts/install-onnx.mjs
-```
-
-它会建一个受管的 Python 环境（不动你系统的 Python）、装上 [Genie-TTS](https://github.com/High-Logic/Genie)、下它自己的运行时资源（约 411 MB + 391 MB），然后你就有一个能跑角色声线的后端。
-
-**声线是另一个包，小得多：** [Releases](../../releases/latest) 里的 `sample-onnx-v2ProPlus.zip`（**290.8 MB**），里面是已经转好的 ONNX 模型，**不需要 PyTorch、不需要引擎、不需要任何 base 模型** —— Genie 自带 hubert 和 BERT。
-
-```sh
-node scripts/install-onnx.mjs --voice            # 去 Downloads 找那个包并装上
-node scripts/install-onnx.mjs --from "<zip路径>"  # 或者直接指定
-```
-
-对 AI 说「把试听音频装上」也行，它会走这条路。
-
-**两个发布包，按你的后端选一个就行：**
-
-| 资产 | 大小 | 给谁 |
+| | 在包里吗 | 内容 |
 |:--|:--|:--|
-| `sample-onnx-v2ProPlus.zip` | **290.8 MB** | ONNX 后端 |
-| `sample-full-v2ProPlus.zip` | 1,343.8 MB | GPT-SoVITS 后端（含 4 个 base 模型） |
+| ONNX 模型（推理必需） | ✅ 在 | 9 个文件，320.4 MB |
+| 参考音 + 逐字文本 | ✅ 在 | `ref.wav` + `ref.txt` |
+| base 模型 | ➖ 不需要 | Genie-TTS 自带 hubert 和 BERT |
+| GPT-SoVITS / PyTorch | ➖ 不需要 | 用 onnxruntime 跑 |
+| Python 环境 + Genie 资源 | ❌ 不在 | 由 `install-onnx.mjs` 装，约 800 MB |
 
-**为什么要分两个**：那 1.14 GB 的 base 模型只有 PyTorch 那条路需要。合成一个包会把用不上的 1 GB 推给选了 ONNX 的人。
+#### 后端对比
 
-**但要如实说清楚代价：**
-
-| | ONNX 后端 | GPT-SoVITS |
-|:--|:--|:--|
-| 下载 | 约 1.1 GB | 6.4 GB |
-| 报告长度一句话（生成 12 秒音频） | 8.9s | **4.7s** |
-| 语速调节 | **不支持** | 支持 |
-| 需要 Python | 要（脚本自己建环境） | 整合包自带 |
-
-**它更小，但它不快** —— 实测慢约一倍。两者都远快于实时，所以这不是问题，但别指望它更快。
+| | 系统语音（默认） | ONNX | GPT-SoVITS |
+|:--|:--|:--|:--|
+| 安装成本 | **零** | 约 1.1 GB | 约 6.4 GB |
+| 音质 | 清晰但机械 | 角色声线 | 角色声线、零样本克隆 |
+| 报告长度一句话（生成 12 秒音频） | 瞬时 | 8.9s | **4.7s** |
+| 语速调节 | 支持 | **不支持** | 支持 |
+| 依赖 | Windows SAPI | Python | 本地检出或远端 API |
 
 > [!NOTE]
-> **GPU 是碰运气的。** onnxruntime 找不到 CUDA 运行库时会**静默回退到 CPU**，连最高 verbose 级别都不打一条日志。这个插件会**遍历已建好的会话**把实际在用的 provider 报给你，所以你不会被骗 —— 但也不会自动帮你修好。
+> **ONNX 的 GPU 是碰运气的。** onnxruntime 找不到 CUDA 运行库时会**静默回退到 CPU**，连最高 verbose 级别都不打一条日志。插件会遍历已建好的会话，把**实际在用的** provider 报给你。
 
-#### 怎么装（GPT-SoVITS 那条路）
+#### 怎么装 · GPT-SoVITS 那条路
 
-把上面那个 zip 下载好，对你的 AI 说一句：
+**前置条件：本机要有一个能跑的 GPT-SoVITS 检出加 Python 环境。** 还没有的话，官方 Windows 整合包解压双击即可（[下载](https://huggingface.co/lj1995/GPT-SoVITS-windows-package/resolve/main/GPT-SoVITS-v3lora-20250228.7z)，6.4 GB），不用装 Python。
+
+把 `sample-full-v2ProPlus.zip` 下载好，对你的 AI 说一句：
 
 > 把试听音频装上
 
-它自己会去 Downloads 找到那个包、解压、把四个 base 模型铺进 `GPT_SoVITS/pretrained_models/`、把声线权重铺进 `GPT_weights_v2ProPlus/` 和 `SoVITS_weights_v2ProPlus/`，然后登记声线包。**已经存在的文件会跳过**，不会覆盖你调好的环境。
+它会去 Downloads 找到那个包、解压、把四个 base 模型铺进 `GPT_SoVITS/pretrained_models/`、把声线权重铺进 `GPT_weights_v2ProPlus/` 和 `SoVITS_weights_v2ProPlus/`，然后登记声线包。**已经存在的文件会跳过。**
 
 装完直接说「用XX声线念一下这段」就能听到。
-
-
 
 <details>
 <summary><b>想自己动手 / AI 没有自动做</b></summary>
@@ -209,11 +189,18 @@ node scripts/install-voice.mjs --from "D:/downloads/某个.zip" --engine "D:/GPT
 
 </details>
 
-> [!IMPORTANT]
-> **前置条件：本机要有一个能跑的 GPT-SoVITS 检出加 Python 环境。**
-> [Releases](../../releases/latest) 那个包给的是**模型**，不是**运行时** —— Python 和 torch 那几 GB 装不进 Release，也不该装。
-> 还没有的话，官方 Windows 整合包解压双击即可（[下载](https://huggingface.co/lj1995/GPT-SoVITS-windows-package/resolve/main/GPT-SoVITS-v3lora-20250228.7z)，6.4 GB）。
-> **两者不冲突**：整合包负责运行时，Releases 那个包负责让它用试听音频的声音，而且比整合包自带的那套小得多。
+#### 怎么装 · ONNX 那条路
+
+不需要任何前置条件，脚本会自己建 Python 环境：
+
+```sh
+node scripts/install-onnx.mjs          # 装引擎，约 800 MB
+node scripts/install-onnx.mjs --voice  # 装声线（去 Downloads 找 sample-onnx-*.zip）
+node scripts/install-onnx.mjs --check  # 随时复查状态和实际在跑的 provider
+```
+
+把 `sample-onnx-v2ProPlus.zip` 下载好，对 AI 说「把试听音频装上」也行 —— 它会走这条路。
+
 
 装之前先读 [`voice/NOTICE.txt`](voice/NOTICE.txt)：**本声音资源仅供学习交流，严禁用于商业用途，如有侵权，请联系作者，作者得知后会于24小时内删除。**
 
@@ -317,25 +304,17 @@ node scripts/install-voice.mjs --from "D:/downloads/某个.zip" --engine "D:/GPT
 
 ## 🎚 三种后端
 
-| | 系统语音（默认） | ONNX（Genie-TTS） | GPT-SoVITS |
-|:--|:--|:--|:--|
-| 安装成本 | **零** | 约 1.1 GB | 约 6.4 GB |
-| 音质 | 清晰但机械 | 角色声线 | 角色声线、零样本克隆 |
-| 报告长度一句话 | 瞬时 | 8.9s | **4.7s** |
-| 语速调节 | 支持 | **不支持** | 支持 |
-| 依赖 | Windows SAPI | Python（脚本自建环境） | 本地检出或远端 API |
+对比表在[上面](#后端对比)。这里只说怎么切。
 
-**没有哪个"最好"，只有哪个适合你：**
+`engine: auto`（默认）：**有 GPT-SoVITS 就用它**，没有就用 ONNX，都没有就用系统语音。登记声线包之后它会自己切，不用改配置。
 
-- **已经有 GPT-SoVITS** → 就用它。零下载，而且最快
-- **没有、也不想下 6.4 GB** → ONNX。省将近 5.5 GB，代价是慢一倍
-- **只想让它出声** → 系统语音，零下载
+想强制某一条：
 
-`engine: auto` 的行为：**有 GPT-SoVITS 就用它**，没有就用 ONNX，都没有就用系统语音。你登记声线包之后它会自己切，不用改配置。
+```
+tts_config set engine=onnx        # 或 gpt-sovits / builtin / auto
+```
 
-想强制某一条：`tts_config set engine=onnx`（或 `gpt-sovits` / `builtin`）。
-
-**装完了想换路线**：ONNX 那条不想要了，`tts_config set engine=builtin` 就不会再用它；GPT-SoVITS 那边同理。两个后端可以共存，`tts_engines` 会把两边各自的可用性和原因都报出来。
+两个后端可以共存。`tts_engines` 会把两边各自的可用性、缺什么、以及 ONNX 实际在跑哪个 provider 都报出来。
 
 ---
 
@@ -390,7 +369,7 @@ node scripts/install-onnx.mjs --check   # 装完实测到底有没有生效
 
 ```sh
 git clone https://github.com/fangqian616/dsh-say && cd dsh-say
-npm test              # 7 个测试，不出声
+npm test              # 13 个测试，不出声
 npm run test:audible  # 真实播放检查
 ```
 
@@ -435,14 +414,54 @@ provider the ONNX sessions actually got.
 ### The character voice (optional)
 
 Everything above works with the voices your system already has, at zero download. A
-character voice needs the bundle from
-**[Releases](https://github.com/fangqian616/dsh-say/releases/latest)** — **1.34 GB**,
-carrying the `sample` voice plus the four base models inference needs. (The
-official GPT-SoVITS package is 6.4 GB because it also carries training code, ASR,
-vocal separation and a pretrained weight for every model version. None of that is
-needed to talk.)
+character voice needs one of the two bundles from
+**[Releases](https://github.com/fangqian616/dsh-say/releases/latest)**.
 
-**No commands.** Download the bundle, then tell your agent:
+| Asset | Size | Backend |
+|:--|:--|:--|
+| `sample-onnx-v2ProPlus.zip` | **290.8 MB** | ONNX (Genie-TTS) |
+| `sample-full-v2ProPlus.zip` | **1,343.8 MB** | GPT-SoVITS |
+
+**What is in `sample-full-v2ProPlus.zip`:**
+
+| | In the bundle | Contents |
+|:--|:--|:--|
+| the four base models inference needs | yes | chinese-roberta, chinese-hubert, s1v3, s2Gv2ProPlus, about 1.14 GB |
+| voice weights + reference clip | yes | about 316 MB |
+| GPT-SoVITS itself | no | needs a working checkout on the machine |
+| Python + torch | no | about 6 GB, per-platform and per-CUDA |
+
+**What is in `sample-onnx-v2ProPlus.zip`:**
+
+| | In the bundle | Contents |
+|:--|:--|:--|
+| the ONNX model | yes | 9 files, 320.4 MB |
+| reference clip + its transcript | yes | |
+| base models | n/a | Genie-TTS ships its own hubert and BERT |
+| GPT-SoVITS / PyTorch | n/a | runs on onnxruntime |
+| Python environment + Genie data | no | `install-onnx.mjs` installs it, about 800 MB |
+
+**Backends:**
+
+| | System voices (default) | ONNX | GPT-SoVITS |
+|:--|:--|:--|:--|
+| Install cost | **zero** | about 1.1 GB | about 6.4 GB |
+| Quality | clear but mechanical | character voice | character voice, zero-shot cloning |
+| A report-length sentence (12s of audio) | instant | 8.9s | **4.7s** |
+| Speed control | yes | **no** | yes |
+| Depends on | Windows SAPI | Python | a local checkout or a remote API |
+
+> [!NOTE]
+> **GPU on the ONNX route is a gamble.** onnxruntime falls back to the CPU **without a
+> word** when it cannot find the CUDA runtime — not even at maximum log verbosity. The
+> plugin walks the live sessions and reports the provider actually in use.
+
+### Installing it
+
+**GPT-SoVITS route.** Prerequisite: a working GPT-SoVITS checkout with Python. Without
+one, the official Windows package unzips and runs as-is
+([download](https://huggingface.co/lj1995/GPT-SoVITS-windows-package/resolve/main/GPT-SoVITS-v3lora-20250228.7z),
+6.4 GB). Download the bundle, then tell your agent:
 
 > install the sample audio
 
@@ -452,32 +471,14 @@ and `SoVITS_weights_v2ProPlus/`, then registers the pack. Files that already exi
 are skipped, so your tuned engine is never overwritten. Then ask it to *"read this
 out loud in the sample voice"*.
 
-**What the bundle integrates, and what it does not.** It carries the **models**, not
-the **program**. The four base models and the voice weights are what is easy to get
-wrong — mismatched model versions, reference clips that are not cut to spec — so those
-ship in the bundle. GPT-SoVITS itself is a Python program, and Python plus torch is
-several GB and platform-specific: it cannot go in npm (100 MB per file) or sensibly in
-a Release. **So you still need a working GPT-SoVITS on the machine.** Without one, the
-official Windows package unzips and runs as-is
-([download](https://huggingface.co/lj1995/GPT-SoVITS-windows-package/resolve/main/GPT-SoVITS-v3lora-20250228.7z),
-6.4 GB); the two do not conflict — the package supplies the runtime, the bundle
-supplies the models.
+**ONNX route.** No prerequisites; the script builds its own Python environment.
 
-> Removing that requirement entirely means a different inference path — the models
-> converted to ONNX with a small runtime, no PyTorch or CUDA. **That now exists:**
-> `node scripts/install-onnx.mjs` builds a managed Python environment, installs
-> [Genie-TTS](https://github.com/High-Logic/Genie), and gives you a character voice for
-> about **1.1 GB** instead of 6.4 GB. It is still Python — the saving is PyTorch and the
-> CUDA toolkit, not the interpreter.
->
-> **It is smaller, not faster.** Measured on the same voice and the same sentence, warm:
-> ONNX 8.9s against GPT-SoVITS 4.7s for 12 seconds of audio. Both are far faster than
-> real time, so this is a size trade, not a speed one. The ONNX engine also has **no
-> speed control**.
->
-> GPU is a gamble: onnxruntime falls back to the CPU **without a word**, even at maximum
-> log verbosity. The plugin walks the live sessions and reports the provider actually in
-> use, so you are never misled — but nothing repairs it for you.
+```sh
+node scripts/install-onnx.mjs          # the engine, about 800 MB
+node scripts/install-onnx.mjs --voice  # the voice, from Downloads
+node scripts/install-onnx.mjs --check  # re-report status and the live provider
+```
+
 
 **The six reference clips** are samples for picking a tone, and one of them is also
 trainable material:
