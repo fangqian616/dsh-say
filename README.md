@@ -204,6 +204,39 @@ node scripts/install-voice.mjs --from "D:/downloads/某个.zip" --engine "D:/GPT
 
 ## ⚙️ 配置
 
+### 需要你配什么（大多数情况下是「什么都不用」）
+
+| 项 | 默认 | 什么时候要动 |
+|:--|:--|:--|
+| **GPT-SoVITS 目录** | **自动找** | 找不到时（见下） |
+| 声线包目录 | `~/.dsh/voice-packs` | 一般不动 |
+| 系统语音（默认引擎） | 用系统自带的 | 不用配 |
+| Python 环境 | 引擎目录里的 / conda / PATH 上的 | 引擎能用就不用管 |
+| profile | 你装插件时指定的那个（`web` 等） | 用别的 profile 时 |
+| 环境变量 | **一个都不需要** | — |
+
+**环境变量全都不必需。** `DSH_VOICE_ENGINE_ROOT`、`DSH_VOICE_VOICES_DIR`、`DSH_VOICE_CONFIG` 都只是**覆盖项**，设了会优先于配置文件。下面这些走配置文件就够。
+
+### GPT-SoVITS 目录是怎么找到的
+
+**自动搜索，不需要你填。** 顺序是：
+
+1. 配置里的 `engines.gptSovits.engineRoot`（你手动指定时）
+2. 环境变量 `DSH_VOICE_ENGINE_ROOT`（一般不用）
+3. `~/GPT-SoVITS`、`~/GPT-SoVITS-main`、`~/gpt-sovits`
+4. **每个盘符根目录下名字像 `GPT-SoVITS…` 的文件夹**（所以解压到 `E:\` 或 `F:\` 也能找到）
+5. 已经跑起来的 API（配了 `serverUrl` 时）
+
+第 4 条是关键：官方整合包是个 7z，**大家通常解压到空间大的盘根目录**，不是 `C:\`。以前写死 `C:\`/`D:\`，引擎明明在那儿却报"找不到"。
+
+**真的找不到时**（引擎在很深的子目录里之类），跟智能体说一句就行：
+
+> GPT-SoVITS 在 `E:\tools\GPT-SoVITS-main`，帮我配上
+
+它会用 `tts_config` 写进 `engines.gptSovits.engineRoot`。**不用你手改文件。**
+
+### 设置文件
+
 **你不用手改配置文件。** 插件自己维护一份设置，存在你家目录：
 
 ```
@@ -231,6 +264,8 @@ node scripts/install-voice.mjs --from "D:/downloads/某个.zip" --engine "D:/GPT
 | `keepAudio` | 是否保留 wav |
 | `engines.gptSovits.engineRoot` | GPT-SoVITS 目录 |
 | `engines.gptSovits.serverUrl` | 或指向已运行的 API |
+| `engines.gptSovits.python` | 指定用哪个 python |
+| `engines.gptSovits.version` | 模型版本（`v2ProPlus` 等） |
 
 **优先级**：用户文件 > 组合里的 `config` > 内置默认。部署方仍可在组合里固定值，但**用户自己设的赢**。
 
