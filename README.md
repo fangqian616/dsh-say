@@ -108,16 +108,12 @@ voice packs: 0 in ~/.dsh/voice-packs
 
 ### 4 · 想要角色声线（可选）
 
-> **main 和 releases 的分工 —— 本项目唯一需要你选的地方。**
+> **main 是插件本体，releases 是声线素材。**
 >
 > | | **main（本仓库）** | **[Releases](../../releases/latest)** |
 > |:--|:--|:--|
-> | 是什么 | **插件本体**：调用 TTS、压缩汇报、人设、声线注册 | **推理素材**：模型 + 声线权重 + 参考音 |
-> | 声音从哪来 | **你系统自带的语音**（SAPI） | 声线包里的角色声线 |
-> | 下载量 | **0** | 见下面几张表 |
-> | 要不要 Python | **不要** | **要** |
->
-> main 可以用系统语音，零下载。
+> | 是什么 | **插件本体** | **推理素材**：模型 + 声线 + 参考音 |
+> | 下载量 | **0**（用你系统自带的语音） | 见下面 |
 
 #### 两条路，先选一条
 
@@ -125,12 +121,11 @@ voice packs: 0 in ~/.dsh/voice-packs
 
 | | ONNX 那条 | GPT-SoVITS 那条 |
 |:--|:--|:--|
-| 你要先准备什么 | **什么都不用** —— 脚本自己建 Python 环境、装引擎、下运行时数据 | 本机得有一个能跑的 GPT-SoVITS 检出 |
+| 你要先准备什么 | **什么都不用** | 本机得有一个能跑的 GPT-SoVITS |
 | 声线包 | `sample-onnx-v2ProPlus.zip` **290.8 MB** | `sample-full-v2ProPlus.zip` **1,343.8 MB** |
-| 声线从哪来 | 包里已经转好的 ONNX 模型 —— **不用为此下整套 SoVITS** | 包里的权重，铺进你自己的检出 |
-| 什么时候选它 | 本机没有 GPT-SoVITS | **已经有** GPT-SoVITS 的话更省事：零下载，而且实测更快 |
+| 什么时候选它 | 本机没有 GPT-SoVITS | 已经有了：零下载，而且更快 |
 
-两条路跑的是**同一套 GPT-SoVITS 声线模型**，只是运行时不同（onnxruntime / PyTorch）。装完都是直接说「用XX声线念一下这段」。
+两条路跑的是同一套声线模型，只是运行时不同（onnxruntime / PyTorch）。
 
 #### sample-full-v2ProPlus.zip 里有什么
 
@@ -151,19 +146,6 @@ voice packs: 0 in ~/.dsh/voice-packs
 | GPT-SoVITS / PyTorch | ➖ 不需要 | 用 onnxruntime 跑 |
 | Python 环境 + Genie 资源 | ❌ 不在 | 由 `install-onnx.mjs` 装，约 800 MB |
 
-#### 后端对比
-
-| | 系统语音（默认） | ONNX | GPT-SoVITS |
-|:--|:--|:--|:--|
-| 安装成本 | **零** | 约 1.1 GB | 约 6.4 GB |
-| 音质 | 清晰但机械 | 角色声线 | 角色声线、零样本克隆 |
-| 报告长度一句话（生成 12 秒音频） | 瞬时 | 8.9s | **4.7s** |
-| 语速调节 | 支持 | **不支持** | 支持 |
-| 依赖 | Windows SAPI | Python | 本地检出或远端 API |
-
-> [!NOTE]
-> **ONNX 的 GPU 是碰运气的。** onnxruntime 找不到 CUDA 运行库时会**静默回退到 CPU**，连最高 verbose 级别都不打一条日志。插件会遍历已建好的会话，把**实际在用的** provider 报给你。
-
 #### 安装GPT-SoVITS
 
 **前置条件：本机需求 GPT-SoVITS 检出加 Python 环境。** 如果没有，官方 Windows 整合包解压双击即可（[下载](https://huggingface.co/lj1995/GPT-SoVITS-windows-package/resolve/main/GPT-SoVITS-v3lora-20250228.7z)，6.4 GB）
@@ -172,9 +154,7 @@ voice packs: 0 in ~/.dsh/voice-packs
 
 > 安装试听音频
 
-它会在 Downloads 找到那个包、解压、把四个 base 模型铺进 `GPT_SoVITS/pretrained_models/`、把声线权重铺进 `GPT_weights_v2ProPlus/` 和 `SoVITS_weights_v2ProPlus/`，然后登记声线包。**已经存在的文件会跳过。**
-
-装完直接说「用XX声线念一下这段」就能听到。
+它会在 Downloads 找到那个包、解压、铺好 base 模型和声线权重、登记声线包。**已经存在的文件会跳过。**
 
 <details>
 <summary><b>想自己动手 / AI 没有自动做</b></summary>
@@ -197,19 +177,15 @@ node scripts/install-voice.mjs --from "D:/downloads/某个.zip" --engine "D:/GPT
 
 #### 安装 ONNX
 
-**不需要先有 GPT-SoVITS，也不需要 PyTorch。** 脚本自己建 Python 环境、装引擎、下运行时数据 —— 你不需要去找任何东西。
-
-唯一要本机有的是 **Python 3.9-3.13**（onnxruntime 目前没有 3.14 的轮子）。没有的话对 AI 说一声，它会装。
+把 `sample-onnx-v2ProPlus.zip` 下载好：
 
 ```sh
-node scripts/install-onnx.mjs          # 装引擎，约 800 MB
-node scripts/install-onnx.mjs --voice  # 装声线（去 Downloads 找 sample-onnx-*.zip）
-node scripts/install-onnx.mjs --check  # 随时复查状态和实际在跑的 provider
+node scripts/install-onnx.mjs --voice
 ```
 
-把 `sample-onnx-v2ProPlus.zip` 下载好，对 AI 说「把试听音频装上」也行。
+脚本自己建 Python 环境、装引擎、下运行时数据、铺声线。对 AI 说「安装试听音频」也行。
 
-**已经有 GPT-SoVITS 的话不用走这条** —— 直接用你那份，零下载还更快，见上面。
+唯一要本机有的是 **Python 3.9-3.13**；没有的话对 AI 说一声，它会装。`--check` 随时复查状态。
 
 
 **本试用声音资源仅供学习交流，严禁用于商业用途，如有侵权，请联系作者，作者得知后会于24小时内删除。**
@@ -314,7 +290,13 @@ node scripts/install-onnx.mjs --check  # 随时复查状态和实际在跑的 pr
 
 ## 🎚 三种后端
 
-对比表在[上面](#后端对比)。这里只说怎么切。
+| | 系统语音（默认） | ONNX | GPT-SoVITS |
+|:--|:--|:--|:--|
+| 安装成本 | **零** | 约 1.1 GB | 约 6.4 GB |
+| 音质 | 清晰但机械 | 角色声线 | 角色声线、零样本克隆 |
+| 报告长度一句话（生成 12 秒音频） | 瞬时 | 8.9s | **4.7s** |
+| 语速调节 | 支持 | **不支持** | 支持 |
+| 依赖 | Windows SAPI | Python | 本地检出或远端 API |
 
 `engine: auto`（默认）：**有 GPT-SoVITS 就用它**，没有就用 ONNX，都没有就用系统语音。登记声线包之后它会自己切，不用改配置。
 
@@ -325,6 +307,9 @@ tts_config set engine=onnx        # 或 gpt-sovits / builtin / auto
 ```
 
 两个后端可以共存。`tts_engines` 会把两边各自的可用性、缺什么、以及 ONNX 实际在跑哪个 provider 都报出来。
+
+> [!NOTE]
+> **ONNX 的 GPU 是碰运气的。** onnxruntime 找不到 CUDA 运行库时会**静默回退到 CPU**，连最高 verbose 级别都不打一条日志。插件会遍历已建好的会话，把**实际在用的** provider 报给你。
 
 ---
 
@@ -430,14 +415,12 @@ not need GPT-SoVITS to get one.**
 
 | | The ONNX route | The GPT-SoVITS route |
 |:--|:--|:--|
-| What you need first | **nothing** — the script builds its own Python environment, installs the engine and fetches its runtime data | a working GPT-SoVITS checkout on the machine |
+| What you need first | **nothing** | a working GPT-SoVITS checkout |
 | Voice bundle | `sample-onnx-v2ProPlus.zip` **290.8 MB** | `sample-full-v2ProPlus.zip` **1,343.8 MB** |
-| Where the voice comes from | an ONNX model already converted in the bundle — **no need to download a whole SoVITS for it** | weights placed into your own checkout |
-| When to pick it | no GPT-SoVITS on the machine | **you already have one**: no download, and measurably faster |
+| When to pick it | no GPT-SoVITS on the machine | you already have one: no download, and faster |
 
-Both routes run the **same GPT-SoVITS voice model**; only the runtime differs
-(onnxruntime against PyTorch). Either way, afterwards you just ask it to *"read this
-out loud in the sample voice"*.
+Both routes run the same voice model; only the runtime differs (onnxruntime against
+PyTorch).
 
 **What is in `sample-full-v2ProPlus.zip`:**
 
@@ -458,47 +441,29 @@ out loud in the sample voice"*.
 | GPT-SoVITS / PyTorch | n/a | runs on onnxruntime |
 | Python environment + Genie data | no | `install-onnx.mjs` installs it, about 800 MB |
 
-**Backends:**
-
-| | System voices (default) | ONNX | GPT-SoVITS |
-|:--|:--|:--|:--|
-| Install cost | **zero** | about 1.1 GB | about 6.4 GB |
-| Quality | clear but mechanical | character voice | character voice, zero-shot cloning |
-| A report-length sentence (12s of audio) | instant | 8.9s | **4.7s** |
-| Speed control | yes | **no** | yes |
-| Depends on | Windows SAPI | Python | a local checkout or a remote API |
-
-> [!NOTE]
-> **GPU on the ONNX route is a gamble.** onnxruntime falls back to the CPU **without a
-> word** when it cannot find the CUDA runtime — not even at maximum log verbosity. The
-> plugin walks the live sessions and reports the provider actually in use.
-
 ### Installing it
 
-**ONNX route. No GPT-SoVITS and no PyTorch needed** — the script builds its own Python
-environment, installs the engine and fetches its runtime data, so there is nothing to go
-and find. The one thing the machine needs is **Python 3.9-3.13** (onnxruntime publishes
-no wheels for 3.14 yet); if it is missing, ask your agent to install it.
+**ONNX route** — no GPT-SoVITS and no PyTorch needed. Download
+`sample-onnx-v2ProPlus.zip`, then:
 
 ```sh
-node scripts/install-onnx.mjs          # the engine, about 800 MB
-node scripts/install-onnx.mjs --voice  # the voice, from Downloads
-node scripts/install-onnx.mjs --check  # re-report status and the live provider
+node scripts/install-onnx.mjs --voice
 ```
 
-**GPT-SoVITS route.** For a machine that already has one: zero download, and measurably
-faster. Prerequisite: a working GPT-SoVITS checkout with Python. Without one, the
-official Windows package unzips and runs as-is
+The script builds its own Python environment, installs the engine, fetches its runtime
+data and installs the voice. The one thing the machine needs is **Python 3.9-3.13**;
+`node scripts/install-onnx.mjs --check` re-reports the status at any time.
+
+**GPT-SoVITS route.** Prerequisite: a working GPT-SoVITS checkout with Python. Without
+one, the official Windows package unzips and runs as-is
 ([download](https://huggingface.co/lj1995/GPT-SoVITS-windows-package/resolve/main/GPT-SoVITS-v3lora-20250228.7z),
-6.4 GB). Download the bundle, then tell your agent:
+6.4 GB). Download `sample-full-v2ProPlus.zip`, then tell your agent:
 
 > install the sample audio
 
-It finds the archive in Downloads, unpacks it, places the base models into
-`GPT_SoVITS/pretrained_models/` and the voice weights into `GPT_weights_v2ProPlus/`
-and `SoVITS_weights_v2ProPlus/`, then registers the pack. Files that already exist
-are skipped, so your tuned engine is never overwritten. Then ask it to *"read this
-out loud in the sample voice"*.
+It finds the archive in Downloads, unpacks it, places the base models and the voice
+weights, and registers the pack. Files that already exist are skipped, so your tuned
+engine is never overwritten.
 
 
 **The six reference clips** are samples for picking a tone, and one of them is also
