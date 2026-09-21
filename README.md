@@ -119,12 +119,18 @@ voice packs: 0 in ~/.dsh/voice-packs
 >
 > main 可以用系统语音，零下载。
 
-#### 两个发布包，按你的后端选一个
+#### 两条路，先选一条
 
-| 资产 | 大小 | 后端 |
+**想要角色声线，不需要先有 GPT-SoVITS。**
+
+| | ONNX 那条 | GPT-SoVITS 那条 |
 |:--|:--|:--|
-| `sample-onnx-v2ProPlus.zip` | **290.8 MB** | ONNX（Genie-TTS） |
-| `sample-full-v2ProPlus.zip` | **1,343.8 MB** | GPT-SoVITS |
+| 你要先准备什么 | **什么都不用** —— 脚本自己建 Python 环境、装引擎、下运行时数据 | 本机得有一个能跑的 GPT-SoVITS 检出 |
+| 声线包 | `sample-onnx-v2ProPlus.zip` **290.8 MB** | `sample-full-v2ProPlus.zip` **1,343.8 MB** |
+| 声线从哪来 | 包里已经转好的 ONNX 模型 —— **不用为此下整套 SoVITS** | 包里的权重，铺进你自己的检出 |
+| 什么时候选它 | 本机没有 GPT-SoVITS | **已经有** GPT-SoVITS 的话更省事：零下载，而且实测更快 |
+
+两条路跑的是**同一套 GPT-SoVITS 声线模型**，只是运行时不同（onnxruntime / PyTorch）。装完都是直接说「用XX声线念一下这段」。
 
 #### sample-full-v2ProPlus.zip 里有什么
 
@@ -191,7 +197,9 @@ node scripts/install-voice.mjs --from "D:/downloads/某个.zip" --engine "D:/GPT
 
 #### 安装 ONNX
 
-不需要任何前置条件，脚本会自己建 Python 环境：
+**不需要先有 GPT-SoVITS，也不需要 PyTorch。** 脚本自己建 Python 环境、装引擎、下运行时数据 —— 你不需要去找任何东西。
+
+唯一要本机有的是 **Python 3.9-3.13**（onnxruntime 目前没有 3.14 的轮子）。没有的话对 AI 说一声，它会装。
 
 ```sh
 node scripts/install-onnx.mjs          # 装引擎，约 800 MB
@@ -200,6 +208,8 @@ node scripts/install-onnx.mjs --check  # 随时复查状态和实际在跑的 pr
 ```
 
 把 `sample-onnx-v2ProPlus.zip` 下载好，对 AI 说「把试听音频装上」也行。
+
+**已经有 GPT-SoVITS 的话不用走这条** —— 直接用你那份，零下载还更快，见上面。
 
 
 **本试用声音资源仅供学习交流，严禁用于商业用途，如有侵权，请联系作者，作者得知后会于24小时内删除。**
@@ -415,12 +425,19 @@ provider the ONNX sessions actually got.
 
 Everything above works with the voices your system already has, at zero download. A
 character voice needs one of the two bundles from
-**[Releases](https://github.com/fangqian616/dsh-say/releases/latest)**.
+**[Releases](https://github.com/fangqian616/dsh-say/releases/latest)** — and **you do
+not need GPT-SoVITS to get one.**
 
-| Asset | Size | Backend |
+| | The ONNX route | The GPT-SoVITS route |
 |:--|:--|:--|
-| `sample-onnx-v2ProPlus.zip` | **290.8 MB** | ONNX (Genie-TTS) |
-| `sample-full-v2ProPlus.zip` | **1,343.8 MB** | GPT-SoVITS |
+| What you need first | **nothing** — the script builds its own Python environment, installs the engine and fetches its runtime data | a working GPT-SoVITS checkout on the machine |
+| Voice bundle | `sample-onnx-v2ProPlus.zip` **290.8 MB** | `sample-full-v2ProPlus.zip` **1,343.8 MB** |
+| Where the voice comes from | an ONNX model already converted in the bundle — **no need to download a whole SoVITS for it** | weights placed into your own checkout |
+| When to pick it | no GPT-SoVITS on the machine | **you already have one**: no download, and measurably faster |
+
+Both routes run the **same GPT-SoVITS voice model**; only the runtime differs
+(onnxruntime against PyTorch). Either way, afterwards you just ask it to *"read this
+out loud in the sample voice"*.
 
 **What is in `sample-full-v2ProPlus.zip`:**
 
@@ -458,8 +475,20 @@ character voice needs one of the two bundles from
 
 ### Installing it
 
-**GPT-SoVITS route.** Prerequisite: a working GPT-SoVITS checkout with Python. Without
-one, the official Windows package unzips and runs as-is
+**ONNX route. No GPT-SoVITS and no PyTorch needed** — the script builds its own Python
+environment, installs the engine and fetches its runtime data, so there is nothing to go
+and find. The one thing the machine needs is **Python 3.9-3.13** (onnxruntime publishes
+no wheels for 3.14 yet); if it is missing, ask your agent to install it.
+
+```sh
+node scripts/install-onnx.mjs          # the engine, about 800 MB
+node scripts/install-onnx.mjs --voice  # the voice, from Downloads
+node scripts/install-onnx.mjs --check  # re-report status and the live provider
+```
+
+**GPT-SoVITS route.** For a machine that already has one: zero download, and measurably
+faster. Prerequisite: a working GPT-SoVITS checkout with Python. Without one, the
+official Windows package unzips and runs as-is
 ([download](https://huggingface.co/lj1995/GPT-SoVITS-windows-package/resolve/main/GPT-SoVITS-v3lora-20250228.7z),
 6.4 GB). Download the bundle, then tell your agent:
 
@@ -470,14 +499,6 @@ It finds the archive in Downloads, unpacks it, places the base models into
 and `SoVITS_weights_v2ProPlus/`, then registers the pack. Files that already exist
 are skipped, so your tuned engine is never overwritten. Then ask it to *"read this
 out loud in the sample voice"*.
-
-**ONNX route.** No prerequisites; the script builds its own Python environment.
-
-```sh
-node scripts/install-onnx.mjs          # the engine, about 800 MB
-node scripts/install-onnx.mjs --voice  # the voice, from Downloads
-node scripts/install-onnx.mjs --check  # re-report status and the live provider
-```
 
 
 **The six reference clips** are samples for picking a tone, and one of them is also

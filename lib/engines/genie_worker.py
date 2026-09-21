@@ -235,6 +235,26 @@ def op_load(request):
     model_manager.providers = list(wanted)
 
     character = request.get("character") or "voice"
+
+    # A character reloaded in another language must not keep the previous
+    # language's reference-audio features. Genie caches the prompt's phonemes per
+    # character, and the language is fixed when the character is loaded - only the
+    # prompt features are recomputed, and only if the cache is dropped. Without
+    # this, switching textLang on the same voice reuses the old phonemes and
+    # synthesizes the new text through the wrong phonemizer, silently.
+    #
+    # Found the hard way: a Chinese line followed by a Japanese one "succeeded" in
+    # 0.6s through the cached Chinese features, which is what a wrong result looks
+    # like when nothing is checking.
+    previous = _state.get("language")
+    if _state.get("loaded") and previous and previous != language:
+        try:
+            genie_tts.clear_reference_audio_cache()
+            genie_tts.unload_character(character_name=character)
+        except Exception:
+            pass
+        _state["loaded"] = False
+
     genie_tts.load_character(
         character_name=character,
         onnx_model_dir=model_dir,
