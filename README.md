@@ -158,15 +158,15 @@ voice packs: 0 in ~/.dsh/voice-packs
 > [!NOTE]
 > **ONNX 的 GPU 是碰运气的。** onnxruntime 找不到 CUDA 运行库时会**静默回退到 CPU**，连最高 verbose 级别都不打一条日志。插件会遍历已建好的会话，把**实际在用的** provider 报给你。
 
-#### 怎么装 · GPT-SoVITS 那条路
+#### 安装GPT-SoVITS
 
-**前置条件：本机要有一个能跑的 GPT-SoVITS 检出加 Python 环境。** 还没有的话，官方 Windows 整合包解压双击即可（[下载](https://huggingface.co/lj1995/GPT-SoVITS-windows-package/resolve/main/GPT-SoVITS-v3lora-20250228.7z)，6.4 GB），不用装 Python。
+**前置条件：本机需求 GPT-SoVITS 检出加 Python 环境。** 如果没有，官方 Windows 整合包解压双击即可（[下载](https://huggingface.co/lj1995/GPT-SoVITS-windows-package/resolve/main/GPT-SoVITS-v3lora-20250228.7z)，6.4 GB）
 
 把 `sample-full-v2ProPlus.zip` 下载好，对你的 AI 说一句：
 
-> 把试听音频装上
+> 安装试听音频
 
-它会去 Downloads 找到那个包、解压、把四个 base 模型铺进 `GPT_SoVITS/pretrained_models/`、把声线权重铺进 `GPT_weights_v2ProPlus/` 和 `SoVITS_weights_v2ProPlus/`，然后登记声线包。**已经存在的文件会跳过。**
+它会在 Downloads 找到那个包、解压、把四个 base 模型铺进 `GPT_SoVITS/pretrained_models/`、把声线权重铺进 `GPT_weights_v2ProPlus/` 和 `SoVITS_weights_v2ProPlus/`，然后登记声线包。**已经存在的文件会跳过。**
 
 装完直接说「用XX声线念一下这段」就能听到。
 
@@ -189,7 +189,7 @@ node scripts/install-voice.mjs --from "D:/downloads/某个.zip" --engine "D:/GPT
 
 </details>
 
-#### 怎么装 · ONNX 那条路
+#### 安装 ONNX
 
 不需要任何前置条件，脚本会自己建 Python 环境：
 
@@ -199,10 +199,10 @@ node scripts/install-onnx.mjs --voice  # 装声线（去 Downloads 找 sample-on
 node scripts/install-onnx.mjs --check  # 随时复查状态和实际在跑的 provider
 ```
 
-把 `sample-onnx-v2ProPlus.zip` 下载好，对 AI 说「把试听音频装上」也行 —— 它会走这条路。
+把 `sample-onnx-v2ProPlus.zip` 下载好，对 AI 说「把试听音频装上」也行。
 
 
-装之前先读 [`voice/NOTICE.txt`](voice/NOTICE.txt)：**本声音资源仅供学习交流，严禁用于商业用途，如有侵权，请联系作者，作者得知后会于24小时内删除。**
+**本试用声音资源仅供学习交流，严禁用于商业用途，如有侵权，请联系作者，作者得知后会于24小时内删除。**
 
 ---
 
