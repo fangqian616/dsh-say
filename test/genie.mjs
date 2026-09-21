@@ -55,12 +55,26 @@ check('the sub-block wins where both speak', engineOptions({ root: 'A', engines:
 console.log('\n2. the Python files are valid')
 const python = findPython()
 if (python) {
+  // The bytecode goes to a temp file rather than next to the source. `python -m
+  // py_compile` writes __pycache__ into lib/engines/, which .gitignore hides from
+  // git but npm's `files` whitelist does not - so the check that verifies our Python
+  // was also what packed .pyc files built for this machine's interpreter into the
+  // release. A test should not leave build output in the source tree.
   for (const script of [WORKER, PROBE]) {
+    const name = script.split(/[\\/]/).pop()
+    const out = join(tmpdir(), `dsh-say-${name}.pyc`)
     try {
-      execFileSync(python, ['-m', 'py_compile', script], { stdio: 'pipe' })
-      check(`${script.split(/[\\/]/).pop()} compiles`, true)
+      execFileSync(python, [
+        '-c',
+        'import py_compile, sys; py_compile.compile(sys.argv[1], cfile=sys.argv[2], doraise=True)',
+        script,
+        out,
+      ], { stdio: 'pipe' })
+      check(`${name} compiles`, true)
     } catch (error) {
-      check(`${script.split(/[\\/]/).pop()} compiles`, false, String(error?.stderr || error?.message || error).slice(0, 200))
+      check(`${name} compiles`, false, String(error?.stderr || error?.message || error).slice(0, 200))
+    } finally {
+      rmSync(out, { force: true })
     }
   }
 } else {

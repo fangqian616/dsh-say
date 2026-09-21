@@ -114,5 +114,35 @@ for (const [name, range] of Object.entries(pkg.peerDependencies || {})) {
   check(`peer "${name}" is not "*"`, range !== '*' && range !== '' && range !== 'latest', String(range))
 }
 
+console.log('\n5. no build artifacts are sitting in the published tree')
+// The tests compile lib/engines/*.py to check they are valid, which leaves a
+// __pycache__ behind. .gitignore keeps that out of git and does nothing for npm:
+// the `files` whitelist walks straight into it, so a release would carry .pyc files
+// compiled for whichever Python happened to run the packer.
+//
+// This walks every file rather than reusing sourceFiles(), which filters to
+// .js/.mjs - against that list the check could never fail, and a guard that cannot
+// fail is not a guard. Verified by planting a .pyc and watching it turn red.
+function everyFile(dir, out = []) {
+  if (!existsSync(dir)) return out
+  for (const entry of readdirSync(dir)) {
+    const full = join(dir, entry)
+    if (statSync(full).isDirectory()) everyFile(full, out)
+    else out.push(full)
+  }
+  return out
+}
+
+const artifacts = []
+for (const root of ['lib', 'bin', 'scripts', 'skills', 'soul']) {
+  for (const file of everyFile(join(ROOT, root))) {
+    if (/\.pyc$/.test(file) || file.includes('__pycache__')) artifacts.push(file.slice(ROOT.length + 1))
+  }
+}
+check('no compiled bytecode under the published directories', artifacts.length === 0, artifacts.join(', '))
+check('`files` excludes __pycache__ as a backstop',
+  (pkg.files || []).some((entry) => entry.includes('__pycache__')),
+  JSON.stringify(pkg.files || []))
+
 console.log(`\n${failures === 0 ? 'ALL CHECKS PASSED' : `${failures} CHECK(S) FAILED`}`)
 process.exit(failures === 0 ? 0 : 1)
