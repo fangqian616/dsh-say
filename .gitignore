@@ -46,3 +46,8 @@ voice/NOTICE-weights.txt
 
 /COMMIT_MSG.txt
 /MSG.txt
+
+# Python bytecode. The tests compile lib/engines/*.py to check they are valid,
+# which leaves these behind; they are build output, never source.
+__pycache__/
+*.pyc

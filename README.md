@@ -134,9 +134,33 @@ voice packs: 0 in ~/.dsh/voice-packs
 
 包里给的东西替你省掉的是：**自己找那四个 base 模型、自己裁参考音、自己听写文本** —— 这部分最容易装错（模型版本对不上、参考音不规范），现在不用你操心。
 
-> 想彻底不要 GPT-SoVITS？那需要换一条**推理路径**（把模型转 ONNX，用小体积运行时，就不需要 Python/torch 了）。那是另一个工程，不是文档改动 —— 想做的话说一声。
+> 想彻底不要 GPT-SoVITS？**现在有这条路了** —— 换成 ONNX 后端，模型用 onnxruntime 跑，不需要 PyTorch 和 CUDA 那几 GB。见下面的 [三种后端](#-三种后端)。
 
-#### 怎么装
+#### 或者：不装 GPT-SoVITS，走 ONNX 后端
+
+如果你**本机没有也不想装** GPT-SoVITS，有一条小得多的路：
+
+```sh
+node scripts/install-onnx.mjs
+```
+
+它会建一个受管的 Python 环境（不动你系统的 Python）、装上 [Genie-TTS](https://github.com/High-Logic/Genie)、下它自己的运行时资源，然后你就有一个能跑角色声线的后端。约 **1.1 GB**，而官方整合包是 6.4 GB。
+
+**但要如实说清楚代价：**
+
+| | ONNX 后端 | GPT-SoVITS |
+|:--|:--|:--|
+| 下载 | 约 1.1 GB | 6.4 GB |
+| 报告长度一句话（生成 12 秒音频） | 8.9s | **4.7s** |
+| 语速调节 | **不支持** | 支持 |
+| 需要 Python | 要（脚本自己建环境） | 整合包自带 |
+
+**它更小，但它不快** —— 实测慢约一倍。两者都远快于实时，所以这不是问题，但别指望它更快。
+
+> [!NOTE]
+> **GPU 是碰运气的。** onnxruntime 找不到 CUDA 运行库时会**静默回退到 CPU**，连最高 verbose 级别都不打一条日志。这个插件会**遍历已建好的会话**把实际在用的 provider 报给你，所以你不会被骗 —— 但也不会自动帮你修好。
+
+#### 怎么装（GPT-SoVITS 那条路）
 
 把上面那个 zip 下载好，对你的 AI 说一句：
 
@@ -273,16 +297,27 @@ node scripts/install-voice.mjs --from "D:/downloads/某个.zip" --engine "D:/GPT
 
 ---
 
-## 🎚 两种后端
+## 🎚 三种后端
 
-| | 系统语音（默认） | GPT-SoVITS（可选） |
-|:--|:--|:--|
-| 安装成本 | **零** | 约 2 GB 起 |
-| 音质 | 清晰但机械 | 角色声线、零样本克隆 |
-| 英文 | 原生分语言 | 声明语言即可 |
-| 依赖 | Windows SAPI| 本地检出或远端 API |
+| | 系统语音（默认） | ONNX（Genie-TTS） | GPT-SoVITS |
+|:--|:--|:--|:--|
+| 安装成本 | **零** | 约 1.1 GB | 约 6.4 GB |
+| 音质 | 清晰但机械 | 角色声线 | 角色声线、零样本克隆 |
+| 报告长度一句话 | 瞬时 | 8.9s | **4.7s** |
+| 语速调节 | 支持 | **不支持** | 支持 |
+| 依赖 | Windows SAPI | Python（脚本自建环境） | 本地检出或远端 API |
 
-`engine: auto` 会在你登记声线包之后**自动切到 GPT-SoVITS**，不用改配置。
+**没有哪个"最好"，只有哪个适合你：**
+
+- **已经有 GPT-SoVITS** → 就用它。零下载，而且最快
+- **没有、也不想下 6.4 GB** → ONNX。省将近 5.5 GB，代价是慢一倍
+- **只想让它出声** → 系统语音，零下载
+
+`engine: auto` 的行为：**有 GPT-SoVITS 就用它**，没有就用 ONNX，都没有就用系统语音。你登记声线包之后它会自己切，不用改配置。
+
+想强制某一条：`tts_config set engine=onnx`（或 `gpt-sovits` / `builtin`）。
+
+**装完了想换路线**：ONNX 那条不想要了，`tts_config set engine=builtin` 就不会再用它；GPT-SoVITS 那边同理。两个后端可以共存，`tts_engines` 会把两边各自的可用性和原因都报出来。
 
 ---
 
@@ -298,10 +333,25 @@ node scripts/install-voice.mjs --from "D:/downloads/某个.zip" --engine "D:/GPT
 | 没声音但 `played: true` | 输出设备选错或静音 |
 | `System.Speech is unavailable` | 系统没装 SAPI 语音，或 PowerShell 被策略拦截 |
 | `no GPT-SoVITS checkout found` | 设 `engines.gptSovits.engineRoot` |
+| `the ONNX engine is not installed` | 跑 `node scripts/install-onnx.mjs` |
+| ONNX 报 "running on the CPU" | 正常，见下 |
+| ONNX 下 `speed` 没反应 | **ONNX 引擎没有语速控制**，不是 bug |
 | `voice pack ... is incomplete` | 声线包缺 `ref.wav`、`ref.txt` 或权重 |
 | GPT-SoVITS 太慢 | 把 `sampleSteps` 从 32 降到 16 |
 
-先跑 `tts_engines` —— 它会给出后端不可用的确切原因。
+**关于 ONNX 在用 CPU**：如果你的 onnxruntime 是 GPU 版但会话拿到了 CPU，插件会明说。
+onnxruntime 找不到 CUDA 12 / cuDNN 9 运行库时**不报错、只回退**，所以插件不信它报的
+"可用 provider"，而是遍历已建会话问**实际**拿到了什么。想试 GPU：
+
+```sh
+node scripts/install-onnx.mjs --gpu
+node scripts/install-onnx.mjs --check   # 装完实测到底有没有生效
+```
+
+**注意：本机实测即使把 CUDA 库加进搜索路径仍然回退到 CPU，原因未查明。** 所以
+`--gpu` 是"可以试"，不是"这样就修好了"。
+
+先跑 `tts_engines` —— 它会给出后端不可用的确切原因，以及 ONNX 实际在跑哪个 provider。
 
 </details>
 
@@ -358,7 +408,11 @@ Restart the profile, then ask the agent to *"say hello out loud"*. `npx dsh-say`
 
 **Configuration lives in `~/.dsh/voice/config.json`**, written by first-run onboarding and editable through `tts_config`. Precedence is user file > composition > default.
 
-**Engines:** the built-in one drives SAPI on Windows and needs no external media program; GPT-SoVITS is optional and switches in automatically once a voice pack exists.
+**Engines:** the built-in one drives SAPI on Windows and needs no external media program.
+Two optional engines add character voices, and `auto` prefers a GPT-SoVITS you already have
+(no download, and the faster of the two), then the ONNX engine, then the system voices.
+`tts_engines` reports what each one can do here and why not, including the execution
+provider the ONNX sessions actually got.
 
 ### The character voice (optional)
 
@@ -392,8 +446,20 @@ official Windows package unzips and runs as-is
 supplies the models.
 
 > Removing that requirement entirely means a different inference path — the models
-> converted to ONNX with a small runtime, no Python or torch. That is a real project,
-> not a documentation change.
+> converted to ONNX with a small runtime, no PyTorch or CUDA. **That now exists:**
+> `node scripts/install-onnx.mjs` builds a managed Python environment, installs
+> [Genie-TTS](https://github.com/High-Logic/Genie), and gives you a character voice for
+> about **1.1 GB** instead of 6.4 GB. It is still Python — the saving is PyTorch and the
+> CUDA toolkit, not the interpreter.
+>
+> **It is smaller, not faster.** Measured on the same voice and the same sentence, warm:
+> ONNX 8.9s against GPT-SoVITS 4.7s for 12 seconds of audio. Both are far faster than
+> real time, so this is a size trade, not a speed one. The ONNX engine also has **no
+> speed control**.
+>
+> GPU is a gamble: onnxruntime falls back to the CPU **without a word**, even at maximum
+> log verbosity. The plugin walks the live sessions and reports the provider actually in
+> use, so you are never misled — but nothing repairs it for you.
 
 **The six reference clips** are samples for picking a tone, and one of them is also
 trainable material:

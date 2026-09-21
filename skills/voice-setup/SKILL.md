@@ -100,7 +100,49 @@ node scripts/install-voice.mjs
 
 **已存在的文件会跳过**，不会覆盖用户调好的环境，所以重跑是安全的。
 
-找不到 GPT-SoVITS 时加 `--engine "<路径>"`。
+**找不到 GPT-SoVITS 时加 `--engine "<路径>"`。**
+
+### 用户没有 GPT-SoVITS 时：两条路，让他选
+
+**不要替他默认选一条。** 两条路的代价对两种人完全相反，先跑 `tts_engines` 看现状，然后如实说：
+
+| | ONNX 后端 | 官方整合包 |
+|:--|:--|:--|
+| 下载 | 约 1.1 GB | 6.4 GB |
+| 报告长度一句话（生成 12 秒音频） | 8.9s | **4.7s** |
+| 语速调节 | **不支持** | 支持 |
+| Python | 要（脚本自己建环境） | 整合包自带 |
+
+**ONNX 那条（推荐给"不想下 6.4 GB"的人）：**
+
+```sh
+node scripts/install-onnx.mjs
+```
+
+它会建受管 venv（Python 3.9-3.13）、装 genie-tts、下 Genie 运行时资源。三件它替你处理掉的坑，**失败时不要去让用户装 Visual Studio**：
+
+1. `jieba_fast` 是 C 扩展源码包、任何平台都没有 wheel —— 脚本装一个纯 Python 垫片代替
+2. `import genie_tts` 在导入时就检查运行时数据，缺了会阻塞或抛异常 —— 所以数据必须先下
+3. 它会往 stdout 打 emoji 警告，GBK 控制台下直接崩 —— 协议因此把 stdout 让给 stderr
+
+**几条必须如实转述的事（都有实测依据，不要凭印象说）：**
+
+- **不要说 ONNX 更快。** 实测报告长度的一句话，ONNX 8.9s 而 GPT-SoVITS 4.7s。它的价值是**省将近 5.5 GB**
+- **ONNX 引擎没有语速控制** —— 用户设了 `speed` 没反应是正常的，直接说明
+- **GPU 是碰运气的。** onnxruntime 找不到 CUDA 运行库时会**静默回退到 CPU**，连最高 verbose 都不打一条日志。`--gpu` 可以试，装完用 `--check` **实测**；本机即使把 CUDA 库加进搜索路径仍然回退，原因未查明。**不要说"装了就是 GPU"**
+- 插件会把**实际在用的 provider** 报出来 —— 转述它，不要自己判断
+
+**官方整合包那条：**
+
+```
+https://huggingface.co/lj1995/GPT-SoVITS-windows-package/resolve/main/GPT-SoVITS-v3lora-20250228.7z
+```
+
+解压双击 `_go-webui.bat`，不用装 Python。**给了他链接就停下 —— 6.4 GB 是他的决定，不是你的任务。**
+
+### 用户说"我已经有 GPT-SoVITS 了"但检测不到时
+
+**不要再劝他装任何东西。** 自动查找扫过常见位置和每个盘根目录，没找到就问路径（解压出来的那个文件夹，里面应该有 `api_v2.py`），拿到后写 `engines.gptSovits.engineRoot`，再跑 `tts_engines` 确认。
 
 ### 包里的参考音（用户问"能不能自己训"时看这里）
 
@@ -117,7 +159,7 @@ node scripts/install-voice.mjs
 
 **两件必须说清的事：**
 
-1. **前置条件是要有一个能跑的 GPT-SoVITS 检出加 Python 环境。** 那个包给的是模型，不是运行时。用户没有的话，指他去官方 Windows 整合包（解压双击即可），并说明**两者不冲突**：整合包管运行时，这个包管声音。
+1. **前置条件是要有一个能跑的推理后端。** 那个包给的是模型，不是运行时。用户没有 GPT-SoVITS 的话，指他去上面两条路之一（**让他选**），并说明**两者不冲突**：后端管运行时，这个包管声音。
 2. 装之前让用户读包里的 `NOTICE-weights.txt`。声明规则见下一节。
 
 **装完立刻验证**：跑 `tts_voices action=list`，确认登记的是**声线权重**而不是 base 模型（`gpt=` 应含声线名，不该是 `s1v3.ckpt`；`sovits=` 不该是 `s2Gv2ProPlus.pth`）。**这一步不能省** —— 名字选错时安装会报成功，只有听的时候才发现声音不对。
