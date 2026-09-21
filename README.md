@@ -144,7 +144,25 @@ voice packs: 0 in ~/.dsh/voice-packs
 node scripts/install-onnx.mjs
 ```
 
-它会建一个受管的 Python 环境（不动你系统的 Python）、装上 [Genie-TTS](https://github.com/High-Logic/Genie)、下它自己的运行时资源，然后你就有一个能跑角色声线的后端。约 **1.1 GB**，而官方整合包是 6.4 GB。
+它会建一个受管的 Python 环境（不动你系统的 Python）、装上 [Genie-TTS](https://github.com/High-Logic/Genie)、下它自己的运行时资源（约 411 MB + 391 MB），然后你就有一个能跑角色声线的后端。
+
+**声线是另一个包，小得多：** [Releases](../../releases/latest) 里的 `sample-onnx-v2ProPlus.zip`（**290.8 MB**），里面是已经转好的 ONNX 模型，**不需要 PyTorch、不需要引擎、不需要任何 base 模型** —— Genie 自带 hubert 和 BERT。
+
+```sh
+node scripts/install-onnx.mjs --voice            # 去 Downloads 找那个包并装上
+node scripts/install-onnx.mjs --from "<zip路径>"  # 或者直接指定
+```
+
+对 AI 说「把试听音频装上」也行，它会走这条路。
+
+**两个发布包，按你的后端选一个就行：**
+
+| 资产 | 大小 | 给谁 |
+|:--|:--|:--|
+| `sample-onnx-v2ProPlus.zip` | **290.8 MB** | ONNX 后端 |
+| `sample-full-v2ProPlus.zip` | 1,343.8 MB | GPT-SoVITS 后端（含 4 个 base 模型） |
+
+**为什么要分两个**：那 1.14 GB 的 base 模型只有 PyTorch 那条路需要。合成一个包会把用不上的 1 GB 推给选了 ONNX 的人。
 
 **但要如实说清楚代价：**
 

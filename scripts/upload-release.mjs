@@ -19,6 +19,8 @@ import { execFileSync } from 'node:child_process'
 import { createReadStream, existsSync, readFileSync, rmSync, statSync } from 'node:fs'
 import { basename, join } from 'node:path'
 
+import { assetsToReplace } from './release-assets.mjs'
+
 const args = process.argv.slice(2)
 const tokenFlag = args.indexOf('--token')
 const token = (tokenFlag >= 0 ? args[tokenFlag + 1] : '') || process.env.GITHUB_TOKEN || process.env.GH_TOKEN || ''
@@ -82,18 +84,33 @@ const size = statSync(archive).size
 const digest = await sha256(archive)
 const name = basename(archive)
 
-// The local file has to be the one SOURCE.json describes, or uploading it publishes
-// an archive that every download will reject.
+// The release carries two archives now - the PyTorch voice bundle and the much
+// smaller ONNX one - and SOURCE.json describes only the first. `--sha256` lets a
+// second asset be verified against its own recorded hash, which is the same
+// guarantee by a different source. Without either, the check is skipped loudly
+// rather than silently.
+const expectFlag = args.indexOf('--sha256')
+const expected = expectFlag >= 0 ? args[expectFlag + 1] : source.sha256
+
 console.log(`file      : ${name}`)
 console.log(`size      : ${(size / 1048576).toFixed(1)} MB`)
 console.log(`sha256    : ${digest}`)
-console.log(`SOURCE.json: ${source.sha256}`)
-if (digest !== source.sha256 || size !== source.bytes) {
-  console.error('\nthis file does not match scripts/SOURCE.json. Refusing to upload: the')
-  console.error('release would serve bytes that every fetch refuses on checksum.')
+if (!expected) {
+  console.error('\nno checksum to verify against. Pass --sha256 <hash>, or use a file')
+  console.error('described by scripts/SOURCE.json. Refusing to publish unverified bytes.')
   process.exit(1)
 }
-console.log('matches SOURCE.json\n')
+console.log(`expected  : ${expected}${expectFlag >= 0 ? ' (from --sha256)' : ' (from SOURCE.json)'}`)
+if (digest !== expected) {
+  console.error('\nthis file does not match the expected checksum. Refusing to upload: the')
+  console.error('release would serve bytes that every download rejects.')
+  process.exit(1)
+}
+if (expectFlag < 0 && size !== source.bytes) {
+  console.error(`\nsize differs from SOURCE.json (${size} vs ${source.bytes}). Refusing to upload.`)
+  process.exit(1)
+}
+console.log('checksum matches\n')
 
 if (dryRun) {
   console.log('[dry run] would delete any asset named ' + name + ' and upload this file')
@@ -108,17 +125,20 @@ if (!Array.isArray(releases) || releases.length === 0) {
 const release = releases[0]
 console.log(`release   : ${release.tag_name}`)
 
-// One archive per release, and it must be the current one.
+// Two archives per release now, and each replaces only itself.
 //
-// Deleting only the same-named asset is not enough: this release once carried
-// `silver-wolf-full-v2ProPlus.zip`, and superseding it with a differently-named
-// archive would leave the old one downloadable — which, after the voice was
-// de-identified, means the character-named file stays on the internet even though
-// nothing in the repository mentions it any more. So every archive-shaped asset
-// that is not the one being uploaded goes.
-const ARCHIVE_LIKE = /^(?:silver-wolf|sample)[\w.-]*\.zip$/i
-const stale = release.assets.filter((asset) => asset.name !== name && ARCHIVE_LIKE.test(asset.name))
-for (const asset of release.assets.filter((a) => a.name === name || ARCHIVE_LIKE.test(a.name))) {
+// The history matters, because getting this wrong is destructive rather than
+// merely untidy: this release once carried `silver-wolf-full-v2ProPlus.zip`, and
+// superseding it with a differently-named archive would have left the old one
+// downloadable — which, after the voice was de-identified, means the
+// character-named file stays on the internet even though nothing in the
+// repository mentions it any more.
+//
+// The rule lives in release-assets.mjs so it can be tested without a token or a
+// network. An earlier version here deleted *every* archive-shaped asset, and
+// uploading the ONNX bundle therefore removed the 1.34 GB one.
+const superseded = release.assets.filter((asset) => assetsToReplace([asset.name], name).length > 0)
+for (const asset of superseded) {
   console.log(`deleting  : ${asset.name} (asset ${asset.id}, ${(asset.size / 1048576).toFixed(1)} MB)`)
   const response = await fetch(`${api}/releases/assets/${asset.id}`, { method: 'DELETE', headers })
   if (!response.ok && response.status !== 404) {
@@ -126,6 +146,7 @@ for (const asset of release.assets.filter((a) => a.name === name || ARCHIVE_LIKE
     process.exit(1)
   }
 }
+if (superseded.length === 0) console.log('nothing to replace')
 
 console.log('uploading...')
 const uploadUrl = `https://uploads.github.com/repos/${repo}/releases/${release.id}/assets?name=${encodeURIComponent(name)}`
@@ -144,15 +165,30 @@ if (!uploaded.ok) {
 const asset = await uploaded.json()
 console.log(`uploaded  : id=${asset.id} size=${asset.size}`)
 
-// What matters is what a download gets, not what the API reports, so the published
-// bytes are fetched back and hashed.
+// What matters is what a download gets, not what the API reports.
+//
+// The API reports a `digest` for an uploaded asset, which is the same guarantee a
+// download would give without transferring gigabytes through a proxy. That is the
+// check now; the download-based one below remains as the fallback for an API that
+// does not return a digest.
+const reported = typeof asset.digest === 'string' ? asset.digest : ''
+if (reported === `sha256:${expected}` && asset.size === size) {
+  console.log(`\nok: the release serves this file (digest ${reported})`)
+  process.exit(0)
+}
+if (reported && reported !== `sha256:${expected}`) {
+  console.error(`\nthe release reports a different digest: ${reported}`)
+  console.error(`expected sha256:${expected}`)
+  process.exit(1)
+}
+
+// No digest from the API, so the published bytes are fetched back and hashed.
 //
 // The download goes through fetch-voice rather than a plain fetch here: node's fetch
 // cannot reach github.com behind a proxy on this machine, so the verification step
 // would hang instead of verifying - which is exactly what happened the first time
-// this ran. fetch-voice already streams through the proxy and checks the hash
-// against SOURCE.json, so the check is the same code a user runs.
-console.log('\nverifying what the release now serves...')
+// this ran.
+console.log('\nno digest from the API; downloading it back to verify...')
 const verifyDir = join(process.env.TEMP || '/tmp', 'dsh-say-upload-verify')
 rmSync(verifyDir, { recursive: true, force: true })
 let verifyError = null
@@ -174,11 +210,11 @@ if (verifyError !== null) {
   const unreachable = /proxy|ECONNRESET|ENOTFOUND|ETIMEDOUT|Connect Timeout|Unable to connect|download failed/i.test(verifyError)
   console.error(unreachable
     ? `\ncould not verify: the archive could not be downloaded (${verifyError})`
-    : `\nverification failed: the published archive does not match SOURCE.json (${verifyError})`)
+    : `\nverification failed: the published archive does not match the expected checksum (${verifyError})`)
   console.error('the upload itself succeeded — the API reports ' + (size / 1048576).toFixed(1) + ' MB, matching this file.')
   console.error('re-run the check when the network allows:')
   console.error(`  node scripts/fetch-voice.mjs --url https://github.com/${repo}/releases/latest/download/${name} --out <dir>`)
   process.exit(unreachable ? 2 : 1)
 }
 rmSync(verifyDir, { recursive: true, force: true })
-console.log('\nok: the release serves the archive SOURCE.json describes')
+console.log(`\nok: the release serves ${name}`)

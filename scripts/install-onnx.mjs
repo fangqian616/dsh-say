@@ -25,9 +25,9 @@
  */
 
 import { execFileSync, spawn } from 'node:child_process'
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs'
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
-import { dirname, join, resolve } from 'node:path'
+import { basename, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
@@ -63,6 +63,10 @@ const config = {
   check: process.argv.includes('--check'),
   skipData: process.argv.includes('--skip-data'),
   venvOnly: process.argv.includes('--venv-only'),
+  voice: process.argv.includes('--voice'),
+  voiceOnly: process.argv.includes('--voice-only'),
+  noVoice: process.argv.includes('--no-voice'),
+  from: flagValue('--from', ''),
 }
 
 const venv = join(config.root, 'venv')
@@ -293,6 +297,104 @@ async function verify() {
   }
 }
 
+/** Every file under a directory, recursively. */
+function walk(dir, out = []) {
+  if (!existsSync(dir)) return out
+  for (const entry of readdirSync(dir)) {
+    const full = join(dir, entry)
+    if (statSync(full).isDirectory()) walk(full, out)
+    else out.push(full)
+  }
+  return out
+}
+
+/** Unpack an archive. PowerShell on Windows, `unzip` elsewhere. */
+function extractArchive(archive, into) {
+  mkdirSync(into, { recursive: true })
+  if (isWindows) {
+    // Paths travel through the environment rather than the command line: quoting
+    // a non-ASCII path into a PowerShell argument is how the earlier fetcher
+    // ended up unable to find its own archive.
+    execFileSync(
+      'powershell',
+      ['-NoProfile', '-NonInteractive', '-Command',
+        'Expand-Archive -LiteralPath $env:DSH_ONNX_ARCHIVE -DestinationPath $env:DSH_ONNX_INTO -Force'],
+      { stdio: 'pipe', env: { ...process.env, DSH_ONNX_ARCHIVE: archive, DSH_ONNX_INTO: into } },
+    )
+    return
+  }
+  execFileSync('unzip', ['-o', '-q', archive, '-d', into], { stdio: 'pipe' })
+}
+
+/** The ONNX voice archive, if it is already sitting somewhere obvious. */
+function findVoiceArchive() {
+  if (config.from) return resolve(config.from)
+  const places = [
+    join(homedir(), 'Downloads'),
+    process.cwd(),
+    join(process.env.TEMP || homedir(), 'dsh-voice-release'),
+  ]
+  const found = []
+  for (const dir of places) {
+    if (!existsSync(dir)) continue
+    for (const name of readdirSync(dir)) {
+      if (/^sample-onnx.*\.zip$/i.test(name)) found.push(join(dir, name))
+    }
+  }
+  // Newest wins: someone who downloaded twice means the second one.
+  found.sort((a, b) => statSync(b).mtimeMs - statSync(a).mtimeMs)
+  return found[0] || ''
+}
+
+/**
+ * Install the ONNX voice into the voices directory.
+ *
+ * The archive is already in the finished layout - `onnx/`, `pack.json`, the
+ * reference clip and its transcript - so installing is a copy into
+ * `voice-packs/<name>/` and nothing else. That is deliberate: the pack that the
+ * release produces is the same shape the plugin reads, so there is no conversion
+ * step here that could disagree with it.
+ */
+function installVoice(archive) {
+  const staging = join(config.root, 'voice-staging')
+  rmSync(staging, { recursive: true, force: true })
+  try {
+    extractArchive(archive, staging)
+  } catch (error) {
+    return { ok: false, reason: `could not unpack ${archive}: ${String(error?.stderr || error?.message || error).slice(0, 300)}` }
+  }
+
+  const packFile = join(staging, 'pack.json')
+  if (!existsSync(packFile) || !existsSync(join(staging, 'onnx'))) {
+    return { ok: false, reason: `${basename(archive)} does not look like an ONNX voice archive (no pack.json and onnx/ at the top level)` }
+  }
+
+  let entry
+  try {
+    entry = JSON.parse(readFileSync(packFile, 'utf8').replace(/^\uFEFF/, ''))
+  } catch (error) {
+    return { ok: false, reason: `pack.json in the archive is malformed: ${String(error?.message || error)}` }
+  }
+
+  const name = String(entry.name || 'sample').replace(/[^\w\u4e00-\u9fa5-]/g, '')
+  const voicesDir = process.env.DSH_VOICE_VOICES_DIR || join(homedir(), '.dsh', 'voice-packs')
+  const target = join(voicesDir, name)
+  mkdirSync(target, { recursive: true })
+
+  // Only the archive's own files move, and the model directory is replaced rather
+  // than merged: a half-overwritten model directory produces a voice that loads
+  // and sounds wrong, which is far worse than one that fails to load.
+  rmSync(join(target, 'onnx'), { recursive: true, force: true })
+  for (const file of walk(staging)) {
+    const rel = file.slice(staging.length + 1)
+    const dest = join(target, rel)
+    mkdirSync(dirname(dest), { recursive: true })
+    copyFileSync(file, dest)
+  }
+  const bytes = walk(join(target, 'onnx')).reduce((sum, file) => sum + statSync(file).size, 0)
+  return { ok: true, name, dir: target, bytes }
+}
+
 /** Ask onnxruntime which provider a real session gets, not which one it offers. */
 async function measureProvider() {
   const code = `import json, sys
@@ -341,6 +443,32 @@ if (existing) {
   console.log(`  venv  : already present`)
 } else {
   console.log(`  venv  : will be created`)
+}
+
+// Installing the voice without touching the engine, for the two cases where the
+// engine is already there: someone re-installing a voice, and the test suite,
+// which must be able to exercise this path on a machine with no engine at all.
+if (config.voiceOnly) {
+  const archive = findVoiceArchive()
+  if (!archive) {
+    console.error('--voice-only needs an archive: pass --from "<path to sample-onnx-*.zip>"')
+    console.error('  or download one from')
+    console.error('    https://github.com/fangqian616/dsh-say/releases/latest/download/sample-onnx-v2ProPlus.zip')
+    process.exit(1)
+  }
+  if (!existsSync(archive)) {
+    console.error(`no such file: ${archive}`)
+    process.exit(1)
+  }
+  console.log(`\nvoice archive: ${archive}`)
+  const installed = installVoice(archive)
+  if (!installed.ok) {
+    console.error(`  ${installed.reason}`)
+    process.exit(1)
+  }
+  console.log(`  installed "${installed.name}" into ${installed.dir}`)
+  console.log(`  model: ${(installed.bytes / 1048576).toFixed(1)} MB`)
+  process.exit(0)
 }
 
 if (config.check) {
@@ -490,7 +618,38 @@ if (provider.ok) {
   console.log(`  a session gets: could not be determined (${provider.reason})`)
 }
 
-console.log('\nthe engine is ready. Next:')
-console.log('  node scripts/install-onnx.mjs --check      # re-report at any time')
-console.log('  then install a voice: node scripts/install-voice.mjs --from "<archive.zip>"')
+console.log('\nthe engine is ready.')
+
+// The voice is a separate thing from the engine, and the plugin says so
+// everywhere else: the engine is the runtime, the voice is the material. It is
+// installed here only when asked for, because a 290 MB download that the user did
+// not ask for is exactly the behaviour the 6.4 GB rule exists to prevent.
+if (!config.noVoice) {
+  const archive = config.voice || config.from ? findVoiceArchive() : ''
+  if (archive) {
+    console.log(`\n6. voice archive\n  ${archive}`)
+    if (!existsSync(archive)) {
+      console.error(`  no such file: ${archive}`)
+      process.exit(1)
+    }
+    const installed = installVoice(archive)
+    if (!installed.ok) {
+      console.error(`  ${installed.reason}`)
+      process.exit(1)
+    }
+    console.log(`  installed "${installed.name}" into ${installed.dir}`)
+    console.log(`  model: ${(installed.bytes / 1048576).toFixed(1)} MB`)
+  } else if (config.voice) {
+    console.error('\n--voice was given but no sample-onnx*.zip could be found.')
+    console.error('  download it first:')
+    console.error('    https://github.com/fangqian616/dsh-say/releases/latest/download/sample-onnx-v2ProPlus.zip')
+    console.error('  then run this again, or point at it with --from "<path to the zip>".')
+    process.exit(1)
+  }
+}
+
+console.log('\nnext:')
+console.log('  node scripts/install-onnx.mjs --check              # re-report at any time')
+console.log('  node scripts/install-onnx.mjs --voice              # install the sample voice (about 291 MB)')
+console.log('  node scripts/install-onnx.mjs --from "<zip>"       # or install a voice archive you already have')
 console.log('  restart DSH so the plugin picks the engine up.')

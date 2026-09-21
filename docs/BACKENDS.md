@@ -154,15 +154,56 @@ model_manager.providers = ["CUDAExecutionProvider", "CPUExecutionProvider"]
 现在改成：**PyTorch 对（`gpt`+`sovits`）或 ONNX 目录（`onnx`）居其一即可**，
 并把包能跑在哪些引擎上写进 `engines` 字段。
 
+## 发布形态：两个资产，不是一个
+
+| 资产 | 大小 | 给谁 |
+|:--|:--|:--|
+| `sample-onnx-v2ProPlus.zip` | **290.8 MB** | ONNX 后端 |
+| `sample-full-v2ProPlus.zip` | 1,343.8 MB | GPT-SoVITS 后端 |
+
+**为什么必须分开。** 那 1.14 GB 的 base 模型只有 PyTorch 那条路需要 ——
+Genie 自带 hubert 和 BERT。合成一个包会把用不上的 1 GB 推给选了 ONNX 的人，
+而"省 5 GB"正是 ONNX 存在的理由。
+
+ONNX 那个包**不需要引擎、不需要 PyTorch、不需要 base 模型**，就是转好的模型本身：
+
+```
+onnx/                 9 个模型文件（fp16 权重 + 几个 fp32 的图定义）
+pack.json             指向 onnx/
+ref.wav + ref.txt     参考音与它逐字的文本
+NOTICE-weights.txt    素材声明
+```
+
+**包里就是 pack 该有的样子**，所以"安装"就是把它复制进
+`~/.dsh/voice-packs/<name>/` —— 中间没有转换步骤，也就没有会和插件读法不一致的地方。
+
+```sh
+node scripts/install-onnx.mjs --voice       # 去 Downloads 找那个包
+node scripts/install-onnx.mjs --from "<zip>"  # 或直接指定
+node scripts/install-onnx.mjs --voice-only --from "<zip>"   # 只装声线，不碰引擎
+```
+
+`--voice-only` 是测试入口，也是"引擎已经装好了、只想换个声线"的真实用法。
+
 ## 实测方法
 
 ```bash
 node local/bench-routes.mjs 3 "<文本>"    # 两条路各自冷/热态，同一句话
 node local/probe-cuda.py                  # 复现 CUDA 静默回退并抓 ORT 自己的日志
 node scripts/install-onnx.mjs --check     # 报告引擎状态与实际 provider
+node local/build-onnx-release.mjs         # 重新构建 ONNX 声线包
 ```
 
 热态 = 丢弃第一次调用（含模型加载 / API 服务启动），对后三次取平均。
+
+## 一个还没做的清理
+
+现有的 `sample-full-v2ProPlus.zip` 里有 `sample_e10_s120.pth`（89.2 MB），
+而**它 111 个 key 全是 `discriminators.*`** —— 是训练残渣，覆盖不了任何东西
+（真正的生成器是 base `s2Gv2ProPlus.pth`，已验证 781 个 key）。
+
+所以那 89 MB 是白下的。去掉它需要同时改 `install-voice.mjs`（让它把 base 生成器
+当作声线的 sovits 权重登记）和 `SOURCE.json`，属于独立的一次改动，没有塞进这一轮。
 
 ## 工作量
 
