@@ -17,6 +17,7 @@ process.env.DSH_VOICE_STATE_DIR = join(dir, 'state')
 
 const { SETTING_KEYS, applySetting, readSetting, readSettings, settingsPath, writeSettings } = await import('../lib/settings.js')
 const { configTool } = await import('../lib/tools.js')
+const { resolveConfig } = await import('../lib/config.js')
 const { onboard, resetOnboarding } = await import('../lib/onboarding.js')
 
 let failures = 0
@@ -63,6 +64,16 @@ const patch = applySetting({}, 'engines.gptSovits.engineRoot', 'D:/GPT-SoVITS')
 check('the path nests', readSetting(patch, 'engines.gptSovits.engineRoot') === 'D:/GPT-SoVITS', JSON.stringify(patch))
 writeSettings(patch)
 check('it round-trips through the file', readSetting(readSettings(), 'engines.gptSovits.engineRoot') === 'D:/GPT-SoVITS')
+
+const ffplayPath = '/opt/ffmpeg/bin/ffplay'
+const ffprobePath = '/opt/ffmpeg/bin/ffprobe'
+check('ffplayPath is a configurable setting', 'engines.gptSovits.ffplayPath' in SETTING_KEYS)
+check('ffprobePath is a configurable setting', 'engines.gptSovits.ffprobePath' in SETTING_KEYS)
+writeSettings(applySetting(applySetting({}, 'engines.gptSovits.ffplayPath', ffplayPath), 'engines.gptSovits.ffprobePath', ffprobePath))
+const resolved = resolveConfig(readSettings())
+check('configured ffplay path survives resolution', resolved.engines.gptSovits.ffplayPath === ffplayPath)
+check('configured ffprobe path survives resolution', resolved.engines.gptSovits.ffprobePath === ffprobePath)
+check('missing executable paths retain PATH fallback', resolveConfig().engines.gptSovits.ffplayPath === '' && resolveConfig().engines.gptSovits.ffprobePath === '')
 
 console.log('\n4. null removes a key, undefined leaves it alone')
 writeSettings({ defaultVoiceBuiltin: 'Microsoft Zira Desktop' })
